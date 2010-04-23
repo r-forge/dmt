@@ -1,0 +1,284 @@
+<!DOCTYPE html
+	PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en   "> 
+ 
+  <head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /> 
+	<title> 
+	  Probabilistic Dependency Modeling Toolbox
+	</title> 
+	<link href="http://r-forge.r-project.org/themes/rforge/styles/estilo1.css" rel="stylesheet" type="text/css" /> 
+  </head> 
+ 
+<body> 
+ 
+<style type="text/css"> 
+ 
+body{
+	text-align: center;
+	max-width:950px;
+	min-width:950px;
+	margin-left:auto;
+	margin-right:auto;
+}
+ 
+a img{
+	border:none;
+}
+ 
+div#wrapper{
+	text-align: left;
+}
+ 
+div.h2{
+	margin:19px 0px 19px 0px;
+	font-size:16pt;
+	font-weight:bold;
+	background-color:#135CAE;
+	color:white;
+	padding:10px;
+}
+ 
+div.h3{
+	margin:19px 0px 19px 0px;
+	font-size:12pt;
+	font-weight:bold;
+}
+ 
+h3, div.h3{
+	background-color:#dddddd;
+	padding:2px;
+}
+ 
+div#abstract{
+	font-size: 10pt;
+}
+ 
+div#support{
+	font-size: 10pt;
+}
+ 
+img{
+	vertical-align: middle;
+}
+ 
+.comment{
+	color: #770000;
+}
+ 
+div.menu th{
+	padding:8px;
+	border-top:1px solid gray;
+	border-bottom:1px solid gray;
+}
+ 
+th.link{
+	padding:8px;
+	border-top:1px solid gray;
+	border-bottom:1px solid gray;
+	border-left:1px dotted gray;
+	background-color:#dddddd;
+}
+div.menu th.link a{
+	color:#111199;
+}
+ 
+div.menu td{
+	border-bottom:1px solid gray;
+	border-left:1px solid gray;
+}
+ 
+div.menu th:first-child {
+	border-left:1px solid gray;
+	background-color:#dddddd;
+} 
+ 
+div.menu th.link:hover, div.menu th.link:hover a{
+	background-color:#135CAE;
+	color: white;
+}
+ 
+div.menu th.selected, div.menu th.selected a{
+	background-color:#ffffff;
+	color: black;
+	border-bottom:none;
+}
+ 
+.textbf{
+	font-weight: bold;
+}
+ 
+ 
+</style> 
+ 
+<div id="wrapper"> 
+<div class="h2">Probabilistic Dependency Modeling Toolbox
+</div> 
+<table width="100%" cellpadding="0" cellspacing="0"> 
+<tr> 
+<td valign="top"> 
+Leo Lahti*&sup1;, Olli-Pekka Huovilainen&sup1;, Tommi Suvitaival&sup1;, Ilkka Huopaniemi&sup1; and Abhishek Tripathi&sup2;
+<br /> 
+<small> 
+<p>(1) Department of Information and Computer
+Science, Aalto University, Finland<br/> 
+(2) Department of
+Computer Science, University of Helsinki, Finland<br /> 
+* Corresponding author; &lt;leo.lahti at iki.fi&gt;</p> 
+</small> 
+
+<p></p><p></p> Investigation of dependencies between multiple data
+sources allows the discovery of regularities and interactions that are
+not seen in individual data sets. The importance of such methods is
+increasing with the availability and size of co-occurring data sets
+in <a href="http://www.ebi.ac.uk/Databases/">computational
+biology</a>, <a href="http://data.worldbank.org/">open data
+initiatives</a>, and other domains. Practical implementations of
+general-purpose models provide necessary tools for realizing the full
+potential of these information sources.
+
+<p></p> We welcome Your feedback and contributions to the project. For
+further details, see the <a target="_new"
+href="http://r-forge.r-project.org/projects/dmt/">project page at
+R-Forge</a>, or contact <a href="http://www.iki.fi/Leo.Lahti">Leo
+Lahti</a>.
+
+</td> 
+<td>
+<img src="dmt.png" alt="" />
+</td> 
+</tr></table> 
+ 
+<!--
+<div class='menu'> 
+<table cellpadding="0" cellspacing="0"><tr> 
+<th>&nbsp;</th> 
+<!-- <th class="link "><a href="?">Home</a></th> 
+<!--<th class="link selected"><a href="?view=soft">Software</a></th> 
+<!--<th class="link "><a href="?view=references">References</a></th> 
+<td width="100%"></td> 
+</tr></table> 
+</div>
+-->
+
+<table width="100%"><tr> 
+<td valign="top" width="45%"> 
+<h3>Software &amp; Documentation</h3> 
+ 
+Current version provides the following functionality in three
+independent modules (follow links for documentation and source code):
+
+<ul>
+<li> dependency-based dimensionality reduction and preprocessing (<a href="http://www.cis.hut.fi/projects/mi/software/drCCA/">drCCA</a>; Tripathi et al., 2008)
+
+<li> decompositions into shared and independent components
+(<a href="http://bioconductor.org/packages/2.6/bioc/html/pint.html">pint</a>; Lahti et al., 2009)
+
+<li> multi-way modeling of co-occurrence data
+(<a href="http://www.cis.hut.fi/projects/mi/software/multiWayCCA/">multiWayCCA</a>; Huopaniemi et al., 2010)
+</ul>
+
+<p></p> These will later be integrated to provide a unified access to
+various dependency modeling tools. See also our <a target="_new"
+href="http://r-forge.r-project.org/projects/dmt/">project page at
+R-Forge</a>.
+
+<table><tr> 
+<td>
+
+</td> 
+
+</tr> 
+</table> 
+</td> 
+<td valign="top" width="45%"> 
+<h3>Background
+<font style="font-size:10pt;color:#990000"></font> 
+</h3> 
+<p>
+
+<!--<p>Installation is done via the following standard call in the R console:</p> 
+<code><pre style="background-color:#aaccaa;padding:10px;border:1px solid gray"> 
+<font class="comment"># install the NMF package from default CRAN mirror</font> 
+install.packages('NMF');
+</pre></code> 
+ -->
+
+<!-- 
+<h3 style="margin-bottom:0px">Project & Development</h3> 
+R-Forge Logo --> 
+
+<p> 
+
+Techniques for the discovery and analysis of statistical dependencies
+are implemented in <a href="http://www.r-project.org">R</a>, an open
+source environment for statistical computing.
+<p></p>
+The implementations are based on well-established models such as
+probabilistic canonical correlation analysis and multi-task learning
+[1-5]. Probabilistic framework deals rigorously with the uncertainties
+associated with small sample sizes, and allows incorporation of prior
+information in the analysis. 
+
+<p></p> The applicability of the models has been demonstrated in
+previous case studies in functional genomics [2-4]. The general
+modeling framework is not restricted to specific applications,
+however.
+
+</p> 
+ 
+</td> 
+</tr></table> 
+
+<h3>Acknowledgements</h3> 
+<div id="support"> 
+
+The project is a joint effort by several
+people: <a href="http://www.iki.fi/Leo.Lahti">Leo Lahti</a>, Tommi
+Suvitaival, Olli-Pekka Huovilainen, Ilkka Huopaniemi, Abhishek
+Tripathi, Arto Klami, and Samuel Kaski from the <a href =
+"http://www.cis.hut.fi/projects/mi/">Statistical Machine Learning and
+Bioinformatics group</a> at the Department of Information and Computer
+Science, Aalto University School of Science and Technology,
+Finland. Abhishek Tripathi is with Department of Computer Science,
+University of Helsinki, Finland. The authors belong also
+to <a href="http://www.hiit.fi/">Helsinki Institute for Information
+Technology HIIT</a> and <a href =
+"http://www.cis.hut.fi/research/">Adaptive Informatics Research Centre
+AIRC</a>.
+
+</div> 
+
+
+<h3>References</h3> 
+<div id="support"> </div>
+
+<ol>
+
+<li> Francis Bach and Michael Jordan (2005). <b>A probabilistic
+    interpretation of canonical correlation analysis</b>. <i>Technical
+    report. Department of Statistics, University of California,
+    Berkeley</i>
+
+<li>Ilkka Huopaniemi, Tommi Suvitaival, Janne Nikkil&auml;, Matej
+Oresic, and Samuel Kaski. <b>Multivariate multi-way analysis of
+multi-source data.</b> <i>Bioinformatics</i>, to appear. (ISMB 2010)</li>
+
+
+<li>Leo Lahti, Samuel Myllykangas, Sakari Knuutila, and Samuel Kaski. <b> Dependency detection with similarity constraints.</b>  In <i>Proc. MLSP'09 IEEE International Workshop on Machine Learning for Signal Processing</i>, 2009. (<a href="publications/mlsp09_preprint.pdf">preprint pdf</a>)
+
+<li>Abhishek Tripathi, Arto Klami and Samuel Kaski. <b>Simple
+integrative preprocessing preserves what is shared in data
+sources.</b> <i>BMC
+Bioinformatics,</i>2008, 9:111. (<a href="http://www.biomedcentral.com/1471-2105/9/111">html</a>)
+
+<li> Arto Klami and Samuel Kaski (2008). <b>Probabilistic approach to
+    detecting dependencies between data sets</b>. <i>Neurocomputing</i>
+    72(1-3)</li>
+
+</ol>
+
+</div> 
+</body> 
+</html> 
