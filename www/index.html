@@ -125,7 +125,7 @@ Leo Lahti*&sup1;, Olli-Pekka Huovilainen&sup1;, Tommi Suvitaival&sup1;, Ilkka Hu
 Science, Aalto University, Finland<br/> 
 (2) Department of
 Computer Science, University of Helsinki, Finland<br /> 
-* Corresponding author; &lt;leo.lahti at iki.fi&gt;</p> 
+* Corresponding author; (<a href="http://www.iki.fi/Leo.Lahti">contact information</a>)</p> 
 </small> 
 
 <p></p><p></p> Investigation of dependencies between multiple data
@@ -134,16 +134,15 @@ not seen in individual data sets. The importance of such methods is
 increasing with the availability and size of co-occurring data sets
 in <a href="http://www.ebi.ac.uk/Databases/">computational
 biology</a>, <a href="http://data.worldbank.org/">open data
-initiatives</a>, and <a href="http://www.isitopendata.org/">other
+initiatives</a>, and in <a href="http://www.isitopendata.org/">other
 domains</a>. Practical, open access implementations of general-purpose
-models are needed to realize the full potential of these information
+models will help to realize the full potential of these information
 sources.
 
 <p></p> Your feedback and contributions are welcome. For further
 details, see the <a target="_new"
 href="http://r-forge.r-project.org/projects/dmt/">project page at
-R-Forge</a>, or contact <a href="http://www.iki.fi/Leo.Lahti">Leo
-Lahti</a>.
+R-Forge</a>, or contact <a href="http://www.iki.fi/Leo.Lahti">project admin</a>.
 
 </td> 
 <td>
@@ -171,13 +170,15 @@ Current version provides the following functionality in three
 independent modules (follow links for documentation and source code):
 
 <ul>
-<li> dependency-based dimensionality reduction and preprocessing (<a href="http://www.cis.hut.fi/projects/mi/software/drCCA/">drCCA</a>; Tripathi et al., 2008)
-
-<li> decompositions into shared and independent components
-(<a href="http://bioconductor.org/packages/release/bioc/html/pint.html">pint</a>; Lahti et al., 2009)
 
 <li> multi-way modeling of co-occurrence data
-(<a href="http://www.cis.hut.fi/projects/mi/software/multiWayCCA/">multiWayCCA</a>; Huopaniemi et al., 2010)
+(<a href="http://www.cis.hut.fi/projects/mi/software/multiWayCCA/">multiWayCCA</a>; [2])
+
+<li> regularized dependency detection
+(<a href="http://bioconductor.org/packages/release/bioc/html/pint.html">pint</a>; [3])
+
+<li> dependency-based dimensionality reduction (<a href="http://www.cis.hut.fi/projects/mi/software/drCCA/">drCCA</a>; [4])
+
 </ul>
 
 <p></p> The applicability of the models has been demonstrated in
@@ -199,17 +200,6 @@ R-Forge</a>.
 </h3> 
 <p>
 
-<!--<p>Installation is done via the following standard call in the R console:</p> 
-<code><pre style="background-color:#aaccaa;padding:10px;border:1px solid gray"> 
-<font class="comment"># install the NMF package from default CRAN mirror</font> 
-install.packages('NMF');
-</pre></code> 
- -->
-
-<!-- 
-<h3 style="margin-bottom:0px">Project & Development</h3> 
-R-Forge Logo --> 
-
 <p> 
 
 Techniques for the discovery and analysis of statistical dependencies
@@ -218,7 +208,7 @@ source environment for statistical computing.
 <p></p>
 The implementations are based on well-established models such as
 probabilistic canonical correlation analysis and multi-task learning
-[1-5]. Probabilistic framework deals rigorously with the uncertainties
+[1-4]. Probabilistic framework deals rigorously with the uncertainties
 associated with small sample sizes, and allows incorporation of prior
 information in the analysis. 
 <p></p> The modules will later be integrated into a unified set of
@@ -271,10 +261,10 @@ integrative preprocessing preserves what is shared in data
 sources.</b> <i>BMC
 Bioinformatics,</i>2008, 9:111. (<a href="http://www.biomedcentral.com/1471-2105/9/111">html</a>)
 
-<li> Arto Klami and Samuel Kaski (2008). <b>Probabilistic approach to
+<!--<li> Arto Klami and Samuel Kaski (2008). <b>Probabilistic approach to
     detecting dependencies between data sets</b>. <i>Neurocomputing</i>
     72(1-3)</li>
-
+-->
 </ol>
 
 <h3>Disclaimer</h3>
