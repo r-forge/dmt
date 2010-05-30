@@ -1,9 +1,6 @@
 \name{plot}
 %\Rdversion{1.1}
 \alias{plot.DependencyModel}
-\alias{plot.ChromosomeArmModels}
-\alias{plot.ChromosomeModels}
-\alias{plot.GenomeModels}
 \alias{dependency score plotting}
 \title{
 Dependency score plotting
@@ -17,28 +14,12 @@ or genome.
 plot.DependencyModel(x, X, Y, ann.types = NULL, ann.cols = NULL, legend.x = 0, 
         legend.y = 1, legend.xjust = 0, legend.yjust = 1, order = FALSE, 
         cex.z = 0.6, cex.WX = 0.6, cex.WY = 0.6, ...)
-
-plot.ChromosomeArmModels(x, hilightGenes = NULL, showDensity = FALSE, showTop = 0,
-	topName = FALSE, type = 'l', xlab = 'gene location (Mbp)', 
-	ylab = 'dependency score', main = paste('Dependency score for chromosome ', 
-	chr, arm, sep = ''), pch = 20, cex = 0.75, tpch = 3, tcex = 1, ylim = NA, ...)
-
-plot.ChromosomeModels(x, hilightGenes = NULL, showDensity = FALSE, showTop = 0,
-	topName = FALSE, type = 'l', xlab = 'gene location (Mbp)', ylab = 'dependency score',
-	main = paste('Dependency score for chromosome ', chr, sep = ''),
-	pch = 20, cex = 0.75, tpch = 3, tcex = 1, xlim = NA, ylim = NA,...)
-
-plot.GenomeModels(x, hilightGenes = NULL, showDensity = FALSE, showTop = 0, 
-	topName = FALSE, onePlot = FALSE, type = 'l', ylab = "Dependency Scores", 
-	xlab = "Gene location (chromosome)", main = "Dependency Scores in All Chromosomes",
-	pch = 20, cex = 0.75, tpch = 20, tcex = 0.7, mfrow = c(5,5), mar = c(3,2.5,1.3,0.5), 
-	ps = 5, mgp = c(1.5,0.5,0),ylim=NA,...)
 }
 
 \arguments{
 	\item{x}{
 		\code{\link{DependencyModel-class}}, \code{\link{ChromosomeArmModels-class}}, 
-		\code{\link{ChromosomeModels-class}}, \code{\link{GenomeModels-class}}; models to be plotted. 
+
 	}
 	\item{X, Y}{
 		data sets used in dependency modeling.
@@ -65,9 +46,7 @@ plot.GenomeModels(x, hilightGenes = NULL, showDensity = FALSE, showTop = 0,
 	\item{cex.z, cex.WX, cex.WY}{
 		Text size for variable names.
 	}
-	\item{hilightGenes}{
-		vector of strings; Name of genes to be hilighted with dots.
-	}
+
 	\item{showDensity}{
 		logical; if 'TRUE' small vertical lines are drwan in the bottom of 
 		the plot under each gene.
@@ -111,19 +90,12 @@ plot.GenomeModels(x, hilightGenes = NULL, showDensity = FALSE, showTop = 0,
 	range. See \code{\link{plot}} for details.
       }
 
-      \item{mfrow, mar, ps, mgp}{
-	chromosome plots' layout, marginals, text size and margin
-	line. See \code{\link{par}} for details.
-      }
       \item{...}{
 	optional plotting parameters
       }
 }
 \details{
-Function plots scores of each dependency model of a gene for the whole
-chromosomal arm, chromosome or genome according to used
-method. \code{plot(x, cancerGenes = NULL, showDensity = FALSE, ...)} is
-also usable and chosen according to class of \code{models}.
+  Function plots scores of each dependency model.
 }
 \references{
 Dependency Detection with Similarity Constraints Lahti et al.,
@@ -137,29 +109,9 @@ Olli-Pekka Huovilainen \email{ohuovila@gmail.com}
 
 \seealso{
 \code{\link{DependencyModel-class}}, 
-\code{\link{ChromosomeArmModels-class}}, 
-\code{\link{ChromosomeModels-class}}, 
-\code{\link{GenomeModels-class}}, 
-\code{\link{screen.cgh.mrna}},
-\code{\link{screen.cgh.mir}}
 }
 \examples{
-
-data(chromosome17)
-
-## Dependency model around 150th gene
-window <- fixed.window(geneExp, geneCopyNum, 150, 10)
-model <- fit.dependency.model(window$X, window$Y)
-
-## example annnotation types
-ann.types <- factor(c(rep("Samples 1 - 10", 10), rep("Samples 11 - 51", 41)))
-plot(model, geneExp, geneCopyNum, ann.types, legend.x = 40, legend.y = -4,
+#plot(model, geneExp, geneCopyNum, ann.types, legend.x = 40, legend.y = -4,
      order = TRUE)
-
-## pSimCCA model on chromosome 17p
-models17ppSimCCA <- screen.cgh.mrna(geneExp, geneCopyNum, 10, 17, 'p')
-plot(models17ppSimCCA,
-     hilightGenes=c("ENSG00000108342", "ENSG00000108298"), showDensity = TRUE)
-
 }
 \keyword{hplot}
