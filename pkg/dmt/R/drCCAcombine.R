@@ -367,7 +367,9 @@ random <- function(mat,row)
        sigma <- diag(v,ncol = length(v))
 
         mu <- c(rep(0,length(v)))
-        rand <- mvrnorm(row,mu,sigma)
+
+       require(MASS)
+       rand <- mvrnorm(row,mu,sigma)
 
         return(rand);
 
