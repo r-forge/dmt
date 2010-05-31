@@ -1,4 +1,7 @@
 \documentclass[a4paper]{article}
+\usepackage{amsmath}
+
+
 
 \title{Dependency modelling toolbox}
 
@@ -35,31 +38,33 @@ uncertainties associated with small sample sizes, and allows
 incorporation of prior information in the analysis through Bayesian
 priors \cite{Lahti09mlsp}. The applicability of the models has been
 demonstrated in previous case studies \cite{Huopaniemi10, Lahti09mlsp,
-  Tripathi08}.
-
-This is a development version. Your feedback and contributions are
-welcome. See the project page at
+  Tripathi08}.  This is a development version. Your feedback and
+contributions are welcome. See the project page at
 R-Forge\footnote{http://dmt.r-forge.r-project.org/}, or contact
 project authors.
 
+
+
 \section{Available functionality}
 
-Current version is divided in three independent modules:
+Current version is divided in three independent modules. We are
+working on integrating these application-oriented modules into a
+unified dependency modelling toolbox. The functionality includes
 
 \begin{itemize}
-\item dependency-based dimensionality reduction (drCCA\footnote{http://www.cis.hut.fi/projects/mi/software/drCCA/}; \cite{Tripathi08}) 
 
 \item regularized dependency detection (pint\footnote{http://bioconductor.org/packages/release/bioc/html/pint.html}; \cite{Lahti09mlsp})
-    
+
+\item dependency-based dimensionality reduction (drCCA\footnote{http://www.cis.hut.fi/projects/mi/software/drCCA/}; \cite{Tripathi08}) 
+
+  
 \item multi-way modeling of co-occurrence data (multiWayCCA\footnote{http://www.cis.hut.fi/projects/mi/software/multiWayCCA/}; \cite{Huopaniemi10})
 \end{itemize}
 
-We are in the process of integrating the general dependency modeling
-algorithms from these application-oriented modules into a unified
-dependency modelling toolbox.
+Below is a brief summary of each module together with installation
+instructions.
 
-\section{Probabilistic CCA with extensions}
-
+\section{Probabilistic dependency modeling framework (pint)}
 \label{sec:framework}
 
 \begin{figure}[htb]
@@ -70,205 +75,179 @@ through $W_x$ and $W_y$}
 \label{modelpic}
 \end{figure}
 
-Modeling of dependencies is based on the probabilistic canonical
-correlation analysis framework \cite{Bach05} and its extensions
-\cite{Archambeau06,Lahti09mlsp}. This is a latent variable model that
-assumes that the two data sets, \(X\) and \(Y\) can be decomposed in
-{\it shared} and {\it data set-specific} components
-(Figure~\ref{modelpic}). Our task is to discover these components,
-given modeling assumptions.
+The pint
+package\footnote{http://bioconductor.org/packages/release/bioc/html/pint.html};
+\cite{Lahti09mlsp} implements the probabilistic dependency modeling
+framework presented in \cite{Bach05} and its extensions
+\cite{Archambeau06,Klami08,Lahti09mlsp}. This is a latent variable
+model that assumes that the two data sets, \(X\) and \(Y\) can be
+decomposed in {\it shared} and {\it data set-specific} components
+(Figure~\ref{modelpic}). The model helps to discover the shared
+components, given modeling assumptions.
 
-The shared signal is modeled with a shared latent variable
-$\mathbf{z}$. Intuitively, this measures the strength of the shared
-signal in each patient. While the variation is shared, it can have
-different manifestation in each data set. This is described by
+The shared signal of two data sets is modeled with a shared latent
+variable $\mathbf{z}$. Intuitively, this measures the strength of the
+shared signal in each patient. While the variation is shared, it can
+have different manifestation in each data set. This is described by
 \(W_xz\) and \(W_yz\) where \(W_x\), \(W_y\) indicate how the shared
-signal is observed in the individual data sets. Assuming a Gaussian
-model for the shared latent variable and data set-specific effects,
-this leads to the following model:
+signal is observed in the individual data sets. Assuming a standard
+Gaussian model for the shared latent variable \(\mathbf{z} \sim N(0, I)\)
+and data set-specific effects, this leads to the following model:
 
 \begin{equation}\label{eq:model}             
-X \sim \mathcal{N}(W_x\mathbf{z}, \Psi_x)   
-\end{equation}
-\begin{equation}\label{eq:model2}             
-Y \sim \mathcal{N}(W_y\mathbf{z}, \Psi_y)                                      
+\begin{aligned}
+  X \sim W_x\mathbf{z} + \varepsilon_x\\
+Y \sim W_y\mathbf{z} + \varepsilon_y \\
+\varepsilon_. \sim \mathcal{N}(0, \Psi_.)\\
+\mathbf{z} \sim \mathcal{N}(0, I)   
+\end{aligned}
 \end{equation}
 
-The latent variable \(\mathbf{z}\) is assumed to follow standard
-multivariate normal distribution, i.e. \(\mathbf{z} ~ N(0, I)\). The
-data set-specific effects are described by the covariance matrices
-$\Psi_x$ and $\Psi_y$. The model parameters are estimated with an
-expectation-maximization (EM) algorithm (see
-'fit.dependency.model'). After fitting the model parameters \(W\),
-\(\Psi\), a maximum-likelihood estimate of \(\mathbf{z}\) can be
-calculated (see 'z.expectation').
+The data set-specific effects are described by the covariance matrices
+$\Psi_x$, $\Psi_y$.  The model parameters are estimated with an
+expectation-maximization (EM) algorithm.
 
 \subsection{Special cases}
 
-Particular models are obtained as special cases of the above modeling
-framework. This leads to a set of alternative models for dependency
-detection, including
-
-\begin{itemize}
-  \item probabilistic PCA (pPCA)
-  \item probabilistic factor analysis (pFA)  
-  \item probabilistic CCA (pCCA)
-  \item similarity-constrained probabilistic CCA (pSimCCA)
-\end{itemize}
-
-These correspond to different assumptions regarding the structure of
-the data set-specific effects and types of dependency. While PCA and
-factor analysis are typically used for analysing individual data sets,
-they are special cases of the described framework and can therefore
-also be used to model dependencies between data sets. For discussion
-of the differences between these models, see \cite{Bach05,
-  Lahti09mlsp}.
-
-\subsubsection{Probabilistic PCA}
-
-Probabilistic PCA (pPCA) assumes an isotropic model for the data
-set-specific effects, with identical covariance matrices:
-
-\begin{equation}\label{eq:pPCA}
-\Psi_x = \Psi_y = \sigma I.
-\end{equation}
-
-This model is called pPCA since it is identical to concatenating
-\(X\), \(Y\), and fitting ordinary probabilistic PCA on the
-concatenated data set.
-
-\subsubsection{Probabilistic factor analysis}
-
-Probabilistic factor analysis (pFA) assumes a diagonal model for
-\(\Psi_x\), \(\Psi_y\). Note that in general, \(\Psi_x \neq
-\Psi_y\). The package also implements a special case with isotropic
-but not necessarily identical (as in pPCA) covariance matrices.
-
-This model is called pFA since it is identical to concatenating \(X\),
-\(Y\), and fitting ordinary probabilistic factor analysis on the
-concatenated data set.
-
-\subsubsection{Probabilistic CCA}
+Special cases of the model include probabilistic versions of canonical
+correlation analysis, factor analysis, and principal component
+analysis, and regularized versions of them.
 
 Probabilistic CCA (pCCA) assumes full covariance matrices \(\Psi_x\),
-\(\Psi_y\), giving the most detailed model for the data set specific
-effects in the described modeling framework. The connection of this
-latent variable model and the traditional canonical correlation
-analysis has been established in \cite{Bach05}.
+\(\Psi_y\). This gives the most detailed model for the data set
+specific effects. The connection of this latent variable model and the
+traditional canonical correlation analysis has been established in
+\cite{Bach05}.
 
-\subsubsection{Probabilistic SimCCA}
+Probabilistic factor analysis (pFA) is obtained with a diagonal
+covariances \(\Psi_x\), \(\Psi_y\). In addition, a special case is
+implemented where each covariance matrix \(\Psi_.\) is isotropic but
+they are not necessarily identical (as would be the case in
+pPCA). This model is identical to concatenating \(X\), \(Y\), and
+fitting ordinary probabilistic factor analysis on the concatenated
+data set. The structure of the covariances is simpler than in
+pCCA. This regularizes the solution and can potentially reduce
+overfitting in some applications.
 
-We also provide toos to guide dependency modeling through Bayesian
-priors \cite{Lahti09mlsp}. Similarity-constrained probabilistic CCA
-(pSimCCA) imposes a prior on the relation between $W_x$ and
-$W_y$. This can be used to guide modeling to focus on certain types of
-dependencies, and to avoid overfitting.
+Probabilistic PCA (pPCA) is obtained with identical isotropic
+covariances for the data set-specific effects: \(\Psi_x = \Psi_y =
+\sigma I\). This model is identical to concatenating \(X\), \(Y\), and
+fitting ordinary probabilistic PCA on the concatenated data set.
 
-The relationship between $W_x$ and $W_y$ is described with \(W_y =
+\subsection{Regularized dependency modeling}
+
+We provide toos to guide dependency modeling through Bayesian priors
+\cite{Lahti09mlsp}. Similarity-constrained probabilistic CCA (pSimCCA)
+imposes a prior on the relation between $W_x$ and $W_y$. This can be
+used to guide modeling to focus on certain types of dependencies, and
+to avoid overfitting. The relationship is described through \(W_y =
 TW_x\). A prior on \(T\) can be used to focus the modeling on certain
-types of dependencies. We use matrix normal prior distribution:
-
-\begin{equation}\label{T}
-P(T) = N_m(H, \sigma^2_TI, \sigma^2_TI)
-\end{equation}
-
-By default, $H = I$ and \(\sigma^2_T = 0\), which results in identical
-manifestation of the shared signal in the two data sets: $W_y =
-W_x$. This model is denoted pSimCCA in the package. However, the prior
-can be loosened by tuning $sigma^2_T$. With $sigma^2_T \rightarrow
-\infty$, estimation of $W_x$ and $W_y$ become independent, which leads
-to ordinary probabilistic CCA. It is also possible to tune the mean
-matrix $H$. This would set a particular relationship between the
-manifestations of the shared component in each data set, and
-$sigma^2_T$ is again be used to tune the strength of such prior.
-
-\subsection{Measuring dependency}
-
-Dependency between the data sets \(X\), \(Y\) is measured by the ratio
-of shared vs. data set-specific signal (see '?dependency.score'):
-
-\begin{equation}\label{depscore}
-  \frac{Tr(WW^T)}{Tr(\Psi)}
-\end{equation}
-
-\subsection{Functions for dependency modeling}
-
-The package implements the dependency modeling framework (see
-'fit.dependency.model'), and provides wrappers for the special cases
-of the model.
+types of dependencies. We use matrix normal prior distribution: \(P(T)
+= N_m(H, \sigma^2_TI, \sigma^2_TI)\). By default, $H = I$ and
+\(\sigma^2_T = 0\), which results in identical manifestation of the
+shared signal in the two data sets: $W_y = W_x$. This model is denoted
+pSimCCA in the package. However, the prior can be loosened by tuning
+$sigma^2_T$. With $sigma^2_T \rightarrow \infty$, estimation of $W_x$
+and $W_y$ become independent, which leads to ordinary probabilistic
+CCA. It is also possible to tune the mean matrix $H$. This would set a
+particular relationship between the manifestations of the shared
+component in each data set, and \(sigma^2_T\) is again be used to tune
+the strength of such prior.
 
 
-\section{Dimensionality reduction with CCA}
+\subsection{Installing pint}
 
-The drCCA method aims to retain the variation that is shared between
+Install pint from within R with command\\
+source('http://bioconductor.org/biocLite.R')\\
+biocLite('pint')
+
+\subsection{Documentation of pint}
+
+The package implements the dependency modeling framework explained
+above (see function 'fit.dependency.model'), and provides wrappers for
+the special cases of the model. The documentation is available at\\
+http://bioconductor.org/packages/2.6/bioc/vignettes/pint/inst/doc/depsearch.pdf
+
+\subsection{Applications of pint}
+
+pint has been used to integrate gene expression and copy number (aCGH)
+data to discover cancer-associated chromosomal regions. See
+\cite{Lahti09mlsp} for details.
+
+
+\section{Dependency-based dimensionality reduction (drCCA)}
+
+The drCCA\footnote{http://www.cis.hut.fi/projects/mi/software/drCCA/}
+\cite{Tripathi08} method retains the variation that is shared between
 the original data sources, while reducing the dimensionality by
 ignoring variation that is specific to any of the data sources
-alone. It is assumed that such variation is either noise or at least
-less interesting as it is related to a phenomenom not visible in the
-other sources, despite those containing measurements of the exact same
-objects. The drCCA method is based on utilizing the generalized
-canonical correlation analysis to perform a linear projection on the
-collection data sets. As the method is completely linear it is fast to
-compute for large data sets, making genome-wide fusion possible. The
-package includes regularization and tools for selecting the final
-dimensionality of the combined data set automatically.
+alone. This captures the common variation that is shared by the
+measurement sources. Note that the shared variation can be reflected
+in different ways in the different data sets.  The approach utilizes
+generalized canonical correlation analysis to perform a linear
+projection on the collection data sets. Linearity makes it fast on
+large data sets. The package includes regularization and tools for
+selecting the final dimensionality of the combined data set
+automatically.
+
+\subsection{Installing drCCA}
+
+Install drCCA from within R with command\\
+'install.packages("drCCA", repos="http://R-Forge.R-project.org")'
+
+\subsection{Documentation of drCCA}
+
+Currently only online-documentation for the package is available. See\\
+http://www.cis.hut.fi/projects/mi/software/drCCA/dochtml/00Index.html
+
+\subsection{Applications of drCCA}
+
+drCCA has been applied to dimensionality reduction in functional
+genomics \cite{Tripathi08}. It combines information from several
+measurement sources. This helps to reduce the noise in biological
+experiments with high dimensionality but small sample size. The drCCA
+can be used to summarize shared variation in several data sources with
+co-occurring samples into a one vectorial data set of lower
+dimensionality which captures the shared effects of the data sources.
 
 
-\section{Multi-way multi-view models}
-
-\section{Applications}
-
-Multiple types of genomic observations from the same patients are
-increasingly available in biomedical studies, including measurements
-of gene- and miRNA expression levels, gene copy number, and
-methylation status.  By investigating the dependencies between these
-data sets it is possible to discover functional mechanisms and
-interactions that are not seen in the individual data sets. For
-example, integration of gene expression and copy number has been shown
-to reveal cancer-associated chromosomal regions and associated genes
-with potential diagnostic, prognostic and clinical impact
-\cite{Lahti09mlsp}. 
-
-Applications of the computational models implemented in this package
-are considered in application-oriented packages. Here we give a brief
-summary of each package, and links to further resources.
-
-\subsection{Preprocessing (drCCA)}
-
-Integration of multiple information sources is an increasingly
-important task in bioinformatics applications. Understanding,
-predicting or already efficiently exploring the cellular mechanisms
-requires information from several sources, such as gene expression,
-protein concentrations or transcription factor binding. Combining data
-sources, that can in general have very different forms of
-representations, is a non-trivial problem, but already partial
-solutions are useful. Combining several sources is advantageous also
-when using just one type of data, because it reduces the noise which
-is often a significant issue in biological experiments that have high
-dimensionality but relatively few
-samples. drCCA\footnote{http://www.cis.hut.fi/projects/mi/software/drCCA/}
-\cite{Tripathi08} provides tools for combining several data sources
-with co-occurring samples into a one vectorial data set of low
-dimensionality.
-
-
-\subsection{Microarray data integration (pint)}
-
-pint\footnote{http://bioconductor.org/packages/release/bioc/html/pint.html}
-provides tools to integrate gene or micro-RNA expression with DNA copy
-number (aCGH) measurements to discover functionally active chromosomal
-aberrations \cite{Lahti09mlsp}. The model reveals the affected
-chromosomal regions, and indicates the affected genes and
-patients. The methods are potentially applicable also to other types
-of biomedical data, including methylation, SNPs, alternative splicing
-and transcription factor binding.
-
-\subsection{Metabolomics (multiWayCCA)}
+\section{Multi-way multi-view models (multiWayCCA)}
 
 multiWayCCA\footnote{http://www.cis.hut.fi/projects/mi/software/multiWayCCA/}
-provides tools for multi-way, multi-source modeling of functional
-genomics data with particular applications to metabolomics studies
+provides tools for multi-way, multi-source modeling. This is
+particularly usefule for simultaneous multi-way (anova-type) modelling
+of multiple related data sources. For details, see the original paper
 \cite{Huopaniemi10}.
+
+\subsection{Installing multiWayCCA}
+
+multiWayCCA is currently available only as example source code. The
+sources contain both code and examples. Download the
+source\footnote{http://www.cis.hut.fi/projects/mi/software/multiWayCCA/multiWayCCA-package-100326.zip}. Then
+uncompress the folder; readme.txt in the uncompressed folder contains
+instructions for running the analysis. For application examples, see
+\cite{Huopaniemi10}.
+
+\subsection{Documentation of multiWayCCA}
+
+For documentation and examples, see the readme.txt file included in
+the package.
+
+\subsection{Applications of multiWayCCA: metabolomics}
+
+multiWayCCA has been applied in high-throughput metabolomics studies,
+see \cite{Huopaniemi10} for details.
+
+\subsection{Licensing terms}
+
+Currently the different modules have different licensing terms. The
+licenses will be unified in the integrated version.
+
+\begin{itemize}
+\item pint: GNU GPL \(>=2\)
+\item drCCA: GNU LGPL \(>=2.1\)
+\item multiWayCCA: no license associated with the code at the moment
+\end{itemize}
 
 \subsection*{Acknowledgements}
 
@@ -283,9 +262,7 @@ Institute for Information Technology HIIT and Adaptive Informatics
 Research Centre AIRC.
 
 
-
-
-\bibliographystyle{abbrv}
+\bibliographystyle{unsrt}
 \bibliography{dmt}
 
 \end{document}
