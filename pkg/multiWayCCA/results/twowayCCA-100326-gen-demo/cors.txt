@@ -1,6 +1,0 @@
-
-100 common samples.
-Dataset X: 200 variables
-Dataset Y: 210 variables
-
-Number of posterior samples: 10
