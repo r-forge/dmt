@@ -1,17 +1,12 @@
-Package: drCCA
+Package: dmt
 Type: Package
-Title: drCCA - A Data Fusion Tool
-Version: 1.0
-Date: 2007-12-20
-Author: Abhishek Tripathi, Arto Klami
-Maintainer: Abhishek Tripathi<abhishek.tripathi@cs.helsinki.fi>
-Description: A package for data fusion task in Bioinformatics applications.
-             The package can be used to combine two or more data sets with
-  co-occurring samples (such as genes) into a common representation of
-  low dimensionality. The package implements the drCCA method that uses linear
-  transformation to create a representation focusing on effects shared by
-  several data sources. Check the software's webpage for the latest version.
-Suggests: MASS
-License: LGPL version 2 or newer , See the LICENCE file
-URL: http://www.cis.hut.fi/projects/mi/software/drCCA
-Packaged: Sun Feb 10 22:30:51 2008; abhishek
+Title: Dependency modelling toolbox
+Version: 0.3.1
+Date: 2010-05-30
+Author: Leo Lahti, Olli-Pekka Huovilainen, Abhishek Tripathi, Ilkka Huopaniemi, and Tommi Suvitaival
+Maintainer: Leo Lahti <leo.lahti@iki.fi>
+Description: Probabilistic dependency modeling toolbox. Implementations for model-based dependency modeling algorithms.
+License: GPL (>= 2)
+LazyLoad: yes
+Collate: AllClasses.R AllGenerics.R DependencyModel-accessors.R show-methods.R plot-methods.R z.effects.R W.effects.R z.expectation.R fit.dependency.model.R centerData.R dependency.score.R calc.pcca.R solve.w.R calc.pfa.R initialize2.R calc.pcca.with.isotropic.margins.R W.cca.EM.R set.M.isotropic.R update.phi.isotropic.R set.M.full.R set.beta.fullcov.R calc.ppca.R ppca.calculate.R matrix.sqrt.R simCCA.optimize.fullcov.EM.R optimize.fullcov.R update.phi.EM.R cost5.R simCCA.optimize.R optimize.W.R set.M.R set.beta.R get.W.R update.phi.R cost.W.R update.phi.EM.simcca.R optimize.simCCA.W.R pint.data.R pint.match.R  W.projection.R check.score3.R pcca.R pcca.with.isotropic.margins.R pfa.R ppca.R z.projection.R
+Depends: mvtnorm, methods, graphics
