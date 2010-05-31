@@ -28,10 +28,10 @@
 
 \examples{
 
-     data(expdata1)
-     data(expdata2)
+     #data(expdata1)
+     #data(expdata2)
 
-     concatenate(list(expdata1,expdata2))
+     #concatenate(list(expdata1,expdata2))
 
 }
 

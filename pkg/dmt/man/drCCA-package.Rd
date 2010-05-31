@@ -47,8 +47,8 @@ Maintainer:Abhishek Tripathi<abhishek.tripathi@cs.helsinki.fi>
 \keyword{ package }
 
 \examples{
-     data(expdata1)
-     data(expdata2)
-     drCCAcombine(list(expdata1,expdata2)) #use default values
+#     data(expdata1)
+#     data(expdata2)
+#     drCCAcombine(list(expdata1,expdata2)) #use default values
 
 }

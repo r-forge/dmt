@@ -33,9 +33,9 @@ SqrtInvMat(matrix)
 \examples{
  
    # create a randome matrix
-     x <- matrix(runif(50),10)
-     cov_x <- cov(x) # to assure invertibility
-     SqrtInvMat(cov_x)
+#     x <- matrix(runif(50),10)
+#     cov_x <- cov(x) # to assure invertibility
+#     SqrtInvMat(cov_x)
 
 }
 \keyword{internal}

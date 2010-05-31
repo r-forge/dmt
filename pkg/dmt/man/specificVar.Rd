@@ -66,11 +66,11 @@
 
 \examples{
 
-       data(expdata1)
-       data(expdata2)
-       r <- regCCA(list(expdata1,expdata2))
+#       data(expdata1)
+#       data(expdata2)
+#       r <- regCCA(list(expdata1,expdata2))
 
-       specificVar(list(expdata1,expdata2),r,4)
+#       specificVar(list(expdata1,expdata2),r,4)
 
 
 }

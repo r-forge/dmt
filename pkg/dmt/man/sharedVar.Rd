@@ -64,11 +64,11 @@
 \seealso{\code{\link{specificVar}}}
 \examples{
 
-       data(expdata1)
-       data(expdata2)
-       r <- regCCA(list(expdata1,expdata2))
+  #     data(expdata1)
+  #     data(expdata2)
+  #     r <- regCCA(list(expdata1,expdata2))
 
-       sharedVar(list(expdata1,expdata2),r,4)
+  #     sharedVar(list(expdata1,expdata2),r,4)
 
 
 }

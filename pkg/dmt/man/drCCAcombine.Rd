@@ -82,9 +82,9 @@ reference.
 \seealso{\code{\link{regCCA}}}
 \examples{
 
-     data(expdata1)
-     data(expdata2)
-     drCCAcombine(list(expdata1,expdata2),0,2,3)
+    # data(expdata1)
+    # data(expdata2)
+    # drCCAcombine(list(expdata1,expdata2),0,2,3)
 
 }
 

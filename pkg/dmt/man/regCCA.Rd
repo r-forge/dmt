@@ -74,17 +74,17 @@ will not be used for the whitening.}  }
 \seealso{\code{cancor},\code{prcomp},\code{svd} }
 \examples{
 
-     data(expdata1)
-     data(expdata2)
+#     data(expdata1)
+#     data(expdata2)
 
      #performing regCCA
-    test <- regCCA(list(expdata1,expdata2),0) #list of result is stored in test
+#    test <- regCCA(list(expdata1,expdata2),0) #list of result is stored in test
  
-     test$eigval #generalized canonical correlations
-     test$eigvecs #gCCA components
-     test$proj #projection of data onto gCCA components
-     test$meanvec #array of columnwise mean vectors for each matrix
-     test$white # array of whitening matrix
+#     test$eigval #generalized canonical correlations
+#     test$eigvecs #gCCA components
+#     test$proj #projection of data onto gCCA components
+#     test$meanvec #array of columnwise mean vectors for each matrix
+#     test$white # array of whitening matrix
 }
 
 \keyword{multivariate}% at least one, from doc/KEYWORDS

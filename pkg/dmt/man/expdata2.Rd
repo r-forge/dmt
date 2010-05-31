@@ -18,6 +18,6 @@
 }
 
 \examples{
-data(expdata2)
+#data(expdata2)
 }
 \keyword{datasets}

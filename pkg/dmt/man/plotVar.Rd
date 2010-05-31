@@ -61,11 +61,11 @@ total variation in the whole collection of data sets.
 
 \examples{
 
-       data(expdata1)
-       data(expdata2)
-       r <- regCCA(list(expdata1,expdata2))
+#       data(expdata1)
+#       data(expdata2)
+#       r <- regCCA(list(expdata1,expdata2))#
 
-       plotVar(list(expdata1,expdata2),r,c(1:2),4)
+#       plotVar(list(expdata1,expdata2),r,c(1:2),4)
 
 
 }
