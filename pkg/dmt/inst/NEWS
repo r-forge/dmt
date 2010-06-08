@@ -1,0 +1,7 @@
+CHANGES IN VERSION 0.3.2 (2010-06-09)
+
+SIGNIFICANT USER-VISIBLE CHANGES
+  o combined pint and drCCA modules into a single package
+
+DOCUMENTATION
+  o collected all modules (pint, drCCA, MultiWayCCA) into a single vignette
