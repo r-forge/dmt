@@ -120,8 +120,8 @@ D. 1982. \emph{Psychometrika}, \bold{vol. 47}, no. 1.
 
 \seealso{ For windowing data: \code{\link{fixed.window}}. Reults from
 this function: \linkS4class{DependencyModel}. Calculating dependency
-models to chromosomal arm, chromosome or genome
-\code{\link{screen.cgh.mrna}}. For calculation of latent variable z:
+models
+\code{\link{dependency.screen}}. For calculation of latent variable z:
 \code{link{z.expectation}}.  }
 
 
