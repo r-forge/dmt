@@ -98,10 +98,7 @@ To fit a dependency model: \code{\link{fit.dependency.model}}.
 for plotting see \link{dependency score plotting}
 }
 \examples{
-data(chromosome17)
-X <- geneExp
-Y <- geneCopyNum
-
+data(chr17)
 ## pSimCCA model
 models <- dependency.screen(X, Y)
 #plot(models)

@@ -126,15 +126,15 @@ models
 
 
 \examples{
-data(chromosome17)
+data(chr17)
 
 # pSimCCA 
-window <- fixed.window2(geneExp, geneCopyNum, 10, 10)
+window <- fixed.window2(X, Y, 10, 10)
 
 model <- fit.dependency.model(window$X, window$Y, zDimension = 1)
 
 # Contributions of samples and variables to model
-#plot(model, geneExp, geneCopyNum)
+#plot(model, X, Y)
 
 }
 \keyword{math}

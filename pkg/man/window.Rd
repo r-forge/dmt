@@ -56,9 +56,8 @@ Leo Lahti (leo.lahti@iki.fi and Olli-Pekka Huovilainen \email{ohuovila@gmail.com
 Dependency model fitting: \code{\link{fit.dependency.model}}
 }
 \examples{
-data(chromosome17)
-#window <- iterative.window(geneExp, geneCopyNum, 30, 10)
-window <- fixed.window2(geneExp, geneCopyNum, 10, 10)
+#data(chr7)
+#window <- fixed.window2(X, Y, 10, 10)
 #model <- fit.dependency.model(window$X, window$Y, H = NA)
 #setFeatureName(model) <- window$geneName # FIXME: add this functionality
 }
