@@ -1,56 +1,22 @@
 \name{calculate}
 %\Rdversion{1.1}
-\alias{screen.cgh.mrna}
-\alias{screen.cgh.mir}
-\title{
-Fits dependency models to chromosomal arm, chromosome or the whole genome.
-}
-\description{
-Fits dependency models for whole chromosomal arm, chromosome or genome
-depending on arguments with chosen window size between two data sets.
-}
-\usage{
-screen.cgh.mrna(X, Y, windowSize, chromosome, arm, method = "", params =
-list(), max.dist = 1e7)
-
-screen.cgh.mir(X, Y, windowSize, chromosome, arm, method = "", params = list())
-}
-
+\alias{dependency.screen}
+\title{Screening dependency in matched matrices.}
+\description{The function assumes two matrices with matched and
+ordered features. Dependency model is fitted within sliding windows of
+fixed size. The dependency scores between the windows can be compared
+to identify windows with the highest dependency. This function can be
+used for instance to detect local chromosomal regions where
+neighboring genes show high dependency between two measurement
+sources, such as gene copy number and expression data.}
+\usage{dependency.screen(X, Y, windowSize, method = "", params = list(), max.dist = 1e7)}
 \arguments{
-  \item{X,Y}{
-    Data sets. Lists containing the following items:
-    \describe{
-      \item{\code{data}}{ Data in a matrix form. Genes are in columns
-	and samples in rows. e.g. gene copy number.}
-
-      \item{\code{info}}{ Data frame which contains following information about
-	genes in data matrix.
-
-	\describe{
-	  \item{\code{chr}}{ Factor indicating the chrosome for the gene: (1 to 23, or X or Y}
-	  \item{\code{arm}}{ Factor indicating the chromosomal arm for the gene ('p' or 'q')}
-	  \item{\code{loc}}{ Location of the gene in base pairs.}
-	}
-      }
-    }
-	\code{\link{pint.data}} can be used to create data sets in this format.
-  }
-  \item{chromosome}{
-    Specify the chromosome for model fitting. If missing, whole
-    genome is screened.
-  }
-
-  \item{arm}{
-    Specify chromosomal arm for model fitting. If missing, both arms are
-    modeled.
-  }
-  
+  \item{X,Y}{Data sets in a matrix form (samples x features)}
   \item{windowSize}{
     Determine the window size. This specifies the number of nearest
-    genes to be included in the chromosomal window of the model, and
-    therefore the scale of the investigated chromosomal region.
+    features to be included in the sliding window, and
+    therefore the scale of the investigated region.
   }
-
   \item{method}{
     Specify the dependency model: 
     \describe{
@@ -63,7 +29,6 @@ screen.cgh.mir(X, Y, windowSize, chromosome, arm, method = "", params = list())
     }
     If anything else, the model is specified by the given parameters.
   }
-
   \item{params}{
     List of parameters for the dependency model.
     \describe{
@@ -84,34 +49,23 @@ screen.cgh.mir(X, Y, windowSize, chromosome, arm, method = "", params = list())
     automated matching of the probes between the two data sets based on
     chromosomal location information.}
   
-}
-\details{
-Function \code{screen.cgh.mrna} assumes that data is already paired. This can be 
-done with \code{\link{pint.match}}. It takes sliding gene windows with \code{\link{fixed.window}} and
-fits dependency models to each window with \code{\link{fit.dependency.model}} function.
+} 
 
-Function \code{screen.cgh.mir} calculates dependencies
-around a chromosomal window in each sample in \code{X}; only one sample
-from \code{X} will be used. Data sets do not have to be of the same size
-and\code{X} can be considerably smaller. This is used with e.g.  miRNA
-data.
-
-If method name is specified, this overrides the corresponding model
-parameters, corresponding to the modeling assumptions of the specified
+\details{Function \code{dependency.screen} assumes that data is
+already matched. This can be done with \code{\link{pint.match}}. It
+takes sliding gene windows with \code{\link{fixed.window}} and fits
+dependency models to each window with
+\code{\link{fit.dependency.model}} function.  If method name is
+specified, this overrides the corresponding model parameters,
+corresponding to the modeling assumptions of the specified
 model. Otherwise method for dependency models is determined by
-parameters.
+parameters. Dependency scores are plotted with \link{dependency score
+plotting}.}
 
-Dependency scores are plotted with \link{dependency score plotting}.
+\value{ Depending on the arguments, returns a
+\linkS4class{DependencyScreenModels}. This contains the models for
+each sliding window.}
 
-}
-
-\value{
-Depending on the arguments, returns a \linkS4class{ChromosomeArmModels}
-which contains all the models for dependencies in chromosomal arm, a
-\linkS4class{ChromosomeModels} which contains all the models for
-dependencies in chromosome or a \linkS4class{GenomeModels} which
-contains all the models for dependencies in genome.
-}
 \references{
 
 Dependency Detection with Similarity Constraints, Lahti et al., 2009
@@ -133,42 +87,29 @@ EM Algorithms for ML Factoral Analysis, Rubin D. and Thayer
 D. 1982. \emph{Psychometrika}, \bold{vol. 47}, no. 1.
 
 }
-\author{
-Olli-Pekka Huovilainen \email{ohuovila@gmail.com} and Leo Lahti \email{leo.lahti@iki.fi} 
-}
 
+\author{
+Leo Lahti \email{leo.lahti@iki.fi} and Olli-Pekka Huovilainen \email{ohuovila@gmail.com}
+}
 
 \seealso{
 To fit a dependency model: \code{\link{fit.dependency.model}}.
-\linkS4class{ChromosomeArmModels} holds dependency models for chromosomal arm,
-\linkS4class{ChromosomeModels} holds dependency models for chromosome, 
-\linkS4class{GenomeModels} holds dependency models for genome. For
-plotting, see: 
-\link{dependency score plotting}
+\linkS4class{ScreenDependencyModels} holds dependency models for chromosomal arm,
+for plotting see \link{dependency score plotting}
 }
 \examples{
 data(chromosome17)
+X <- geneExp
+Y <- geneCopyNum
 
-## pSimCCA model on chromosome 17
+## pSimCCA model
+models <- dependency.screen(X, Y)
+#plot(models)
 
-models17pSimCCA <- screen.cgh.mrna(geneExp, geneCopyNum,
-                                     windowSize = 10, chr = 17)
-                                    
-plot(models17pSimCCA)
+## pCCA model with 3-dimensional latent variable z, and other parameters explicitly specified
+models <- dependency.screen(X, Y, windowSize = 10, method="pCCA", params = list(zDimension = 3))
+#plot(models) FIXME
 
-## pCCA model on chromosome 17q with 3-dimensional latent variable z
-models17ppCCA <- screen.cgh.mrna(geneExp, geneCopyNum,
-                                   windowSize = 10,
-                                   chromosome = 17, arm = 'p',method="pCCA", 
-	      	 	           params = list(zDimension = 3))
-plot(models17ppCCA)
-
-## pFA on chromosome 17p. method is determined by the parameters
-models17ppFA <- screen.cgh.mrna(geneExp, geneCopyNum,
-                                  windowSize = 10,
-                                  chromosome = 17, arm = 'p',
-                                  params = list(marginalCovariances = "diagonal", H = NA))
-plot(models17ppFA)
 }
 \keyword{math}
 \keyword{iteration}

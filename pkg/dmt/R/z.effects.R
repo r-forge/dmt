@@ -1,4 +1,4 @@
-z.effects <- function(model,X,Y = NULL){
+z.effects <- function(model, X, Y = NULL){
 
   W <- getW(model)
 
@@ -7,7 +7,7 @@ z.effects <- function(model,X,Y = NULL){
     # Check if whole data is given instead window for this model
     if (class(X) == "list"){
       # Find correct window for this model
-      index <- which(dimnames(X$data)[[1]] == getGeneName(model))
+      index <- which(dimnames(X)[[1]] == getFeatureName(model))#
 
       # Check if model has only 1 variable from X data
       if (nrow(getW(model)$X) == 1)
@@ -19,7 +19,7 @@ z.effects <- function(model,X,Y = NULL){
     }
     W <- W$total
 
-    z <- z.expectation(model,X,Y)
+    z <- z.expectation(model, X, Y)
 
     # Calculate first component of PCA for W*z
     pca <- princomp(t(W%*%z))
@@ -30,11 +30,11 @@ z.effects <- function(model,X,Y = NULL){
     proj <- t(data)%*%projvec
    
     return(proj)
-  }
+  } else {
   # for models with one data set
-  else {
+  
     W <- W$total
-    z <- z.expectation(model,X)
+    z <- z.expectation(model, X)
     
     # Calculate first component of PCA for W*z
     pca <- princomp(t(W%*%z))

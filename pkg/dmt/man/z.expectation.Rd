@@ -4,10 +4,8 @@
 \alias{z.effects}
 \alias{W.effects}
 \title{The model parameters z and W}
-\description{
-  Expectation of the latent variable z,  contribution of each sample
-to a dependency model, and contribution of each variable.
-}
+\description{Expectation of the latent variable z,  contribution of each sample
+to a dependency model, and contribution of each variable.}
 \usage{
 z.expectation(model, X, Y = NULL)
 z.effects(model, X, Y = NULL)
@@ -21,9 +19,9 @@ W.effects(model, X, Y = NULL)
 	\item{X, Y}{
 
 	  Data sets used in fitting the dependency modeling functions
-	  (\code{\link{screen.cgh.mrna}} or
+	  (\code{\link{dependency.screen}} or
 	  \code{link{fit.dependency.model}}). Note: Arguments must be given
-	  in the same order as in \code{\link{fit.dependency.model}} or \code{\link{screen.cgh.mrna}}.
+	  in the same order as in \code{\link{fit.dependency.model}} or \code{\link{dependency.screen}}.
       Only \code{X} is needed for dependency model for one data set.
 	}
 	
@@ -67,34 +65,31 @@ Series B, \bold{61}, Part 3, pp. 611--622.
 \url{http://research.microsoft.com/en-us/um/people/cmbishop/downloads/Bishop-PPCA-JRSS.pdf}
 }
 \author{
-Olli-Pekka Huovilainen \email{ohuovila@gmail.com} and Leo Lahti \email{leo.lahti@iki.fi}
+Leo Lahti \email{leo.lahti@iki.fi} and Olli-Pekka Huovilainen \email{ohuovila@gmail.com}
 }
 
 
 \seealso{
 \code{\link{DependencyModel-class}}, 
-\code{\link{screen.cgh.mrna}}
+\code{\link{dependency.screen}}
 }
 \examples{
-data(chromosome17)
-window <- fixed.window(geneExp, geneCopyNum, 150, 10)
+# FIXME
+#data(chromosome17)
+#window <- fixed.window2(geneExp, geneCopyNum, 150, 10)
 
 ## pSimCCA model around one gene
-depmodel2 <- fit.dependency.model(window$X, window$Y)
-barplot(z.effects(depmodel2, geneExp, geneCopyNum))
+#depmodel <- fit.dependency.model(window$X, window$Y)
+#barplot(z.effects(depmodel, geneExp, geneCopyNum)) # FIXME
 
 ## Plot the contribution of each genes to the model. Only the X component is plotted
 ## here since Wx = Wy (in SimCCA) 
-barplot(W.effects(depmodel2, geneExp, geneCopyNum)$X)
-
-## Fit pCCA around one gene
-depmodel <- fit.dependency.model(window$X, window$Y, zDimension = 1,
-	                         marginalCovariances = "full", H = NA)
+#barplot(W.effects(depmodel, geneExp, geneCopyNum)$X) # FIXME
 
 ## Retrieve the shared latent variable Z between data sets
-z.expectation(depmodel, geneExp, geneCopyNum)
+#z.expectation(depmodel, geneExp, geneCopyNum) FIXME
 
 ## plot.DpenendencyModel shows also sample and variable effects
-plot(depmodel,geneExp,geneCopyNum)
+#plot(depmodel,geneExp,geneCopyNum) FIXME
 }
 \keyword{math}

@@ -1,32 +1,5 @@
 # TODO: move application-specific functions to other classes, keep only model-specific stuff
 
-setReplaceMethod(f="setLoc", signature("DependencyModel"),
-                 definition=(function(model,value) {
-                   model@loc <- value
-                   return(model)
-                 }
-))
-
-setReplaceMethod(f="setGeneName", signature("DependencyModel"),
-	definition=(function(model,value) {
-		model@geneName <- value
-		return(model)
-	}
-))
-
-setReplaceMethod("setChromosome","DependencyModel", 
-	function(model, value) { 
-		model@chromosome <- as.character(value) 
-		return(model)
-	} 
-) 
-
-setReplaceMethod("setArm","DependencyModel", 
-	function(model, value) { 
-		model@arm <- as.character(value)
-		return(model)
-	} 
-) 
 
 setMethod("getW","DependencyModel", 
 	function(model) { 
@@ -46,15 +19,15 @@ setMethod("getScore","DependencyModel",
 	} 
 ) 
 
-setMethod("getLoc","DependencyModel", 
-	function(model) { 
-		return(model@loc) 
-	} 
-) 
+#setMethod("getLoc","DependencyModel", 
+#	function(model) { 
+#		return(model@loc) 
+#	} 
+#) 
 
-setMethod("getGeneName","DependencyModel", 
+setMethod("getFeatureName","DependencyModel", 
           function(model) { 
-            return(model@geneName) 
+            return(model@featureName) 
           } 
 ) 
 
@@ -76,14 +49,3 @@ setMethod("getWindowSize","DependencyModel",
 	} 
 ) 
 
-setMethod("getChromosome","DependencyModel", 
-	function(model) { 
-		return(model@chromosome) 
-	} 
-) 
-
-setMethod("getArm","DependencyModel", 
-	function(model) { 
-		return(model@arm) 
-	} 
-) 

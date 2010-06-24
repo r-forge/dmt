@@ -1,5 +1,3 @@
-
-
 fit.dependency.model <-
 function (X, Y,
           zDimension = 1,
@@ -101,11 +99,11 @@ function (X, Y,
     params <- list(marginalCovariances = marginalCovariances, sigmas = sigmas, H = H, 
                    zDimension = zDimension, covLimit = covLimit)
     score <- dependency.score(res)
-    geneName <- rownames(X)[[ trunc((nrow(X) + 1)/2) ]]
-    if(is.null(geneName))
-      geneName <- ""
-    model <- new("DependencyModel", W = res$W, phi = res$phi, score = score, chromosome = "", arm = "",
-                 windowSize = nrow(Y), method = method, params = params, geneName = geneName)	
+    featureName <- rownames(X)[[ trunc((nrow(X) + 1)/2) ]]
+    if(is.null(featureName))
+      featureName <- ""
+    model <- new("DependencyModel", W = res$W, phi = res$phi, score = score,
+                 windowSize = nrow(Y), method = method, params = params, featureName = featureName)	
   }
   model
 }
@@ -129,9 +127,9 @@ ppca <- function(X, Y = NULL, zDimension = 1){
     params <- list(marginalCovariances = "isotropic", sigmas = 0, H = NA, 
 		           zDimension = zDimension, covLimit = 0)
     score <- dependency.score(res)		
-    geneName <- ""
-    model <- new("DependencyModel", W = res$W, phi = res$phi, score = score, chromosome = "", arm = "",
-                 windowSize = dim(X)[1], method = method, params = params, geneName = geneName)	
+    featureName <- ""
+    model <- new("DependencyModel", W = res$W, phi = res$phi, score = score, 
+                 windowSize = nrow(X), method = method, params = params, featureName = featureName)	
     model
   }
 
@@ -156,9 +154,9 @@ pfa <- function(X, Y = NULL, zDimension = 1){
     params <- list(marginalCovariances = "diagonal", sigmas = 0, H = NA, 
 		           zDimension = zDimension, covLimit = 0)
     score <- dependency.score(res)
-    geneName <- ""
-    model <- new("DependencyModel", W = res$W, phi = res$phi, score = score, chromosome = "", arm = "",
-                 windowSize = dim(X)[1], method = method, params = params, geneName = geneName)	
+    featureName <- ""
+    model <- new("DependencyModel", W = res$W, phi = res$phi, score = score,
+                 windowSize = nrow(X), method = method, params = params, featureName = featureName)	
 
   }
 }

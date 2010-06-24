@@ -1,7 +1,6 @@
 \name{window}
 %\Rdversion{1.1}
 \alias{fixed.window}
-\alias{iterative.window}
 \alias{sparse.window}
 \title{
 Form data with a selected window size for the model fitting
@@ -9,15 +8,13 @@ Form data with a selected window size for the model fitting
 \description{
 
 Forms a chosen window of two data matrices to use for
-\code{fit.dependency.model} either iteratively picking nearest genes or
-picking same number of genes from both directions. \code{sparse.window}
+\code{fit.dependency.model} picking same number of features from both directions. \code{sparse.window}
 forms a window around one sample in the first data set with a number of
 samples from the second data set.
 
 }
 \usage{
 fixed.window(X, Y, middleIndex, windowSize)
-iterative.window(X, Y, middleIndex, windowSize)
 sparse.window(X, Y, xIndex, windowSize)
 }
 \arguments{
@@ -52,7 +49,7 @@ List of window data:
 \item{fail}{logical; TRUE if chromosomal arm contains less than windowSize genes.}
 }
 \author{
-Olli-Pekka Huovilainen \email{ohuovila@gmail.com}
+Leo Lahti (leo.lahti@iki.fi and Olli-Pekka Huovilainen \email{ohuovila@gmail.com}
 }
 
 \seealso{
@@ -60,14 +57,9 @@ Dependency model fitting: \code{\link{fit.dependency.model}}
 }
 \examples{
 data(chromosome17)
-window <- iterative.window(geneExp, geneCopyNum, 30, 10)
-model <- fit.dependency.model(window$X, window$Y)
-setGeneName(model) <- window$geneName
-setLoc(model) <- window$loc
-model
-
-window <- fixed.window(geneExp, geneCopyNum, 10, 10)
-model <- fit.dependency.model(window$X, window$Y, H = NA)
-model
+#window <- iterative.window(geneExp, geneCopyNum, 30, 10)
+window <- fixed.window2(geneExp, geneCopyNum, 10, 10)
+#model <- fit.dependency.model(window$X, window$Y, H = NA)
+#setFeatureName(model) <- window$geneName # FIXME: add this functionality
 }
 

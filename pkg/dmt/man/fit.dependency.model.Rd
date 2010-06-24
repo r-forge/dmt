@@ -129,14 +129,12 @@ models to chromosomal arm, chromosome or genome
 data(chromosome17)
 
 # pSimCCA 
-window <- fixed.window(geneExp, geneCopyNum, 10, 10)
+window <- fixed.window2(geneExp, geneCopyNum, 10, 10)
 
 model <- fit.dependency.model(window$X, window$Y, zDimension = 1)
-setLoc(model) <- window$loc
-model
 
 # Contributions of samples and variables to model
-plot(model, geneExp, geneCopyNum)
+#plot(model, geneExp, geneCopyNum)
 
 }
 \keyword{math}

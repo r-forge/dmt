@@ -18,11 +18,7 @@ pint.match(X, Y, max.dist)
     Probe-level data in a matrix or data frame. 
   }
   \item{info}{
-    Location, chromosome, and chromosome arm. Information of the probes
-    as data frame. Location can be given either as \code{loc} or
-    \code{bp}, which is middle location of probe, or as \code{start} and
-    \code{end}. Chromosome arm is given as \code{arm} and chromosome as
-    \code{chr}.
+    Additional information of the features in a data frame.
   }
   \item{X, Y}{
     Data sets to be paired.
@@ -43,23 +39,19 @@ data frame with \code{chr} (chromosome), \code{arm} (chromosome arm) and
 \code{loc} (location).
 
 \code{pint.match} return a list with two data sets. These can be used in
-\code{\link{screen.cgh.mrna}} function.
+\code{\link{dependency.screen}} function. Experimental.
 
 }
 \author{
-Olli-Pekka Huovilainen \email{ohuovila@gmail.com}
+Leo Lahti \email{leo.lahti@iki.fi} and Olli-Pekka Huovilainen \email{ohuovila@gmail.com}
 }
 
 \seealso{
-\code{\link{screen.cgh.mrna}},
-\code{\link{screen.cgh.mir}},
-\code{\link{fit.cgh.mir.byname}}
+\code{\link{dependency.screen}}
 }
 
 \examples{
-data(chromosome17)
-
-newData <- pint.match(geneExp,geneCopyNum,max.dist=1000)
-
+#data(chromosome17)
+#newData <- pint.match(geneExp, geneCopyNum)
 }
 
