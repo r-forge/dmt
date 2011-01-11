@@ -1,9 +1,6 @@
-plot.DependencyModel <- function(x, X, Y = NULL, 
-		     ann.types = NULL, ann.cols = NULL, 
-		     legend.x = 0, legend.y = 1, 
-                     legend.xjust = 0, legend.yjust = 1, 
-		     order=FALSE, 
-		     cex.z = 0.6, cex.WX = 0.6, cex.WY = 0.6,...){
+plot.DependencyModel <- function(x, X, Y = NULL, ann.types = NULL, ann.cols = NULL, legend.x = 0, legend.y = 1, 
+                                 legend.xjust = 0, legend.yjust = 1, order=FALSE, cex.z = 0.6, 
+                                 cex.WX = 0.6, cex.WY = 0.6,...){
 
   model <- x
   
@@ -101,8 +98,12 @@ plot.DependencyModel <- function(x, X, Y = NULL,
   }
 
   #Title
-  title <- paste(getModelMethod(model), "model")
+  title <- paste(getModelMethod(model),"model")
+  #if(length(getLoc(model)) > 0)
+  #  title <- paste(title,"at",(getLoc(model)/1e6)," ") # was Mbp but removed since user may give locations with kbp or other measure
+
   mtext(title, NORTH<-3, line=0, adj=0.5, cex=1.2, outer=TRUE)
+
   par(def.par)
 }
 
@@ -110,61 +111,8 @@ plot.DependencyModel <- function(x, X, Y = NULL,
 
 
 
-plot.DependencyScreenModels <-
-function (x, hilightGenes = NULL, showDensity = FALSE, 
-	 showTop = 0, topName = FALSE,
-         type = 'l', xlab = 'location', ylab = 'dependency score',
-         main = paste('Dependency score'),
-         pch = 20, cex = 0.75, tpch = 3, tcex = 1, ylim = NA, ...){
+     
 
-  models <- x
-          
-  #No printing without any models
-  if(getModelNumbers(models) == 0) return()
-        
-  scores <- getScore(models)
 
-  if(all(is.na(ylim))){
-    ylim <- c(0,max(scores))
-  }
 
-  plot((locs/1e6), scores, type = type, xlab=xlab, 
-       ylab=ylab, main=main, ylim = ylim,...)
-        
-  if(showTop > 0){
-                
-    d <- data.frame(scores,locs)
-    d <- d[order(scores,decreasing=TRUE),]
-                
-    #Put vertical dashed line in the middle of showTop highest and showTop+1 highest scores
-    limit = (d$score[showTop]+d$score[showTop+1])/2
-    abline(h=limit,lty=2)
-    topMods <- topModels(models,showTop) 
-    #Draw points and add ranking number
-    for(i in 1:showTop){
-      points(d$locs[i]/1e6,d$scores[i],pch=tpch,cex = tcex) 
-      if(topName)
-        text(d$locs[i]/1e6,d$scores[i],getFeatureName(topMods[[i]]),pos=4,cex=tcex)
-      else
-        text(d$locs[i]/1e6,d$scores[i],as.character(i),pos=2)
-    }
-  }
-        
-  if (!is.null(hilightGenes)){
 
-  #indices of cancer genes
-  matches <- match(hilightGenes, featureNames)
-
-  #print(matches)
-  points(locs[matches]/1e6,scores[matches],pch=pch,cex=cex)
-
-  }
-
-  #lines to bottom to show gene density
-  if(showDensity){
-    heightCoefficient <- 100
-    for(i in 1:length(locs)){
-      lines( c((locs[i]/1e6) , (locs[i]/1e6)) , c(0,ylim[2]/heightCoefficient))
-    }
-  }
-}

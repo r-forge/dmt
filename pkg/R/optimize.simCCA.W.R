@@ -1,9 +1,11 @@
 optimize.simCCA.W <- function (w, phi, Dim, Dcov, nullmat, epsilon = 1e-3,
-                               par.change = 1e6, cost.old = 1e6, mySeed=123, dz = NULL) { 
+                               par.change = 1e6, cost.old = 1e6, mySeed = 123, dz = NULL) { 
 
-#optimize.simCCA.W(
-#w <- W.init$X; phi <- phi.init; epsilon <- 1e-3; par.change = 1e6; cost.old = 1e6; mySeed=124; dz = zDimension
+  #optimize.simCCA.W(
+  #w <- W.init$X; phi <- phi.init; epsilon <- 1e-3; par.change = 1e6; cost.old = 1e6; mySeed=124; dz = zDimension
 
+  # assuming Wx = Wy!
+ 
   # modified from optimize.fullcov function
   # input otherwise similar, except that w is a single matrix
   # dimX x dimZ (note that dimX = dimY as always with simcca)
@@ -64,7 +66,7 @@ optimize.simCCA.W <- function (w, phi, Dim, Dcov, nullmat, epsilon = 1e-3,
     W.new <- W
 
         # Update phi
-    phi <- update.phi.EM.simcca(Dcov, W.new, phi.inv, W.old, M)
+    phi <- phi.EM.simcca(Dcov, W.new, phi.inv, W.old, M)
 
         # Check marginal likelihood (-logP) for data to keep eye on convergence correctness
         # the smaller, the better are the parameters
@@ -77,3 +79,12 @@ optimize.simCCA.W <- function (w, phi, Dim, Dcov, nullmat, epsilon = 1e-3,
   list(W = W, phi = phi, score = cost.new)
 
 }
+
+
+
+
+
+
+
+
+

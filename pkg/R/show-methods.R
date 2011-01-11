@@ -1,13 +1,6 @@
-setMethod(f="show",signature("DependencyScreenModels"),
-	function(object){
-		cat("DependencyScreenModels object.")
-		})
-
-
-
 setMethod(f="show",signature("DependencyModel"),
   function(object){
-    cat("***", object@method, "DependencyModel object with window size:",object@windowSize,"*** \n")
+    cat("***", object@method, "dependency model for window size:", getWindowSize(object),"*** \n")
     
     #Score
     cat("Dependency score:", object@score,"\n")

@@ -1,24 +1,24 @@
 export(
 # pint-related
-dependency.screen,
-fixed.window,
-fixed.window2,
+# dependency.screen,
+# fixed.window,
+# fixed.window2,
 fit.dependency.model,
 ppca,
 pcca,
 pcca.isotropic,
 pfa,
 plot.DependencyModel,
-plot.DependencyScreenModels,
+# plot.DependencyScreenModels,
 z.expectation,
 z.effects,
 W.effects,
-pint.data,
-pint.match,
-plot.data,
-plot.dependency,
+# pint.data,
+# pint.match,
+# plot.data,
+# plot.dependency,
 # drCCA-related
-#concatenate,
+concatenate,
 drCCAcombine,
 plotVar,
 regCCA,
@@ -28,23 +28,23 @@ SqrtInvMat
        )
 
 exportClasses(
-"DependencyModel",
-"DependencyScreenModels"
+"DependencyModel"
+#"DependencyScreenModels"
 )
 
 exportMethods(
-"[[",
-"[[<-",
+#"[[",
+#"[[<-",
 getW,
 getPhi,
 getScore,
 getModelMethod,
 getParams,
-getWindowSize,
-getFeatureName,
-getModelNumbers,
-topModels,
-findModel
+getWindowSize
+#getFeatureName,
+#getModelNumbers,
+#topModels,
+#findModel
 )
 
 importFrom(graphics, plot)

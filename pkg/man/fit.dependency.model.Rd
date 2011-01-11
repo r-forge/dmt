@@ -7,7 +7,7 @@
 \alias{pfa}
 \title{Fit dependency model between two data sets.}
 
-\description{ Fits a selected dependency model between two data
+\description{Fits a selected dependency model between two data
   sets. The function can fit probabilistic canonical correlation
   analysis (pCCA; \cite{Bach & Jordan 2005}), probabilistic principal
   component (pPCA; \cite{Tipping & Bishop 1999}) analysis, probabilistic
@@ -18,8 +18,9 @@
   structure and parameters in \code{fit.dependency.model}. }
 
 \usage{
-fit.dependency.model(X, Y, zDimension = 1, marginalCovariances = "full", 
-	H = 1, sigmas = 0, covLimit = 0, mySeed = 123)
+fit.dependency.model(X, Y, zDimension = 1, marginalCovariances = "full",
+                     H = 1, sigmas = 0, covLimit = 1e-3,
+                     mySeed = 123, priors = list(), matched = TRUE)
 
 ppca(X, Y, zDimension = 1)
 pcca(X, Y, zDimension = 1)
@@ -52,7 +53,11 @@ Dimensionality of the shared latent variable.
   \item{covLimit}{ Convergence limit. default value depends on chosen
     model type.}
 
-  \item{mySeed}{Random seed}
+  \item{mySeed}{Random seed.}
+  
+  \item{priors}{Prior parameters for the model.}
+
+  \item{matched}{The variables are matched between X and Y (TRUE/FALSE).}
 }
 
 \details{
@@ -81,8 +86,8 @@ is the default method.  (\cite{Lahti et al. 2009}) }
 }
 
 Resulting \linkS4class{DependencyModel} object does not have location or
-z variable. Location can be set with \code{setLoc} method (see examples)
-and expectation of the latent variable z can be calculated with
+z variable. %Location can be set with \code{setLoc} method (see examples)
+Expectation of the latent variable z can be calculated with
 \code{link{z.expectation}}.
 
 To avoid computational singularities, the covariance matrix phi is
@@ -118,23 +123,27 @@ D. 1982. \emph{Psychometrika}, \bold{vol. 47}, no. 1.
 \author{ Olli-Pekka Huovilainen \email{ohuovila@gmail.com} and Leo Lahti
 \email{leo.lahti@iki.fi} }
 
-\seealso{ For windowing data: \code{\link{fixed.window}}. Reults from
-this function: \linkS4class{DependencyModel}. Calculating dependency
-models
-\code{\link{dependency.screen}}. For calculation of latent variable z:
-\code{link{z.expectation}}.  }
+\seealso{ 
+%For windowing data: \code{\link{fixed.window}}. 
+Reults from
+this function: \linkS4class{DependencyModel}. 
+%Calculating dependency
+%models to chromosomal arm, chromosome or genome
+%\code{\link{screen.cgh.mrna}}. For calculation of latent variable z:
+%\code{link{z.expectation}}.  
+}
 
 
 \examples{
-data(chr17)
+data(modelData)
 
 # pSimCCA 
-window <- fixed.window2(X, Y, 10, 10)
 
-model <- fit.dependency.model(window$X, window$Y, zDimension = 1)
+model <- fit.dependency.model(X, Y, zDimension = 1)
+model
 
 # Contributions of samples and variables to model
-#plot(model, X, Y)
+plot(model, X, Y)
 
 }
 \keyword{math}

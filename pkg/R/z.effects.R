@@ -4,22 +4,13 @@ z.effects <- function(model, X, Y = NULL){
 
   # for models from 2 data sets
   if (!is.null(Y)){
-    # Check if whole data is given instead window for this model
-    if (class(X) == "list"){
-      # Find correct window for this model
-      index <- which(dimnames(X)[[1]] == getFeatureName(model))#
-
-      # Check if model has only 1 variable from X data
-      if (nrow(getW(model)$X) == 1)
-        window <- sparse.window(X, Y, index, getWindowSize(model))
-      else
-        window <- fixed.window(X, Y, index, getWindowSize(model))
-      X <- window$X
-      Y <- window$Y
-    }
+    
+    # Check that data window is smaller than half the sample size
+    if (getWindowSize(model) > ncol(X))
+      stop("Contribution of samples cannot be calculated when the window size is more than half the number of samples")
     W <- W$total
 
-    z <- z.expectation(model, X, Y)
+    z <- z.expectation(model,X,Y)
 
     # Calculate first component of PCA for W*z
     pca <- princomp(t(W%*%z))
@@ -30,11 +21,11 @@ z.effects <- function(model, X, Y = NULL){
     proj <- t(data)%*%projvec
    
     return(proj)
-  } else {
+  }
   # for models with one data set
-  
+  else {
     W <- W$total
-    z <- z.expectation(model, X)
+    z <- z.expectation(model,X)
     
     # Calculate first component of PCA for W*z
     pca <- princomp(t(W%*%z))
@@ -48,4 +39,7 @@ z.effects <- function(model, X, Y = NULL){
   
   }
 }
+
+
+
 
