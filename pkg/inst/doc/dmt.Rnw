@@ -1,12 +1,10 @@
 \documentclass[a4paper]{article}
 \usepackage{amsmath}
 
+\title{Dependency modeling toolkit}
 
-\title{Dependency modelling toolbox}
-
-\author{Leo Lahti\footnote{leo.lahti@iki.fi}, Olli-Pekka Huovilainen, Abhishek Tripathi,\\Ilkka Huopaniemi, and Tommi Suvitaival\\
-  Department of Information and Computer Science,\\Aalto University
-  School of Science and Technology, Finland}
+\author{Leo Lahti\footnote{leo.lahti@iki.fi}, Olli-Pekka Huovilainen, and Abhishek Tripathi
+  Department of Information and Computer Science,\\Aalto University, Finland}
 
 \usepackage{Sweave}
 \usepackage{float}
@@ -14,38 +12,53 @@
 
 \maketitle
 
-%\VignetteIndexEntry{Dependency modelling toolbox}
+%\VignetteIndexEntry{Dependency modeling toolkit}
 
 \section{Introduction}
 
-Investigation of dependencies between multiple data sources allows the
-discovery of regularities and interactions that are not seen in
-individual data sets. The importance of such methods is increasing
-with the availability and size of co-occurring data sets in
-computational biology, open data initiatives, and in other
-domains. Practical, open access implementations of general-purpose
-algorithms will help to realize the full potential of these
-information sources.
+Dependency modeling between multiple data sources allows the discovery
+of regularities and interactions that are not seen in individual data
+sets. The need for such methods is increasing with the availability of
+co-occurring observations that provide complementary views of the
+objects of interest in computational biology, natural language
+modeling, neuroinformatics, open data initiatives, social sciences,
+and in other domains. Open access implementations of the algorithmic
+solutions will help to realize the full potential of these information
+sources.
 
 This package provides general-purpose tools for the discovery and
-analysis of statistical dependencies between co-occurring data
-sources.  The implementations are based on well-established models
-such as probabilistic canonical correlation analysis and multi-task
-learning \cite{Archambeau06, Bach05, Huopaniemi10, Lahti09mlsp,
-  Tripathi08}. Probabilistic framework deals rigorously with the
+analysis of statistical dependencies between co-occurring measurement
+data. The implementations are based on well-established models such as
+probabilistic canonical correlation analysis \cite{Archambeau06,
+Bach05}. Probabilistic framework deals rigorously with the
 uncertainties associated with small sample sizes, and allows
 incorporation of prior information in the analysis through Bayesian
 priors \cite{Lahti09mlsp}. The applicability of the models has been
-demonstrated in previous case studies \cite{Huopaniemi10, Lahti09mlsp,
-  Tripathi08}.  This is a development version. Your feedback and
-contributions are welcome. See the project page at
-R-Forge\footnote{http://dmt.r-forge.r-project.org/}, or contact
-project authors.
+demonstrated in previous case studies \cite{Lahti09mlsp, Tripathi08}.
+Your feedback and contributions are welcome.\footnote{See the project
+page at R-Forge: http://dmt.r-forge.r-project.org/}
 
 \subsection{Installation}
 
 Install dmt from within R using command\\
 'install.packages("dmt", repos="http://R-Forge.R-project.org")'
+
+\section{Examples}
+
+To learn dependency models for two data sets, X and Y, use
+the fit.dependency.model function: 
+
+<<example1>>=
+library(dmt) 
+data(modelData) # load example data X, Y
+model <- fit.dependency.model(X, Y)
+@
+
+The functions provides additional options to tune the dimensionality
+of the latent variable and to regularize model parameters. An overview of the
+implemented probabilistic models for dependency detection is provided
+below. For further options, see help(fit.dependency.model).
+
 
 \section{Functionality}
 
@@ -55,15 +68,11 @@ Install dmt from within R using command\\
 
 \item dependency-based dimensionality reduction \cite{Tripathi08}
   
-\item multi-way modeling of co-occurrence
- data\footnote{http://www.cis.hut.fi/projects/mi/software/multiWayCCA/};
- \cite{Huopaniemi10}. Currently available as example source code only.
+%\item multi-way modeling of co-occurrence
+% data\footnote{http://www.cis.hut.fi/projects/mi/software/multiWayCCA/};
+% \cite{Huopaniemi10}. Currently available as example source code only.
 
 \end{itemize}
-
-Below is a brief summary of the functionality and installation
-instructions.
-
 
 \subsection{Documentation}
 
@@ -71,9 +80,9 @@ The package implements the dependency modeling framework explained
 below (see function 'fit.dependency.model'), and provides wrappers for
 the special cases of the model. 
 
-Currently only online-documentation for the package is available for
-dependency-based dimensionality reduction. See\\
-http://www.cis.hut.fi/projects/mi/software/drCCA/dochtml/00Index.html
+%Currently only online-documentation for the package is available for
+%dependency-based dimensionality reduction. See\\
+%http://www.cis.hut.fi/projects/mi/software/drCCA/dochtml/00Index.html
 
 \section{Probabilistic dependency modeling framework}
 \label{sec:framework}
@@ -105,7 +114,7 @@ to the following model:
 \begin{equation}\label{eq:model}             
 \begin{aligned}
   X \sim W_x\mathbf{z} + \varepsilon_x\\
-Y \sim W_y\mathbf{z} + \varepsilon_y \\
+  Y \sim W_y\mathbf{z} + \varepsilon_y \\
 \varepsilon_. \sim \mathcal{N}(0, \Psi_.)\\
 \mathbf{z} \sim \mathcal{N}(0, I)   
 \end{aligned}
@@ -119,7 +128,7 @@ algorithm.
 
 Special cases of the model include probabilistic versions of canonical
 correlation analysis, factor analysis, and principal component
-analysis, and regularized versions of them.
+analysis, and regularized variants.
 
 Probabilistic CCA (pCCA) assumes full covariance matrices \(\Psi_x\),
 \(\Psi_y\). This gives the most detailed model for the data set
@@ -127,20 +136,20 @@ specific effects. The connection of this latent variable model and the
 traditional canonical correlation analysis has been established in
 \cite{Bach05}.
 
-Probabilistic factor analysis (pFA) is obtained with a diagonal
+Probabilistic factor analysis (pFA) is obtained with diagonal
 covariances \(\Psi_x\), \(\Psi_y\). In addition, a special case is
 implemented where each covariance matrix \(\Psi_.\) is isotropic but
-they are not necessarily identical (as would be the case in
-pPCA). This model is identical to concatenating \(X\), \(Y\), and
-fitting ordinary probabilistic factor analysis on the concatenated
-data set. The structure of the covariances is simpler than in
-pCCA. This regularizes the solution and can potentially reduce
-overfitting in some applications.
+not necessarily identical (as would be the case in pPCA). This model
+is identical to concatenating \(X\), \(Y\), and fitting ordinary
+probabilistic factor analysis on the concatenated data set. The
+structure of the covariances is simpler than in pCCA. This regularizes
+the solution and can potentially reduce overfitting in some
+applications.
 
 Probabilistic PCA (pPCA) is obtained with identical isotropic
 covariances for the data set-specific effects: \(\Psi_x = \Psi_y =
 \sigma I\). This model is identical to concatenating \(X\), \(Y\), and
-fitting ordinary probabilistic PCA on the concatenated data set.
+fitting ordinary probabilistic PCA on the concatenated data.
 
 \subsection{Regularized dependency modelling}
 
@@ -168,50 +177,54 @@ approach utilizes generalized canonical correlation analysis to
 perform a linear projection on the collection of data sets. Linearity
 makes it fast on large data sets. The package includes regularization
 and tools to select the final dimensionality of the combined data set
-automatically.
+automatically. More examples will be added later.
 
-\subsection{Applications}
+%\subsection{Applications}
+%
+%For applications in functional genomics, see \cite{Lahti09mlsp,
+%Tripathi08}, and the associated
+%pint\footnote{http://bioconductor.org/packages/release/bioc/html/pint.html}
+%BioConductor package, which provides application-specific tools for
+%genome analysis. 
 
-For applications in functional genomics, see \cite{Huopaniemi10,
-Lahti09mlsp, Tripathi08}, and the associated
-pint\footnote{http://bioconductor.org/packages/release/bioc/html/pint.html}
-BioConductor package. This can be installed from within R with
-source('http://bioconductor.org/biocLite.R'); biocLite('pint') 
+%\section{Multi-way multi-view models (multiWayCCA)}
+%multiWayCCA\footnote{http://www.cis.hut.fi/projects/mi/software/multiWayCCA/}
+%provides tools for multi-way, multi-source modeling. This is
+%particularly usefule for simultaneous multi-way (anova-type) modelling
+%of multiple related data sources. For details, see the original paper
+%\cite{Huopaniemi10}.
 
+%\subsection{Installing \& documentation of multiWayCCA}
+%Download the
+%source\footnote{http://www.cis.hut.fi/projects/mi/software/multiWayCCA/multiWayCCA-package-100326.zip}.
+%Then uncompress the folder; readme.txt in the uncompressed folder
+%contains instructions for running the analysis. For documentation and
+%examples, see the readme.txt file included in the package.
 
-\section{Multi-way multi-view models (multiWayCCA)}
+\section{Details}
 
-multiWayCCA\footnote{http://www.cis.hut.fi/projects/mi/software/multiWayCCA/}
-provides tools for multi-way, multi-source modeling. This is
-particularly usefule for simultaneous multi-way (anova-type) modelling
-of multiple related data sources. For details, see the original paper
-\cite{Huopaniemi10}.
+\begin{itemize}
+\item {\it Licensing terms:} the package is licensed under FreeBSD open software license
+\item {\it Citing DMT:} Please cite \cite{Lahti10icml, Lahti10thesis} when using the package
+\end{itemize}
 
-\subsection{Installing \& documentation of multiWayCCA}
+This document was written using:
 
-Download the
-source\footnote{http://www.cis.hut.fi/projects/mi/software/multiWayCCA/multiWayCCA-package-100326.zip}.
-Then uncompress the folder; readme.txt in the uncompressed folder
-contains instructions for running the analysis. For documentation and
-examples, see the readme.txt file included in the package.
+<<details>>=
+sessionInfo()
+@
 
-
-\subsection{Licensing terms}
-
-The dmt package is licensed under GNU GPL 2 open software license.
 
 \subsection*{Acknowledgements}
 
-The project is a joint effort by several people: Leo Lahti, Tommi
-Suvitaival, Olli-Pekka Huovilainen, Ilkka Huopaniemi, Abhishek
-Tripathi, Arto Klami, and Samuel Kaski from the Statistical Machine
+The project is a joint effort by several people: Leo Lahti, Olli-Pekka
+Huovilainen, and Abhishek Tripathi from the Statistical Machine
 Learning and Bioinformatics group at the Department of Information and
 Computer Science, Aalto University School of Science and Technology,
 Finland. Abhishek Tripathi is with Department of Computer Science,
 University of Helsinki, Finland. The authors belong also to Helsinki
 Institute for Information Technology HIIT and Adaptive Informatics
 Research Centre AIRC.
-
 
 %\bibliographystyle{unsrt}
 %\bibliography{dmt}
@@ -230,18 +243,31 @@ Francis~R. Bach and Michael~I. Jordan.
 \newblock Technical Report 688, Department of Statistics, University of
   California, Berkeley, 2005.
 
-\bibitem{Huopaniemi10}
-Ilkka Huopaniemi, Tommi Suvitaival, Janne Nikkil\"{a}, Matej Ore\u{s}ic, and
-  Samuel Kaski.
-\newblock Multivariate multi-way analysis of multi-source data.
-\newblock {\em Bioinformatics}, 2010.
-\newblock (ISMB 2010, to appear).
+%\bibitem{Huopaniemi10}
+%Ilkka Huopaniemi, Tommi Suvitaival, Janne Nikkil\"{a}, Matej Ore\u{s}ic, and
+%  Samuel Kaski.
+%\newblock Multivariate multi-way analysis of multi-source data.
+%\newblock {\em Bioinformatics}, 2010.
+%\newblock (ISMB 2010, to appear).
 
 \bibitem{Lahti09mlsp}
 Leo Lahti, Samuel Myllykangas, Sakari Knuutila, and Samuel Kaski.
 \newblock Dependency detection with similarity constraints.
 \newblock In {\em Proc. MLSP'09 IEEE International Workshop on Machine Learning
-  for Signal Processing}, 2009.
+  for Signal Processing}, IEEE, Piscataway, NJ, 2009.
+
+\bibitem{Lahti10thesis}                                           
+Leo Lahti (2010).                                     
+\newblock Probabilistic analysis of the human transcriptome with side information.                       
+\newblock PhD thesis. Aalto University School of Science and Technology, Department of information and Computer Science, Espoo, Finland, 2010. 
+\newblock http://lib.tkk.fi/Diss/2010/isbn9789526033686/        
+
+\bibitem{Lahti10icml}                                           
+Leo Lahti {\it et al.} (2010).                                     
+\newblock Dependency modeling toolkit.
+\newblock International Conference on Machine Learning (ICML-2010). Workshop on Machine Learning Open Source Software. Haifa, Israel, 2010.
+\newblock Project url: http://dmt.r-forge.r-project.org
+ 
 
 \bibitem{Tripathi08}
 Arto~Klami Abhishek~Tripathi and Samuel Kaski.

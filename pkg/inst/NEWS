@@ -1,10 +1,6 @@
-CHANGES IN VERSION 0.3.3 (2010-06-24)
+CHANGES IN VERSION 0.4.02 (2011-01-13)
 
-SIGNIFICANT USER-VISIBLE CHANGES
-  o removed most application-specific functionality to focus on the
-    modeling core. Separate application-specific packages can be
-    released later.
-
+  o first functional version 
 
 CHANGES IN VERSION 0.3.2 (2010-06-09)
 
