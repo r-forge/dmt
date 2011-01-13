@@ -25,7 +25,7 @@ W.effects(model, X, Y = NULL)
 	  %\code{link{fit.dependency.model}}). 
 	  Note: Arguments must be given
 	  in the same order as in \code{\link{fit.dependency.model}} %or \code{\link{screen.cgh.mrna}}.
-      Only \code{X} is needed for dependency model for one data set.
+          Only X is needed for dependency model for one data set.
 	}
 	
 }
@@ -43,7 +43,7 @@ W.effects(model, X, Y = NULL)
   observed dependency. This is approximated with the loadings of the
   first principal component of \code{Wz}
 
-  Original data can be retrieved by locating the row in \code{X} (or
+  Original data can be retrieved by locating the row in X (or
   \code{Y}) which has the same variable (gene) name than \code{model}.
 
 }
@@ -78,25 +78,15 @@ Olli-Pekka Huovilainen \email{ohuovila@gmail.com} and Leo Lahti \email{leo.lahti
 %\code{\link{screen.cgh.mrna}}
 }
 \examples{
-%data(chromosome17)
-%window <- fixed.window(geneExp, geneCopyNum, 150, 10)
+# Load example data X, Y
+data(modelData) 
 
-%## pSimCCA model around one gene
-%depmodel2 <- fit.dependency.model(window$X, window$Y)
-%barplot(z.effects(depmodel2, geneExp, geneCopyNum))
+## Fit default model for the two data sets X, Y
+model <- fit.dependency.model(X, Y)
 
-%## Plot the contribution of each genes to the model. Only the X component is plotted
-%## here since Wx = Wy (in SimCCA) 
-%barplot(W.effects(depmodel2, geneExp, geneCopyNum)$X)
+## Retrieve the shared latent variable Z between data sets
+z.expectation(model, X, Y)
 
-%## Fit pCCA around one gene
-%depmodel <- fit.dependency.model(window$X, window$Y, zDimension = 1,
-%	                         marginalCovariances = "full", H = NA)
 
-%## Retrieve the shared latent variable Z between data sets
-%z.expectation(depmodel, geneExp, geneCopyNum)
-
-%## plot.DpenendencyModel shows also sample and variable effects
-%plot(depmodel,geneExp,geneCopyNum)
 }
 \keyword{math}

@@ -65,12 +65,7 @@ scores see \link{dependency score plotting}.
 
 }
 \examples{
-%data(chromosome17)
-%window <- fixed.window(geneExp, geneCopyNum, 10, 10)
-%model <- fit.dependency.model(window$X, window$Y)
-%model
-
-%# Contributions of samples and variables to model
-%plot(model,geneExp,geneCopyNum)
+data(modelData) # Load example data X, Y
+model <- fit.dependency.model(X, Y)
 }
 \keyword{classes}

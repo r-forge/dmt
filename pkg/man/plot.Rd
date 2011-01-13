@@ -72,12 +72,8 @@ Olli-Pekka Huovilainen \email{ohuovila@gmail.com}
 \code{\link{DependencyModel-class}}, 
 }
 \examples{
-
-%data(chromosome17)
-
-%## Dependency model around 150th gene
-%window <- fixed.window(geneExp, geneCopyNum, 150, 10)
-%model <- fit.dependency.model(window$X, window$Y)
-
+data(modelData) # load example data X, Y
+model <- fit.dependency.model(X, Y) # fit default model
+plot(model, X, Y)
 }
 \keyword{hplot}
