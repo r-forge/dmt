@@ -14,7 +14,7 @@ model
 \usage{
 plot.DependencyModel(x, X, Y, ann.types = NULL, ann.cols = NULL, legend.x = 0, 
         legend.y = 1, legend.xjust = 0, legend.yjust = 1, order = FALSE, 
-        cex.z = 0.6, cex.WX = 0.6, cex.WY = 0.6, ...)
+        cex.z = 0.6, cex.WX = 0.6, cex.WY = 0.6, title = NULL, ...)
 
 }
 
@@ -47,9 +47,11 @@ plot.DependencyModel(x, X, Y, ann.types = NULL, ann.cols = NULL, legend.x = 0,
 	\item{cex.z, cex.WX, cex.WY}{
 		Text size for variable names.
 	}
-
+    \item{title}{
+		Title for the plot, By default method type + \code{model}.
+	}
     \item{...}{
-	optional plotting parameters
+	optional plotting parameters. Currently not used.
       }
 }
 %\details{

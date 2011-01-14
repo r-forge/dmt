@@ -1,3 +1,7 @@
+CHANGES IN VERSION 0.4.04 (2011-01-14)
+
+  o 'title' argument added to plot.DependencyModel
+
 CHANGES IN VERSION 0.4.02 (2011-01-13)
 
   o first functional version 

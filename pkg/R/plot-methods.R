@@ -1,6 +1,6 @@
 plot.DependencyModel <- function(x, X, Y = NULL, ann.types = NULL, ann.cols = NULL, legend.x = 0, legend.y = 1, 
                                  legend.xjust = 0, legend.yjust = 1, order=FALSE, cex.z = 0.6, 
-                                 cex.WX = 0.6, cex.WY = 0.6,...){
+                                 cex.WX = 0.6, cex.WY = 0.6, title = NULL, ...){
 
   model <- x
   
@@ -98,7 +98,9 @@ plot.DependencyModel <- function(x, X, Y = NULL, ann.types = NULL, ann.cols = NU
   }
 
   #Title
-  title <- paste(getModelMethod(model),"model")
+  if (is.null(title)){
+    title <- paste(getModelMethod(model),"model")
+  }
   #if(length(getLoc(model)) > 0)
   #  title <- paste(title,"at",(getLoc(model)/1e6)," ") # was Mbp but removed since user may give locations with kbp or other measure
 
