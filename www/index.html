@@ -6,7 +6,7 @@
   <head> 
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /> 
 	<title> 
-	  Probabilistic Dependency Modeling Toolbox
+	  Probabilistic Dependency Modeling Toolkit
 	</title> 
 	<link href="http://r-forge.r-project.org/themes/rforge/styles/estilo1.css" rel="stylesheet" type="text/css" /> 
   </head> 
@@ -113,12 +113,12 @@ div.menu th.selected, div.menu th.selected a{
 </style> 
  
 <div id="wrapper"> 
-<div class="h2">Probabilistic Dependency Modeling Toolbox
+<div class="h2">Probabilistic Dependency Modeling Toolkit
 </div> 
 <table width="100%" cellpadding="0" cellspacing="0"> 
 <tr> 
 <td valign="top"> 
-Leo Lahti*&sup1;, Olli-Pekka Huovilainen&sup1;, Tommi Suvitaival&sup1;, Ilkka Huopaniemi&sup1; and Abhishek Tripathi&sup2;
+Leo Lahti*&sup1;, Olli-Pekka Huovilainen&sup1;, and Abhishek Tripathi&sup2;
 <br /> 
 <small> 
 <p>(1) Department of Information and Computer
@@ -156,23 +156,28 @@ admin</a>.
 <td valign="top" width="45%"> 
 <h3>Software &amp; Documentation</h3> 
  
-Current version provides the following functionality in three
+The current version provides functionality for regularized dependency
+detection [3] and dependency-based dimensionality reduction (<a
+href="http://www.cis.hut.fi/projects/mi/software/drCCA/">drCCA</a>;
+[4]). 
+
+In particular, the package provides an implementation of a general
+latent variable framework, which includes probabilistic versions of
+PCA, factor analysis, and CCA, and their regularized variants as
+special cases.
+
+
+<!--
+in three
 independent modules (follow links for documentation and source code):
+-->
 
-<ul>
-
-<li> multi-way modeling of co-occurrence data
+<!--<li> multi-way modeling of co-occurrence data
 (<a href="http://www.cis.hut.fi/projects/mi/software/multiWayCCA/">multiWayCCA</a>; [2])
-
-<li> regularized dependency detection
-(<a href="http://bioconductor.org/packages/release/bioc/html/pint.html">pint</a>; [3])
-
-<li> dependency-based dimensionality reduction (<a href="http://www.cis.hut.fi/projects/mi/software/drCCA/">drCCA</a>; [4])
-
-</ul>
+-->
 
 <p></p> The applicability of the models has been demonstrated in
-previous case studies [2-4]. See also our <a target="_new"
+previous case studies [2-3]. See also our <a target="_new"
 href="http://r-forge.r-project.org/projects/dmt/">project page at
 R-Forge</a>.
 
@@ -197,8 +202,8 @@ are implemented in <a href="http://www.r-project.org">R</a>, an open
 source environment for statistical computing.
 <p></p>
 The implementations are based on well-established models such as
-probabilistic canonical correlation analysis and multi-task learning
-[1-4]. Probabilistic framework deals rigorously with the uncertainties
+probabilistic canonical correlation analysis and its variants
+[1-3]. Probabilistic framework deals rigorously with the uncertainties
 associated with small sample sizes, and allows incorporation of prior
 information in the analysis. 
 <p></p> The modules will later be integrated into a unified set of
@@ -219,17 +224,15 @@ that this is a development version.
 
 <h3>Licensing terms</h3>
 
-Licensed under an open source software license (GNU GPL 2).
-
-
+Licensed under an open source software license (FreeBSD).
 
 <h3>Acknowledgements</h3> 
 <div id="support"> 
 
 The project is a joint effort by several
-people: <a href="http://www.iki.fi/Leo.Lahti">Leo Lahti</a>, Tommi
-Suvitaival, Olli-Pekka Huovilainen, Ilkka Huopaniemi, Abhishek
-Tripathi, Arto Klami, and Samuel Kaski from the <a href =
+people: <a href="http://www.iki.fi/Leo.Lahti">Leo Lahti</a>,
+Olli-Pekka Huovilainen, and Abhishek
+Tripathi from the <a href =
 "http://www.cis.hut.fi/projects/mi/">Statistical Machine Learning and
 Bioinformatics group</a> at the Department of Information and Computer
 Science, Aalto University School of Science and Technology,
@@ -253,10 +256,10 @@ AIRC</a>.
     report. Department of Statistics, University of California,
     Berkeley</i>
 
-<li>Ilkka Huopaniemi, Tommi Suvitaival, Janne Nikkil&auml;, Matej
+<!--<li>Ilkka Huopaniemi, Tommi Suvitaival, Janne Nikkil&auml;, Matej
 Oresic, and Samuel Kaski. <b>Multivariate multi-way analysis of
 multi-source data.</b> <i>Bioinformatics</i>, to appear. (ISMB 2010)</li>
-
+-->
 
 <li>Leo Lahti, Samuel Myllykangas, Sakari Knuutila, and Samuel Kaski. <b> Dependency detection with similarity constraints.</b>  In <i>Proc. MLSP'09 IEEE International Workshop on Machine Learning for Signal Processing</i>, 2009. (<a href="publications/mlsp09_preprint.pdf">preprint pdf</a>)
 
