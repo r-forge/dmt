@@ -114,6 +114,10 @@ function (X, Y,
       res <- calc.pfa(X, Y, zDimension)    
       method <- "pFA"
       message("Diagonal marginal covariances.")
+    } else if(marginalCovariances == "identical isotropic"){        
+      res <- calc.ppca(X, Y, zDimension)
+      message("Identical isotropic marginal covariances.")
+      method <- "pPCA"
     } else {
       # XXXXXXXXXX stop("Only the case marginalCovariances = full has been implemented for nonmatched variables.")
     }
@@ -281,9 +285,9 @@ function (X, Y,
 }
 
 
-ppca <- function(X, Y = NULL, zDimension = 1){                
+ppca <- function(X, Y = NULL, zDimension = 1, matched = TRUE){                
   if (!is.null(Y)) {                 
-    fit.dependency.model(X,Y,zDimension,marginalCovariances = "identical isotropic", H = NA, sigmas = 0)        
+    fit.dependency.model(X,Y,zDimension,marginalCovariances = "identical isotropic", H = NA, sigmas = 0, matched = matched)        
   } else {         
     if (ncol(X) > 1)                         
       X <- t(centerData(t(X), rm.na = TRUE))               

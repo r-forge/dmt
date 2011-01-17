@@ -22,7 +22,7 @@ fit.dependency.model(X, Y, zDimension = 1, marginalCovariances = "full",
                      H = 1, sigmas = 0, covLimit = 1e-3,
                      mySeed = 123, priors = list(), matched = TRUE)
 
-ppca(X, Y, zDimension = 1)
+ppca(X, Y, zDimension = 1, matched = TRUE)
 pcca(X, Y, zDimension = 1)
 pcca.isotropic(X, Y, zDimension = 1, covLimit = 1e-6)
 pfa(X, Y = NULL, zDimension = 1, matched = TRUE)
