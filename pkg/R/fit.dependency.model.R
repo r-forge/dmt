@@ -107,114 +107,114 @@ function (X, Y,
       # priors$W is the rate parameter of the exponential.
       # The smaller, the flatter
       res <- simCCA.optimize3(X, Y, zDimension, mySeed = mySeed, epsilon = covLimit, priors = priors)
+    } else if (marginalCovariances == "diagonal"){          
+      # Probabilistic factor analysis model as proposed in          
+      # EM Algorithms for ML Factoral Analysis, Rubin D. and      
+      # Thayer D. 1982    
+      res <- calc.pfa(X, Y, zDimension)    
+      method <- "pFA"
+      message("Diagonal marginal covariances.")
     } else {
-      stop("Only the case marginalCovariances = full has been implemented for nonmatched variables.")
+      # XXXXXXXXXX stop("Only the case marginalCovariances = full has been implemented for nonmatched variables.")
     }
 
-    } else if (matched) {
+  } else if (matched) {
 
-      #message("Assuming matched variables.")
-      # Matched case (for instance, for non-segmented data)
-      if (any(is.na(H))) {
-        warning("H cannot contain NAs! Using nonconstrained version with priors$sigma.w = Inf.")
-        H <- 1
-        priors$sigma.w <- Inf
-      }
+    #message("Assuming matched variables.")
       
-      if (priors$sigma.w == 0 && !marginalCovariances == "full") {
-        stop("With priors$sigma.w = 0 the matched simcca model is implemented only with full marginal covariances.")
-      }    
+    if (priors$sigma.w == 0 && !marginalCovariances == "full") {
+      stop("With priors$sigma.w = 0 the matched simcca model is implemented only with full marginal covariances.")
+    }    
 
-      # Case I : Relation Wx, Wy not constrained.
+    # Case I : Relation Wx, Wy not constrained.
 
-      # Wx ~ Wy not constrained
-      if ( priors$sigma.w == Inf ) {
+    # Wx ~ Wy not constrained
+    if ( priors$sigma.w == Inf ) {
 
-        #message("Relation between Wx, Wy is unconstrained.")
+      #message("Relation between Wx, Wy is unconstrained.")
         
-        if (!nonnegative.w) {
-         # message("Wx ~ Wy free. No regularization for W.")
+      if (!nonnegative.w) {
+       # message("Wx ~ Wy free. No regularization for W.")
 
-          if (marginalCovariances == "full") {           
-            # Analytical ML solution for CCA 
-            res <- calc.pcca(X, Y, zDimension)            
-            method <- "pCCA"
-            message("Full marginal covariances.")
-          } else if (marginalCovariances == "diagonal"){          
-            # Probabilistic factor analysis model as proposed in          
-            # EM Algorithms for ML Factoral Analysis, Rubin D. and      
-	    # Thayer D. 1982    
-            res <- calc.pfa(X, Y, zDimension)    
-            method <- "pFA"
-            message("Diagonal marginal covariances.")
-          } else if (marginalCovariances == "isotropic") {
-	    # pCCA assuming isotropic margins with phiX != phiY 
-            res <- calc.pcca.with.isotropic.margins(X, Y, zDimension, epsilon = covLimit)  
-            method <- "pFA with isotropic margins"
-            message("Isotropic marginal covariances.")          
-          } else if(marginalCovariances == "identical isotropic"){        
-            res <- calc.ppca(X, Y, zDimension)
-            message("Identical isotropic marginal covariances.")
-            method <- "pPCA"
-          }                         
-        } else if (nonnegative.w) {
+        if (marginalCovariances == "full") {           
+          # Analytical ML solution for CCA 
+          res <- calc.pcca(X, Y, zDimension)            
+          method <- "pCCA"
+          message("Full marginal covariances.")
+        } else if (marginalCovariances == "diagonal"){          
+          # Probabilistic factor analysis model as proposed in          
+          # EM Algorithms for ML Factoral Analysis, Rubin D. and      
+          # Thayer D. 1982    
+          res <- calc.pfa(X, Y, zDimension)    
+          method <- "pFA"
+          message("Diagonal marginal covariances.")
+        } else if (marginalCovariances == "isotropic") {
+          # pCCA assuming isotropic margins with phiX != phiY 
+          res <- calc.pcca.with.isotropic.margins(X, Y, zDimension, epsilon = covLimit)  
+          method <- "pFA with isotropic margins"
+          message("Isotropic marginal covariances.")          
+        } else if(marginalCovariances == "identical isotropic"){        
+          res <- calc.ppca(X, Y, zDimension)
+          message("Identical isotropic marginal covariances.")
+          method <- "pPCA"
+        }                         
+      } else if (nonnegative.w) {
 
-          message("Wx ~ Wy free. Regularized W (W>=0).")        
+        message("Wx ~ Wy free. Regularized W (W>=0).")        
 
-          if (!marginalCovariances == "full") {           
-            warning("Only full marginal covariances implemented with uncontrained Wx/Wy and regularized W. Using full marginal covariances.")
-            marginalCovariances <- "full"           
-          }
-          
-          # Currently implemented exponential prior for W,
-          # priors$W is the rate parameter of the exponential.
-          # The smaller, the flatter. 
-          # By default, this function does not constrain Wx~Wy
-          # (priors$sigma.w = Inf) but imposes prior on W.  FIXME:
-          # this should work also with constrained Wx ~ Wy, test and
-          # compare FIXME: check and message how full/diag/isotropic
-          # cov go here
-
-          # any zDimension should work here
-          res <- simCCA.optimize2(X, Y, zDimension, mySeed = mySeed,
-                                 epsilon = covLimit, priors = priors)
+        if (!marginalCovariances == "full") {           
+          warning("Only full marginal covariances implemented with uncontrained Wx/Wy and regularized W. Using full marginal covariances.")
+          marginalCovariances <- "full"           
         }
-
-      } else if ( !priors$sigma.w == Inf ){
-
-        method <- "pSimCCA"
-        #message("Regulating the relationship Wx ~ Wy.")
         
-        # Case IIa: fully constrained case Wx = Wy
-        if (priors$sigma.w == 0) { #Wx = Wy        
-        
-          #  SimCCA with full covariances with constraint Wx = Wy
-          #  "probsimcca.full" = aucs.simcca.full      
-          #  Denoting Wy = T*Wx = TW; W = Wx this fits the case T = I with
-          #  full-rank Wx, Wy, Sigmax, Sigmay: (dxd-matrices where d equals to
-          #  number of features in X and Y)
+        # Currently implemented exponential prior for W,
+        # priors$W is the rate parameter of the exponential.
+        # The smaller, the flatter. 
+        # By default, this function does not constrain Wx~Wy
+        # (priors$sigma.w = Inf) but imposes prior on W.  FIXME:
+        # this should work also with constrained Wx ~ Wy, test and
+        # compare FIXME: check and message how full/diag/isotropic
+        # cov go here
 
-          # If prior for W is given, we must optimize W (no analytical
-          # solution to EM)
+        # any zDimension should work here
+        res <- simCCA.optimize2(X, Y, zDimension, mySeed = mySeed,
+                                 epsilon = covLimit, priors = priors)
+      }
+
+    } else if ( !priors$sigma.w == Inf ){
+
+      method <- "pSimCCA"
+      #message("Regulating the relationship Wx ~ Wy.")
+        
+      # Case IIa: fully constrained case Wx = Wy
+      if (priors$sigma.w == 0) { #Wx = Wy        
+        
+        #  SimCCA with full covariances with constraint Wx = Wy
+        #  "probsimcca.full" = aucs.simcca.full      
+        #  Denoting Wy = T*Wx = TW; W = Wx this fits the case T = I with
+        #  full-rank Wx, Wy, Sigmax, Sigmay: (dxd-matrices where d equals to
+        #  number of features in X and Y)
+
+        # If prior for W is given, we must optimize W (no analytical
+        # solution to EM)
           
-          # Regularization (W > 0)
-          if (nonnegative.w) {
+        # Regularization (W > 0)
+        if (nonnegative.w) {
             
-            # SimCCA Wx = Wy with regularized W (W>=0)
-            #message("Case Wx = Wy and regularized W.")
-
-            # Initialize (FIXME: make initialization as in the other options)
-            inits <- initialize2(X, Y)
-            phi.init <- inits$phi
-            W.init <- inits$W
-            Dcov <- inits$Dcov
-            Dim <- inits$Dim
-            Dim$Z <- zDimension
-            nullmat <- inits$nullmat
-            Nsamples <- inits$Nsamples
+          # SimCCA Wx = Wy with regularized W (W>=0)
+          #message("Case Wx = Wy and regularized W.")
+          # Initialize (FIXME: make initialization as in the other options)
+          inits <- initialize2(X, Y)
+          phi.init <- inits$phi
+          W.init <- inits$W
+          Dcov <- inits$Dcov
+          Dim <- inits$Dim
+          Dim$Z <- zDimension
+          nullmat <- inits$nullmat
+          Nsamples <- inits$Nsamples
  
-            # use this for full W (EM algorithm, unstable for n ~ p)
-            res <- optimize.simCCA.W2(W.init$X,
+          # use this for full W (EM algorithm, unstable for n ~ p)
+          res <- optimize.simCCA.W2(W.init$X,
                                       phi.init,
                                       Dim = Dim,
                                       Dcov = Dcov,
@@ -225,36 +225,44 @@ function (X, Y,
                                       dz = zDimension,
                                       priors = priors)
 
-          } else if (!nonnegative.w) {
-            # mlsp'09 simcca
-            #message("Case Wx = Wy. No regularization for W.")
-            res <- simCCA.optimize.fullcov.EM(X, Y, zDimension, mySeed = mySeed, epsilon = covLimit)
-            # FIXME: priors for phi todo?            
+        } else if (!nonnegative.w) {
+          # mlsp'09 simcca
+          #message("Case Wx = Wy. No regularization for W.")
+          res <- simCCA.optimize.fullcov.EM(X, Y, zDimension, mySeed = mySeed, epsilon = covLimit)
+          # FIXME: priors for phi todo?            
             
-          }
-        } else if (priors$sigma.w != 0) {
-          # Case IIb: partially constrained Wx ~ Wy
-          if (nonnegative.w) {
-            stop("Not implemented regularized (nonnegative) W with partially constrained Wx ~ Wy. Only special cases priors$sigma.w = 0 and priors$sigma.w = Inf are available.")            
-          } else if (!nonnegative.w) {
-            #message("Partially constrained Wx ~ Wy. No regularization for W.")
+        }
+      } else if (priors$sigma.w != 0) {
+        # Case IIb: partially constrained Wx ~ Wy
+        
+        # Matched case (for instance, for non-segmented data)
+        if (any(is.na(H))) {
+          warning("H cannot contain NAs! Using nonconstrained version with priors$sigma.w = Inf.")
+          H <- 1
+          priors$sigma.w <- Inf
+        }
+        
+        if (nonnegative.w) {
+          stop("Not implemented regularized (nonnegative) W with partially constrained Wx ~ Wy. Only special cases priors$sigma.w = 0 and priors$sigma.w = Inf are available.")            
+        } else if (!nonnegative.w) {
+          #message("Partially constrained Wx ~ Wy. No regularization for W.")
             
-            if (marginalCovariances == 'isotropic') {
+          if (marginalCovariances == 'isotropic') {
 
-              # Make H identity matrix if scalar is given
-              if(length(H) == 1){ H <- diag(1, nrow(X), nrow(Y)) }
-              if(ncol(H) != nrow(X)){ stop("columns of H must match rows of X") }
-              if(nrow(H) != nrow(Y)){ stop("rows of H must match rows of Y") }
+            # Make H identity matrix if scalar is given
+            if(length(H) == 1){ H <- diag(1, nrow(X), nrow(Y)) }
+            if(ncol(H) != nrow(X)){ stop("columns of H must match rows of X") }
+            if(nrow(H) != nrow(Y)){ stop("rows of H must match rows of Y") }
                  
-              #message("SimCCA with isotropic covariances and regularized H (through sigmas).")
-              res <- simCCA.optimize(X, Y, zDimension, H, sigma2.T = sigmas, sigma2.W = 1e12, mySeed, epsilon = covLimit)
-            } else if (!marginalCovariances == 'isotropic') {
-              stop("With priors$sigma.w !=0, only isotropic marginal covariances implemented.")
-            }
+            #message("SimCCA with isotropic covariances and regularized H (through sigmas).")
+            res <- simCCA.optimize(X, Y, zDimension, H, sigma2.T = sigmas, sigma2.W = 1e12, mySeed, epsilon = covLimit)
+          } else if (!marginalCovariances == 'isotropic') {
+            stop("With priors$sigma.w !=0, only isotropic marginal covariances implemented.")
           }
-        } 
-      }
+        }
+      } 
     }
+  }
 
   ##################################################################
 
@@ -297,9 +305,9 @@ ppca <- function(X, Y = NULL, zDimension = 1){
 
                
 	       
-pfa <- function(X, Y = NULL, zDimension = 1){       
-  if (!is.null(Y)) {         
-    fit.dependency.model(X, Y, zDimension, marginalCovariances = "diagonal", H = NA, sigmas = 0)       
+pfa <- function(X, Y = NULL, zDimension = 1, matched = TRUE){       
+  if (!is.null(Y)) { 
+    fit.dependency.model(X, Y, zDimension, marginalCovariances = "diagonal", H = NA, sigmas = 0, matched = matched)       
   } else {         
     if (ncol(X) > 1)                         
       X <- t(centerData(t(X), rm.na = TRUE))               

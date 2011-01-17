@@ -1,7 +1,15 @@
 setMethod(f="show",signature("DependencyModel"),
   function(object){
-    cat("***", object@method, "dependency model for window size:", getWindowSize(object),"*** \n")
-    
+    cat("***", object@method, "dependency model for window size: ")
+    windowSize <- getWindowSize(object)
+    if (length(windowSize) == 1) {
+      cat(windowSize)
+    }
+    else {
+      cat(windowSize[1],", ",windowSize[2], sep="")
+    }
+    cat(" *** \n")
+  
     #Score
     cat("Dependency score:", object@score,"\n")
 

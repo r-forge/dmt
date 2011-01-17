@@ -18,9 +18,15 @@ calc.pfa = function (X, Y, zDimension = 1) {
   }
   else {
     Y.rubin <- cbind(t(X),t(Y))
-    init <- initialize2(X,Y)
-    # Factor loading matrix
-    beta <- t(init$W$total[,1:zDimension])
+    # Use different initialization for beta when data has inequal dimensionalities
+    if (nrow(X) != nrow(Y)) {
+      beta <- t(eigen(cov(Y.rubin))$vectors[,1:zDimension])
+    }
+    else {
+      init <- initialize2(X,Y)
+      # Factor loading matrix
+      beta <- t(init$W$total[,1:zDimension])
+    }
   }
   epsilon <- 1e-3
   colnames(beta) <- colnames(Y.rubin)

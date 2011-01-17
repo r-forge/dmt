@@ -34,7 +34,7 @@ setMethod("getWindowSize","DependencyModel",
       return(dim(getW(model))[1])
     }
     else {
-      return(dim(getW(model)$X)[1]) 
+      return(c(dim(getW(model)$X)[1],dim(getW(model)$Y)[1]))
     }
   } 
 ) 
