@@ -89,17 +89,17 @@ function (X, Y,
   if (!matched) {
     #message("Assuming non-matched variables.")
 
-    if (!zDimension == 1) {
-      warning("For non-matched variables only 1-dimensional latent variable model has been implemented. Using zDimension = 1.") # FIXME: implement multidimensional cases for nonmatched variables. Some if it may rock already; test.
-      zDimension <- 1
-    }
-
     if (!is.null(priors$sigma.w)) {
       warning("Non-matched case (matched = FALSE). Similarity between Wx, Wy is not constrained by priors in this case. Ignoring priors for Wx~Wy relation (priors sigma.w).")
       priors$sigma.w <- NULL
     }
 
     if (marginalCovariances == "full") {
+
+      if (!zDimension == 1) {
+        warning("For non-matched variables only 1-dimensional latent variable model has been implemented. Using zDimension = 1.") # FIXME: implement multidimensional cases for nonmatched variables. Some if it may rock already; test.
+        zDimension <- 1
+      }
 
       # Prior for W is given -> need to optimize W (no analytical
       # solution to EM)

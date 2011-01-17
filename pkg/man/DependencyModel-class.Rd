@@ -60,8 +60,8 @@
 %chromosomal arm: \linkS4class{ChromosomeArmModels}.  Dependency models
 %for whole chromosome: \linkS4class{ChromosomeModels}.  Dependency models
 %for whole genome: \linkS4class{GenomeModels}.  
-For plotting dependency
-scores see \link{dependency score plotting}.
+%For plotting dependency
+%scores see \link{dependency score plotting}.
 
 }
 \examples{

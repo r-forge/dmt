@@ -1,17 +1,12 @@
 \name{z.expectation}
 %\Rdversion{1.1}
 \alias{z.expectation}
-\alias{z.effects}
-\alias{W.effects}
-\title{The model parameters z and W}
+\title{The model parameter z}
 \description{
-  Expectation of the latent variable z,  contribution of each sample
-to a dependency model, and contribution of each variable.
+  Expectation of the latent variable z.
 }
 \usage{
 z.expectation(model, X, Y = NULL)
-z.effects(model, X, Y = NULL)
-W.effects(model, X, Y = NULL)
 }
 
 \arguments{
@@ -34,24 +29,11 @@ W.effects(model, X, Y = NULL)
   \code{z.expectation} gives ML estimate of the shared latent variable
   Z, given data X, Y and the model parameters in \code{model}.
 
-  \code{z.effects} gives the contribution of each sample to the
-  dependency score. This is approximated by projecting original data to
-  first principal component of \code{Wz}. This is possible only when the data window is smaller
-  than half the number of samples.
-
-  \code{W.effects} gives the contribution of each variable to the
-  observed dependency. This is approximated with the loadings of the
-  first principal component of \code{Wz}
-
-  Original data can be retrieved by locating the row in X (or
-  \code{Y}) which has the same variable (gene) name than \code{model}.
 
 }
 
 \value{
-\code{z.expectation} gives the matrix z. \code{z.effects} gives
-a projection vector over the samples and \code{W.effects} gives a projection vector
-over the variables.
+\code{z.expectation} gives the matrix z.
 }
 \references{
 Dependency Detection with Similarity Constraints,

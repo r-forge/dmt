@@ -142,9 +142,6 @@ data(modelData)
 model <- fit.dependency.model(X, Y, zDimension = 1)
 model
 
-# Contributions of samples and variables to model
-plot(model, X, Y)
-
 }
 \keyword{math}
 \keyword{iteration}

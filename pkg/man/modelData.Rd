@@ -27,7 +27,5 @@ data(modelData)
 model <- fit.dependency.model(X, Y)
 model
 
-# Contributions of samples and variables to model
-plot(model, X, Y)
 }
 \keyword{datasets}
