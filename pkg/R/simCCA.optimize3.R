@@ -1,5 +1,5 @@
 simCCA.optimize3 <-
-function (X, Y, zDimension = 1, mySeed = 123, epsilon = 1e-6, priors = NULL) {
+function (X, Y, zDimension = 1, epsilon = 1e-6, priors = NULL) {
   
   # Different from simCCA.optimize.R in that T is not optimized here
   # (not included in the model) and there is option to set prior on W
@@ -13,7 +13,7 @@ function (X, Y, zDimension = 1, mySeed = 123, epsilon = 1e-6, priors = NULL) {
   # sigma.w <- 0 : Wx = Wy
   # sigma.w <- Inf : Wx, Wy free
   
-  set.seed(mySeed)
+  #set.seed(mySeed)
   
   #################################################
   # Initialize
@@ -23,7 +23,7 @@ function (X, Y, zDimension = 1, mySeed = 123, epsilon = 1e-6, priors = NULL) {
   Nsamples <- ncol(X)
 
   if ( length(priors) == 0 ) { priors <- list() }
-  if ( is.null(priors$sigma.w) ) { priors$sigma.w <- Inf } # tunes similarity constraint Wx ~ Wy
+  if ( is.null(priors$Nm.wxwy.sigma) ) { priors$Nm.wxwy.sigma <- Inf } # tunes similarity constraint Wx ~ Wy
 
   Dim <- list()
   Dim$X <- nrow(X)
@@ -48,7 +48,7 @@ function (X, Y, zDimension = 1, mySeed = 123, epsilon = 1e-6, priors = NULL) {
   # optimize until convergence
   ##################################################
 
-  res <- optimize.W3(W.init, phi.init, Dim, Dcov, priors, epsilon, par.change = 1e6, cost.old = 1e6, mySeed = mySeed + 1)
+  res <- optimize.W3(W.init, phi.init, Dim, Dcov, priors, epsilon, par.change = 1e6, cost.old = 1e6)
 
   W <- list(X = res$W$X, Y = res$W$Y, total = rbind(res$W$X, res$W$Y))
   phi <- res$phi

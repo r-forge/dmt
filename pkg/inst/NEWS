@@ -1,3 +1,13 @@
+CHANGES IN VERSIOn 0.4.08 (2011-01-25)
+
+  o The latent variable is calculated as dependency model
+    is calculated. getZ method is used to retrieve the 
+    latent variable
+
+  o All a priori information is given as priors argument to
+    fit.dependency.model. H is changed to priors$Nm.wxwy.mean
+    and sigmas to priors$Nm.wxwy.sigma. 
+
 CHANGES IN VERSION 0.4.07 (2011-01-17)
 
   o W.effects and z.effects removed from the package

@@ -9,6 +9,7 @@
 \alias{getModelMethod}
 \alias{getParams}
 \alias{getWindowSize}
+\alias{getZ}
 
 
 \alias{getW,DependencyModel-method}
@@ -17,6 +18,7 @@
 \alias{getParams,DependencyModel-method}
 \alias{getWindowSize,DependencyModel-method}
 \alias{getModelMethod,DependencyModel-method}
+\alias{getZ,DependencyModel-method}
 
 
 \title{Class "DependencyModel"}
@@ -36,6 +38,8 @@
     %\item{windowSize}{size of the window}
     \item{method}{name of the used method}
     \item{params}{list of parameters used in dependency model}
+    \item{data}{The data used to calculate the dependency model}
+    \item{z}{The latent variable Z}
   }
 }
 
@@ -49,12 +53,17 @@
     \item{getParams}{\code{signature(model = "DependencyModel")}: Returns a list of used parameters for the method}
     \item{getModelMethod}{\code{signature(model = "DependencyModel")}: Returns the name of the used method}
     \item{getWindowSize}{\code{signature(model = "DependencyModel")}: Returns the size of window}
+    \item{getZ}{\code{signature(model = "DependencyModel", X = "numeric", Y = "numeric")}: Returns the latent variable z.
+      Arguments \code{X} and \code{Y} are needed only when the dependency model is calculated without calculating the latent 
+      variable and the original data is not included with the model (arguments \code{calculateZ = FALSE} and 
+      \code{includeData = FALSE} in \code{\link{fit.dependency.model}}.}
+
   }
 }
 
 \author{Olli-Pekka Huovilainen \email{ohuovila@gmail.com}}
 
-\seealso{ Calculation of latent variable z: \code{\link{z.expectation}}.
+%\seealso{ Calculation of latent variable z: \code{\link{z.expectation}}.
 %For calculation of dependency models for chromosomal arm, chromosome or
 %genome: \code{\link{screen.cgh.mrna}}. Dependency models for whole
 %chromosomal arm: \linkS4class{ChromosomeArmModels}.  Dependency models
@@ -63,9 +72,15 @@
 %For plotting dependency
 %scores see \link{dependency score plotting}.
 
-}
+%}
 \examples{
 data(modelData) # Load example data X, Y
 model <- fit.dependency.model(X, Y)
+# Getting the latent variable Z when it has been calculated with the model
+getZ(model)
+
+model2 <- fit.dependency.model(X, Y, includeData = FALSE, calculateZ = FALSE)
+# Getting the latent variable Z when its not calculated and the original data is not included
+getZ(model, X, Y)
 }
 \keyword{classes}

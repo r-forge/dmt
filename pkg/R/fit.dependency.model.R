@@ -2,8 +2,9 @@ fit.dependency.model <-
 function (X, Y,
           zDimension = 1,
           marginalCovariances = "full",
-          H = 1, sigmas = 0, covLimit = 1e-3,
-          mySeed = 123, priors = list(), matched = TRUE)
+          covLimit = 1e-3,
+          priors = list(), matched = TRUE,
+          includeData = TRUE, calculateZ = TRUE)
 {
 
   # (C) Olli-Pekka Huovilainen and Leo Lahti 
@@ -15,23 +16,12 @@ function (X, Y,
   # X = Wx * z + epsx
   # Y = Wy * z + epsy
   # with various modeling assumptions
+
+  # Check that data is given as a matrix
+  if (!is.matrix(X) || !is.matrix(Y)){
+    stop("Data needs to be given as a matrix")
+  }
   
-  # FIXME using priors$sigma.w and the parameter sigmas for the same purpose
-  # (in !matched case always sigma.w)
-  # FIXME: later completely replace 'sigmas' by 'priors$sigma.w'
-  # to make more explicit notation for prior parameters
-  if (is.null(priors$sigma.w)) {
-    if (exists("sigmas")) {
-      priors$sigma.w <- sigmas
-    } else {
-      message("priors$sigma.w not given, using noninformative priors$sigma.w = Inf, which corresponds to uncoupled Wx~Wy (pCCA).")
-      priors$sigma.w <- 0
-    }
-  } else if (!priors$sigma.w == sigmas) {
-    warning("Inconsistent priors, priors$sigma.w is overriding sigmas")
-    # priors$sigma.w and sigmas are alternative parameters, referring to the same prior.
-    priors$sigma.w <- sigmas
-  }    
 
   if (covLimit == 0)  {covLimit <- 1e-3} # avoid numerical overflows
 
@@ -41,7 +31,7 @@ function (X, Y,
 
   # Check dimensionality
   if(zDimension > nrow(X) || zDimension > nrow(Y)) {
-    message("zDimension cannot exceed data dimensionality; using full dimensionality min(ncol(X), ncol(Y)).")
+    warning("zDimension cannot exceed data dimensionality; using full dimensionality min(ncol(X), ncol(Y)).")
     zDimension <- min(nrow(X), nrow(Y))
   }       
 
@@ -51,26 +41,11 @@ function (X, Y,
   res <- NA; method <- ""
 
   if (!nrow(X) == nrow(Y)) {
-    message("The data sets have unequal dimensionality.")
+    #message("The data sets have unequal dimensionality.")
     if (matched) {stop("Cannot use matched methods for nonmatched data.")}
-    matched <- FALSE
-    message("- Applying the methods for nonmatched data.")
   }
 
-  # Matrix normal distribution mean matrix not specified
-  if (is.null(H)) {
-    warning("The matrix H is not specified. Setting H = 1.")
-    H <- 1
-    if (is.null(priors$sigma.w)) {
-      # No effective priors given, set uninformative priors for
-      #compatibility
-
-      priors$sigma.w <- Inf
-
-      warning("No prior for sigma.w. Assuming priors$sigma.w is infinite, i.e. Wx ~ Wy unconstrained.")
-      }
-  }
-
+  
   # Exponential prior for elements in W. Forces nonnegative solutions.
   if (!is.null(priors$W)) {
     nonnegative.w <- TRUE
@@ -84,15 +59,9 @@ function (X, Y,
   
   #####################################
 
-  # FIXME: replace this if clause by user options of
-  # matched/nonmatched data
   if (!matched) {
-    #message("Assuming non-matched variables.")
 
-    if (!is.null(priors$sigma.w)) {
-      warning("Non-matched case (matched = FALSE). Similarity between Wx, Wy is not constrained by priors in this case. Ignoring priors for Wx~Wy relation (priors sigma.w).")
-      priors$sigma.w <- NULL
-    }
+    #message("Assuming non-matched variables.")
 
     if (marginalCovariances == "full") {
 
@@ -101,22 +70,29 @@ function (X, Y,
         zDimension <- 1
       }
 
-      # Prior for W is given -> need to optimize W (no analytical
-      # solution to EM)
-      # Wx ~ Wy free and priors for W given    
-      # priors$W is the rate parameter of the exponential.
-      # The smaller, the flatter
-      res <- simCCA.optimize3(X, Y, zDimension, mySeed = mySeed, epsilon = covLimit, priors = priors)
+      if (!is.null(priors$W)){
+        # Prior for W is given -> need to optimize W (no analytical
+        # solution to EM)
+        # Wx ~ Wy free and priors for W given    
+        # priors$W is the rate parameter of the exponential.
+        # The smaller, the flatter
+        res <- simCCA.optimize3(X, Y, zDimension, epsilon = covLimit, priors = priors)
+        method <- "pCCA with W priori"
+      } else {
+        # Using normal pcca when no W priori is given
+        method <- "pCCA"
+        res <- calc.pcca(X, Y, zDimension)
+      }
     } else if (marginalCovariances == "diagonal"){          
       # Probabilistic factor analysis model as proposed in          
       # EM Algorithms for ML Factoral Analysis, Rubin D. and      
       # Thayer D. 1982    
       res <- calc.pfa(X, Y, zDimension)    
       method <- "pFA"
-      message("Diagonal marginal covariances.")
+      #message("Diagonal marginal covariances.")
     } else if(marginalCovariances == "identical isotropic"){        
       res <- calc.ppca(X, Y, zDimension)
-      message("Identical isotropic marginal covariances.")
+      #message("Identical isotropic marginal covariances.")
       method <- "pPCA"
     } else {
       # XXXXXXXXXX stop("Only the case marginalCovariances = full has been implemented for nonmatched variables.")
@@ -124,19 +100,34 @@ function (X, Y,
 
   } else if (matched) {
 
-    #message("Assuming matched variables.")
+    # Matrix normal distribution variance not specified
+    if (is.null(priors$Nm.wxwy.sigma)) {
+      #message("priors$Nm.wxwy.sigma not given, using noninformative priors$Nm.wxwy.sigma = Inf, which corresponds to uncoupled Wx~Wy (pCCA).")
+      priors$Nm.wxwy.sigma <- Inf
+    }
       
-    if (priors$sigma.w == 0 && !marginalCovariances == "full") {
+    # Matrix normal distribution mean matrix not specified
+    if (is.null(priors$Nm.wxwy.mean) && priors$Nm.wxwy.sigma != Inf) {
+      warning("The matrix Nm.wxwy.mean is not specified. Setting H = 1.")
+      priors$Nm.wxwy.mean <- 1
+    }    
+      
+    if (priors$Nm.wxwy.sigma == 0 && !marginalCovariances == "full") {
       stop("With priors$sigma.w = 0 the matched simcca model is implemented only with full marginal covariances.")
     }    
 
     # Case I : Relation Wx, Wy not constrained.
 
     # Wx ~ Wy not constrained
-    if ( priors$sigma.w == Inf ) {
+    if ( priors$Nm.wxwy.sigma == Inf ) {
 
       #message("Relation between Wx, Wy is unconstrained.")
-        
+
+      if (!is.null(priors$Nm.wxwy.mean)){
+        warning("Given prior Nm.wxwy.mean is ignored, beacuse Nm.wxwy.sigma == Inf")
+        priors$Nm.wxwy.mean <- NULL
+      }
+      
       if (!nonnegative.w) {
        # message("Wx ~ Wy free. No regularization for W.")
 
@@ -144,27 +135,27 @@ function (X, Y,
           # Analytical ML solution for CCA 
           res <- calc.pcca(X, Y, zDimension)            
           method <- "pCCA"
-          message("Full marginal covariances.")
+          #message("Full marginal covariances.")
         } else if (marginalCovariances == "diagonal"){          
           # Probabilistic factor analysis model as proposed in          
           # EM Algorithms for ML Factoral Analysis, Rubin D. and      
           # Thayer D. 1982    
           res <- calc.pfa(X, Y, zDimension)    
           method <- "pFA"
-          message("Diagonal marginal covariances.")
+          #message("Diagonal marginal covariances.")
         } else if (marginalCovariances == "isotropic") {
           # pCCA assuming isotropic margins with phiX != phiY 
           res <- calc.pcca.with.isotropic.margins(X, Y, zDimension, epsilon = covLimit)  
-          method <- "pFA with isotropic margins"
-          message("Isotropic marginal covariances.")          
+          method <- "pCCA with isotropic margins"
+          #message("Isotropic marginal covariances.")          
         } else if(marginalCovariances == "identical isotropic"){        
           res <- calc.ppca(X, Y, zDimension)
-          message("Identical isotropic marginal covariances.")
+          #message("Identical isotropic marginal covariances.")
           method <- "pPCA"
         }                         
       } else if (nonnegative.w) {
 
-        message("Wx ~ Wy free. Regularized W (W>=0).")        
+        #message("Wx ~ Wy free. Regularized W (W>=0).")        
 
         if (!marginalCovariances == "full") {           
           warning("Only full marginal covariances implemented with uncontrained Wx/Wy and regularized W. Using full marginal covariances.")
@@ -181,17 +172,18 @@ function (X, Y,
         # cov go here
 
         # any zDimension should work here
-        res <- simCCA.optimize2(X, Y, zDimension, mySeed = mySeed,
+        res <- simCCA.optimize2(X, Y, zDimension, 
                                  epsilon = covLimit, priors = priors)
+        method <- "pCCA with W priori"
       }
 
-    } else if ( !priors$sigma.w == Inf ){
+    } else if ( !priors$Nm.wxwy.sigma == Inf ){
 
       method <- "pSimCCA"
       #message("Regulating the relationship Wx ~ Wy.")
         
       # Case IIa: fully constrained case Wx = Wy
-      if (priors$sigma.w == 0) { #Wx = Wy        
+      if (priors$Nm.wxwy.sigma == 0) { #Wx = Wy        
         
         #  SimCCA with full covariances with constraint Wx = Wy
         #  "probsimcca.full" = aucs.simcca.full      
@@ -225,26 +217,28 @@ function (X, Y,
                                       nullmat = nullmat,
                                       epsilon = covLimit,
                                       par.change = 1e6,
-                                      mySeed = mySeed + 1,
                                       dz = zDimension,
                                       priors = priors)
+          method <- "pCCA with W priori"
 
         } else if (!nonnegative.w) {
           # mlsp'09 simcca
           #message("Case Wx = Wy. No regularization for W.")
-          res <- simCCA.optimize.fullcov.EM(X, Y, zDimension, mySeed = mySeed, epsilon = covLimit)
+          res <- simCCA.optimize.fullcov.EM(X, Y, zDimension, epsilon = covLimit)
+          method <- "pSimCCA"
           # FIXME: priors for phi todo?            
             
         }
-      } else if (priors$sigma.w != 0) {
+      } else if (priors$Nm.wxwy.sigma != 0) {
         # Case IIb: partially constrained Wx ~ Wy
         
         # Matched case (for instance, for non-segmented data)
-        if (any(is.na(H))) {
-          warning("H cannot contain NAs! Using nonconstrained version with priors$sigma.w = Inf.")
-          H <- 1
-          priors$sigma.w <- Inf
-        }
+        # FIXME: move earlier?
+        #if (any(is.na(H))) {
+        #  warning("H cannot contain NAs! Using nonconstrained version with priors$sigma.w = Inf.")
+        #  H <- 1
+        #  priors$sigma.w <- Inf
+        #}
         
         if (nonnegative.w) {
           stop("Not implemented regularized (nonnegative) W with partially constrained Wx ~ Wy. Only special cases priors$sigma.w = 0 and priors$sigma.w = Inf are available.")            
@@ -254,12 +248,13 @@ function (X, Y,
           if (marginalCovariances == 'isotropic') {
 
             # Make H identity matrix if scalar is given
-            if(length(H) == 1){ H <- diag(1, nrow(X), nrow(Y)) }
-            if(ncol(H) != nrow(X)){ stop("columns of H must match rows of X") }
-            if(nrow(H) != nrow(Y)){ stop("rows of H must match rows of Y") }
+            if(length(priors$Nm.wxwy.mean) == 1){ priors$Nm.wxwy.mean <- diag(1, nrow(X), nrow(Y)) }
+            if(ncol(priors$Nm.wxwy.mean) != nrow(X)){ stop("columns of H must match rows of X") }
+            if(nrow(priors$Nm.wxwy.mean) != nrow(Y)){ stop("rows of H must match rows of Y") }
                  
             #message("SimCCA with isotropic covariances and regularized H (through sigmas).")
-            res <- simCCA.optimize(X, Y, zDimension, H, sigma2.T = sigmas, sigma2.W = 1e12, mySeed, epsilon = covLimit)
+            res <- simCCA.optimize(X, Y, zDimension, priors$Nm.wxwy.mean, sigma2.T = priors$Nm.wxwy.sigma, sigma2.W = 1e12, epsilon = covLimit)
+            method <- "pSimCCA with T priori"
           } else if (!marginalCovariances == 'isotropic') {
             stop("With priors$sigma.w !=0, only isotropic marginal covariances implemented.")
           }
@@ -274,21 +269,27 @@ function (X, Y,
   if (any(is.na(res))) {
     stop("Error with model parameters.")
   } else {
-    params <- list(marginalCovariances = marginalCovariances, sigmas = sigmas, H = H, zDimension = zDimension, covLimit = covLimit)
+    params <- list(marginalCovariances = marginalCovariances, Nm.wxwy.mean = priors$Nm.wxwy.mean, Nm.wxwy.sigma = priors$Nm.wxwy.sigma, zDimension = zDimension, covLimit = covLimit)
     
     score <- dependency.score(res)
   }
   
   model <- new("DependencyModel", W = res$W, phi = res$phi, score = score, method = method, params = params)	
-  
+  if (includeData) model@data <- list(X = X, Y = Y)
+  if (calculateZ) model@z <- z.expectation(model, X, Y)
   model
 }
 
 
-ppca <- function(X, Y = NULL, zDimension = 1, matched = TRUE){                
+ppca <- function(X, Y = NULL, zDimension = 1, matched = TRUE, includeData = TRUE, calculateZ = TRUE){                
   if (!is.null(Y)) {                 
-    fit.dependency.model(X,Y,zDimension,marginalCovariances = "identical isotropic", H = NA, sigmas = 0, matched = matched)        
+    fit.dependency.model(X,Y,zDimension,marginalCovariances = "identical isotropic", matched = matched)        
   } else {         
+
+    # Check that data is given as a matrix
+    if (!is.matrix(X)){
+      stop("Data needs to be given as a matrix")
+    }
     if (ncol(X) > 1)                         
       X <- t(centerData(t(X), rm.na = TRUE))               
            
@@ -299,20 +300,27 @@ ppca <- function(X, Y = NULL, zDimension = 1, matched = TRUE){
     res <- calc.ppca(X, Y, zDimension) 
     method <- "pPCA"    
                                
-    params <- list(marginalCovariances = "isotropic", sigmas = 0, H = NA,                               
+    params <- list(marginalCovariances = "isotropic",                               
                            zDimension = zDimension, covLimit = 0)      
     score <- dependency.score(res) 
     model <- new("DependencyModel",W = res$W, phi = res$phi, score = score, method = method, params = params)   
-    model      
+    if (includeData) model@data <- list(X = X)
+    if (calculateZ) model@z <- z.expectation(model, X)
+    return(model)      
   }        
 }    
 
                
 	       
-pfa <- function(X, Y = NULL, zDimension = 1, matched = TRUE){       
+pfa <- function(X, Y = NULL, zDimension = 1, matched = TRUE, includeData = TRUE, calculateZ = TRUE){       
   if (!is.null(Y)) { 
-    fit.dependency.model(X, Y, zDimension, marginalCovariances = "diagonal", H = NA, sigmas = 0, matched = matched)       
-  } else {         
+    fit.dependency.model(X, Y, zDimension, marginalCovariances = "diagonal", matched = matched,
+                         includeData = includeData, calculateZ = calculateZ)       
+  } else { 
+    # Check that data is given as a matrix
+    if (!is.matrix(X)){
+      stop("Data needs to be given as a matrix")
+    }
     if (ncol(X) > 1)                         
       X <- t(centerData(t(X), rm.na = TRUE))               
            
@@ -323,18 +331,23 @@ pfa <- function(X, Y = NULL, zDimension = 1, matched = TRUE){
     res <- calc.pfa(X, Y, zDimension)        
     method <- "pFA"
                                
-    params <- list(marginalCovariances = "diagonal", sigmas = 0, H = NA,                               
+    params <- list(marginalCovariances = "diagonal",                                
                    zDimension = zDimension, covLimit = 0)      
     score <- dependency.score(res) 
     model <- new("DependencyModel", W = res$W, phi = res$phi, score = score, method = method, params = params)                                                                    
+    if (includeData) model@data <- list(X = X, Y = Y)
+    if (calculateZ) model@z <- z.expectation(model, X, Y)
+    return(model)
   }                     
 }                                                                     
                             
-pcca.isotropic <- function(X, Y, zDimension = 1, covLimit = 1e-6){
-  fit.dependency.model(X,Y,zDimension,marginalCovariances = "isotropic", H = NA, sigmas = 0, covLimit = 1e-6)          
+pcca.isotropic <- function(X, Y, zDimension = 1, covLimit = 1e-6, includeData = TRUE, calculateZ = TRUE){
+  fit.dependency.model(X,Y,zDimension,marginalCovariances = "isotropic", covLimit = 1e-6,
+                       includeData = includeData, calculateZ = calculateZ)          
 }                                                                      
                                                                    
-pcca <- function(X, Y, zDimension = 1){  
-  fit.dependency.model(X, Y, zDimension, marginalCovariances = "full", H = NA, sigmas = 0)                                                     
+pcca <- function(X, Y, zDimension = 1, includeData = TRUE, calculateZ = TRUE){  
+  fit.dependency.model(X, Y, zDimension, marginalCovariances = "full", 
+                       includeData = includeData, calculateZ = calculateZ)                                                     
 }                                                                      
           

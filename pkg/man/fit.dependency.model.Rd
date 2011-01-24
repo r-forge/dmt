@@ -19,13 +19,14 @@
 
 \usage{
 fit.dependency.model(X, Y, zDimension = 1, marginalCovariances = "full",
-                     H = 1, sigmas = 0, covLimit = 1e-3,
-                     mySeed = 123, priors = list(), matched = TRUE)
+                     covLimit = 1e-3,
+                     priors = list(), matched = TRUE,
+                     includeData = TRUE, calculateZ = TRUE)
 
-ppca(X, Y, zDimension = 1, matched = TRUE)
-pcca(X, Y, zDimension = 1)
-pcca.isotropic(X, Y, zDimension = 1, covLimit = 1e-6)
-pfa(X, Y = NULL, zDimension = 1, matched = TRUE)
+ppca(X, Y, zDimension = 1, matched = TRUE, includeData = TRUE, calculateZ = TRUE)
+pcca(X, Y, zDimension = 1, includeData = TRUE, calculateZ = TRUE)
+pcca.isotropic(X, Y, zDimension = 1, covLimit = 1e-6, includeData = TRUE, calculateZ = TRUE)
+pfa(X, Y = NULL, zDimension = 1, matched = TRUE, includeData = TRUE, calculateZ = TRUE)
 
 }
 \arguments{
@@ -40,24 +41,42 @@ Dimensionality of the shared latent variable.
     \code{"isotropic"}, \code{"diagonal"} and \code{"full"}
   }
   
-  \item{H}{ Mean of the matrix normal prior distribution for the
-    transformation matrix T. Must be a matrix of size (variables in
-    first data set) x (variables in second data set). If value is
-    \code{1}, H will be made identity matrix of appropriate size.}
+%  \item{H}{ Mean of the matrix normal prior distribution for the
+%    transformation matrix T. Must be a matrix of size (variables in
+%    first data set) x (variables in second data set). If value is
+%    \code{1}, H will be made identity matrix of appropriate size.}
 
-  \item{sigmas}{ Variance parameter for the matrix normal prior
-    distribution of the transformation matrix T. Described the allowed
-    deviation scale of the transformation matrix T from the mean matrix
-    H.}
+%  \item{sigmas}{ Variance parameter for the matrix normal prior
+%    distribution of the transformation matrix T. Described the allowed
+%    deviation scale of the transformation matrix T from the mean matrix
+%    H.}
 
   \item{covLimit}{ Convergence limit. default value depends on chosen
     model type.}
 
-  \item{mySeed}{Random seed.}
-  
   \item{priors}{Prior parameters for the model.}
+    \describe{
+  \item{Nm.wxwy.mean}{ Mean of the matrix normal prior distribution for the
+    transformation matrix T. Must be a matrix of size (variables in
+    first data set) x (variables in second data set). If value is
+    \code{1}, \code{Nm.wxwy.mean} will be made identity matrix of appropriate size.}
+
+  \item{Nm.wxwy.sigma}{ Variance parameter for the matrix normal prior
+    distribution of the transformation matrix \code{T}. Described the allowed
+    deviation scale of the transformation matrix \code{T} from the mean matrix
+    \code{Nm.wxwy.mean}.}
+    
+    
+    }
 
   \item{matched}{The variables are matched between X and Y (TRUE/FALSE).}
+  
+  \item{includeData}{If \code{TRUE}, the original data is included to the model. Using \code{FALSE}
+    saves memory if many dependency models are calculated}
+  
+  \item{calculateZ}{If \code{TRUE}, the latent variable Z is calculated while calculating 
+    the dependency model. Otherwise the latent variable is calculated when using the method 
+    \code{getZ}. Using \code{FALSE} speeds up the calculation of the dependency model.}
 }
 
 \details{
@@ -67,28 +86,28 @@ Dimensionality of the shared latent variable.
 
 \describe{
 
-  \item{pPCA}{ \code{H = NA, marginalCovariances = "identical isotropic"}
+  \item{pPCA}{ \code{marginalCovariances = "identical isotropic"}
 (\cite{Tipping & Bishop 1999}) }
 
-\item{pFA}{ \code{H = NA, marginalCovariances = "diagonal"} (\cite{Rubin &
+\item{pFA}{ \code{marginalCovariances = "diagonal"} (\cite{Rubin &
 Thayer 1982}) }
 
-\item{pCCA}{ \code{H = NA, marginalCovariances = "full"} or
+\item{pCCA}{ \code{marginalCovariances = "full"} or
 \code{"isotropic"} (\cite{Bach & Jordan 2005}) }
 
-\item{pSimCCA}{ \code{H = I, sigmas = 0, marginaCovariances = "full"}. This
+\item{pSimCCA}{ \code{marginaCovariances = "full", priors = list(Nm.wxwy.mean = I, Nm.wxwy.sigma = 0)}. This
 is the default method.  (\cite{Lahti et al. 2009}) }
 
 \item{pSimCCA with T prior}{ \code{H = I, marginalCovariances =
-"isotropic"} (\cite{Lahti et al. 2009})
+"isotropic", priors = list(Nm.wxwy.mean=1} (\cite{Lahti et al. 2009})
 }
 
 }
 
-Resulting \linkS4class{DependencyModel} object does not have location or
-z variable. %Location can be set with \code{setLoc} method (see examples)
-Expectation of the latent variable z can be calculated with
-\code{link{z.expectation}}.
+%Resulting \linkS4class{DependencyModel} object does not have location or z variable. 
+%Location can be set with \code{setLoc} method (see examples)
+%Expectation of the latent variable z can be calculated with
+%\code{link{z.expectation}}.
 
 To avoid computational singularities, the covariance matrix phi is
 regularised by adding a small constant to the diagonal
@@ -135,13 +154,20 @@ this function: \linkS4class{DependencyModel}.
 
 
 \examples{
-data(modelData)
+data(modelData) # Load example data X, Y
 
-# pSimCCA 
-
+# pSimCCA model
 model <- fit.dependency.model(X, Y, zDimension = 1)
-model
 
+# pFA model
+model <- pfa(X, Y)
+
+# Getting the latent variable Z when it has been calculated with the model
+getZ(model)
+
+model2 <- fit.dependency.model(X, Y, includeData = FALSE, calculateZ = FALSE)
+# Calculating the latent variable Z when its not calculated and the original data is not included
+getZ(model, X, Y)
 }
 \keyword{math}
 \keyword{iteration}

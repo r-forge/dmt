@@ -30,7 +30,7 @@ setMethod("getModelMethod","DependencyModel",
 
 setMethod("getWindowSize","DependencyModel", 
   function(model) { 
-    if(is.null(getW(model)$X)){
+    if (is.null(getW(model)$X)) {
       return(dim(getW(model))[1])
     }
     else {
@@ -38,3 +38,33 @@ setMethod("getWindowSize","DependencyModel",
     }
   } 
 ) 
+
+setMethod("getZ","DependencyModel",
+  function(model,X,Y) {
+    if (length(model@z) > 0) {
+      return(model@z)
+    } else {
+      # Calculate latent variable if it hasn't been calculate with the model    
+      if (length(model@data) == 0) {
+        # Original data not included with the model
+        if (is.null(model@W$Y)) {
+          # z for dep model with one data
+          # Give error if original data is not given
+          if (missing(X)) stop("Original data set is needed as a parameter because latent variable was not calculated while calculating dependency model and original data was not included with the model")
+          return(z.expectation(model,X))
+        } else {
+          # z for dep model with two datas
+          # Give error if original data is not given
+          if (missing(X) || missing(Y)) stop("Original data sets are needed as parameters because latent variable was not calculated while calculating dependency model and original data was not included with the model")
+          return(z.expectation(model,X,Y))     
+        }
+      } else {
+        # Calculate z with included data        
+        # z for dep model with one data
+        if (is.null(model@W$Y)) return(z.expectation(model,model@data$X))
+        # z for dep model with two datas
+        else return(z.expectation(model,model@data$X,model@data$Y))
+      }
+    }
+  }
+)

@@ -32,7 +32,7 @@ calc.ppca = function (X,Y=NULL,zDimension=1) {
     rownames(res$W) <- rownames(X)
     rownames(phi$total) <- rownames(X)
     colnames(phi$total) <- rownames(phi$total)
-    W <- list(total = res$W)
+    W <- list(X = res$W, total = res$W)
   } else {
     # If second argument (Y) given, compute
     # pPCA with two concatenated data sets

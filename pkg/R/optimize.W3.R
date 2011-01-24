@@ -1,7 +1,7 @@
 optimize.W3 <-
-function (W, phi, Dim, Dcov, priors, epsilon = 1e-6, par.change = 1e6, cost.old = 1e6, mySeed = 123) {
+function (W, phi, Dim, Dcov, priors, epsilon = 1e-6, par.change = 1e6, cost.old = 1e6) {
   
-  set.seed(mySeed)
+#  set.seed(mySeed)
   cost.new <- cost.W2(c(as.vector(W$X), as.vector(W$Y)), phi, priors, Dim, Dcov)
   costs    <- c(cost.new)
   cnt      <- 1
