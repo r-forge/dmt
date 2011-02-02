@@ -7,7 +7,7 @@ function (X, Y,
           includeData = TRUE, calculateZ = TRUE)
 {
 
-  # (C) Olli-Pekka Huovilainen and Leo Lahti 
+  # (C) 2008-2011 Olli-Pekka Huovilainen and Leo Lahti 
   # FreeBSD license (keep this notice).
 
   # zDimension = 1; marginalCovariances = "full"; H = 1; sigmas = 0; covLimit = 1e-3; mySeed = 123; priors = NULL
@@ -22,8 +22,7 @@ function (X, Y,
     stop("Data needs to be given as a matrix")
   }
   
-
-  if (covLimit == 0)  {covLimit <- 1e-3} # avoid numerical overflows
+  if (covLimit == 0)  { covLimit <- 1e-3 } # avoid numerical overflows
 
   # Center data
   X <- t(centerData(t(X), rm.na = TRUE))
@@ -281,73 +280,84 @@ function (X, Y,
 }
 
 
-ppca <- function(X, Y = NULL, zDimension = 1, matched = TRUE, includeData = TRUE, calculateZ = TRUE){                
+ppca <- function(X, Y = NULL, zDimension = NULL, matched = FALSE, includeData = TRUE, calculateZ = TRUE){                
+
+  if (is.null(zDimension)) { zDimension = min(nrow(X), nrow(Y)) }
+
   if (!is.null(Y)) {                 
-    fit.dependency.model(X,Y,zDimension,marginalCovariances = "identical isotropic", matched = matched)        
+    model <- fit.dependency.model(X,Y,zDimension,marginalCovariances = "identical isotropic", matched = matched)        
   } else {         
 
     # Check that data is given as a matrix
-    if (!is.matrix(X)){
-      stop("Data needs to be given as a matrix")
-    }
-    if (ncol(X) > 1)                         
-      X <- t(centerData(t(X), rm.na = TRUE))               
+    if ( !is.matrix(X) ){ stop("Data needs to be given as a matrix") }
+
+    #if (ncol(X) > 1)                         
+    X <- t(centerData(t(X), rm.na = TRUE))
            
     # Check if dimensionality is too big               
-    if(zDimension > ncol(X))                         
-      stop("Dimension of latent variable too big") 
+    if(zDimension > nrow(X)) {warning("Latent variable dimensionality cannot exceed data dimensionality. Setting zDimension = nrow(X)")}
                       
     res <- calc.ppca(X, Y, zDimension) 
     method <- "pPCA"    
                                
-    params <- list(marginalCovariances = "isotropic",                               
-                           zDimension = zDimension, covLimit = 0)      
-    score <- dependency.score(res) 
-    model <- new("DependencyModel",W = res$W, phi = res$phi, score = score, method = method, params = params)   
+    params <- list(marginalCovariances = "isotropic", zDimension = zDimension, covLimit = 0)      
+    score <- dependency.score( res ) 
+    model <- new("DependencyModel", W = res$W, phi = res$phi, score = score, method = method, params = params)   
     if (includeData) model@data <- list(X = X)
     if (calculateZ) model@z <- z.expectation(model, X)
-    return(model)      
-  }        
+
+  }
+  
+  return(model)        
 }    
 
-               
-	       
-pfa <- function(X, Y = NULL, zDimension = 1, matched = TRUE, includeData = TRUE, calculateZ = TRUE){       
+               	      
+pfa <- function(X, Y = NULL, zDimension = NULL, matched = FALSE, includeData = TRUE, calculateZ = TRUE){       
+
+  if (is.null(zDimension)) { zDimension = min(nrow(X), nrow(Y)) }
+
   if (!is.null(Y)) { 
-    fit.dependency.model(X, Y, zDimension, marginalCovariances = "diagonal", matched = matched,
+    model <- fit.dependency.model(X, Y, zDimension, marginalCovariances = "diagonal", matched = matched,
                          includeData = includeData, calculateZ = calculateZ)       
   } else { 
     # Check that data is given as a matrix
     if (!is.matrix(X)){
       stop("Data needs to be given as a matrix")
     }
-    if (ncol(X) > 1)                         
-      X <- t(centerData(t(X), rm.na = TRUE))               
+    #if (ncol(X) > 1)                         
+    X <- t(centerData(t(X), rm.na = TRUE))               
            
     # Check if dimensionality is too big               
-    if(zDimension > ncol(X))                         
-      stop("Dimension of latent variable too big") 
+    if(zDimension > nrow(X)) {warning("Latent variable dimensionality cannot exceed data dimensionality. Setting zDimension = nrow(X)")}
                       
     res <- calc.pfa(X, Y, zDimension)        
     method <- "pFA"
                                
-    params <- list(marginalCovariances = "diagonal",                                
-                   zDimension = zDimension, covLimit = 0)      
-    score <- dependency.score(res) 
+    params <- list(marginalCovariances = "diagonal", zDimension = zDimension, covLimit = 0)      
+    score <- dependency.score( res ) 
+
     model <- new("DependencyModel", W = res$W, phi = res$phi, score = score, method = method, params = params)                                                                    
     if (includeData) model@data <- list(X = X, Y = Y)
     if (calculateZ) model@z <- z.expectation(model, X, Y)
-    return(model)
+
   }                     
+
+  return(model)
 }                                                                     
                             
-pcca.isotropic <- function(X, Y, zDimension = 1, covLimit = 1e-6, includeData = TRUE, calculateZ = TRUE){
+# FIME: consider whether we should keep this or remove			    
+pcca.isotropic <- function(X, Y, zDimension = NULL, matched = FALSE, covLimit = 1e-6, includeData = TRUE, calculateZ = TRUE){
+  if (is.null(zDimension)) { zDimension = min(nrow(X), nrow(Y)) }
+
   fit.dependency.model(X,Y,zDimension,marginalCovariances = "isotropic", covLimit = 1e-6,
                        includeData = includeData, calculateZ = calculateZ)          
 }                                                                      
                                                                    
-pcca <- function(X, Y, zDimension = 1, includeData = TRUE, calculateZ = TRUE){  
-  fit.dependency.model(X, Y, zDimension, marginalCovariances = "full", 
+pcca <- function(X, Y, zDimension = NULL, matched = FALSE, includeData = TRUE, calculateZ = TRUE){  
+
+  if (is.null(zDimension)) { zDimension = min(nrow(X), nrow(Y)) }
+  
+  fit.dependency.model(X, Y, zDimension, marginalCovariances = "full", matched = matched,
                        includeData = includeData, calculateZ = calculateZ)                                                     
 }                                                                      
           

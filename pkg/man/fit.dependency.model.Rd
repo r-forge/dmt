@@ -7,15 +7,11 @@
 \alias{pfa}
 \title{Fit dependency model between two data sets.}
 
-\description{Fits a selected dependency model between two data
-  sets. The function can fit probabilistic canonical correlation
-  analysis (pCCA; \cite{Bach & Jordan 2005}), probabilistic principal
-  component (pPCA; \cite{Tipping & Bishop 1999}) analysis, probabilistic
-  factorial analysis (pFA; \cite{Rubin & Thayer 1982}) or similarity
-  constrained canonical correlation analysis (pSimCCA; \cite{Lahti et
-  al. 2009}). These correspond to \code{ppca},
-  \code{pcca}, \code{pcca.isotropic} and \code{pfa} as well as different choices of the model
-  structure and parameters in \code{fit.dependency.model}. }
+\description{Fits the generative latent variable model (see vignette
+for model specification) between two data sets with selected prior
+constraints on marginal covariance structures, the structure of W,
+latent dimensionality etc. Probabilistic versions of PCA, factor
+analysis and CCA are available as special cases.}
 
 \usage{
 fit.dependency.model(X, Y, zDimension = 1, marginalCovariances = "full",
@@ -23,21 +19,19 @@ fit.dependency.model(X, Y, zDimension = 1, marginalCovariances = "full",
                      priors = list(), matched = TRUE,
                      includeData = TRUE, calculateZ = TRUE)
 
-ppca(X, Y, zDimension = 1, matched = TRUE, includeData = TRUE, calculateZ = TRUE)
-pcca(X, Y, zDimension = 1, includeData = TRUE, calculateZ = TRUE)
-pcca.isotropic(X, Y, zDimension = 1, covLimit = 1e-6, includeData = TRUE, calculateZ = TRUE)
-pfa(X, Y = NULL, zDimension = 1, matched = TRUE, includeData = TRUE, calculateZ = TRUE)
+ppca(X, Y, zDimension = NULL, matched = FALSE, includeData = TRUE, calculateZ = TRUE)
+pfa(X, Y = NULL, zDimension = NULL, matched = FALSE, includeData = TRUE, calculateZ = TRUE)
+pcca.isotropic(X, Y, zDimension = NULL, matched = FALSE, covLimit = 1e-6, includeData = TRUE, calculateZ = TRUE)
+pcca(X, Y, zDimension = NULL, matched = FALSE, includeData = TRUE, calculateZ = TRUE)
 
 }
 \arguments{
   \item{X, Y}{
-The data sets. 'Variables x samples'. If \code{NULL} is given, model is calculated for only one data set.
-}
-  \item{zDimension}{
-Dimensionality of the shared latent variable.
-}
+The two data sets. 'Variables x samples'. The second data set
+(\code{Y}) is optional.}
+  \item{zDimension}{Dimensionality of the shared latent variable.}
   \item{marginalCovariances}{
-    Type of marginal covariances. Options: \code{"identical isotropic"},
+    Structure of marginal covariances. Options: \code{"identical isotropic"},
     \code{"isotropic"}, \code{"diagonal"} and \code{"full"}
   }
   
@@ -51,8 +45,8 @@ Dimensionality of the shared latent variable.
 %    deviation scale of the transformation matrix T from the mean matrix
 %    H.}
 
-  \item{covLimit}{ Convergence limit. default value depends on chosen
-    model type.}
+  \item{covLimit}{ Convergence limit. The default value depends on the
+selected model. }
 
   \item{priors}{Prior parameters for the model.}
     \describe{
@@ -66,23 +60,41 @@ Dimensionality of the shared latent variable.
     deviation scale of the transformation matrix \code{T} from the mean matrix
     \code{Nm.wxwy.mean}.}
     
-    
     }
 
-  \item{matched}{The variables are matched between X and Y (TRUE/FALSE).}
+  \item{matched}{Logical indicating if the variables (dimensions) are
+matched between X and Y. Applicable only when dimX = dimY. Affects the
+results only when prior on the relationship Wx ~ Wy is set.}
   
-  \item{includeData}{If \code{TRUE}, the original data is included to the model. Using \code{FALSE}
-    saves memory if many dependency models are calculated}
+  \item{includeData}{Logical indicating whether the original data is
+included to the model output. Using \code{FALSE} can be used to
+    save memory.}
   
-  \item{calculateZ}{If \code{TRUE}, the latent variable Z is calculated while calculating 
-    the dependency model. Otherwise the latent variable is calculated when using the method 
-    \code{getZ}. Using \code{FALSE} speeds up the calculation of the dependency model.}
+  \item{calculateZ}{Logical indicating whether an expectation of the latent variable Z
+is included in the model output. Otherwise the expectation can be
+calculated with \code{getZ} or \code{z.expectation}. Using \code{FALSE} speeds up the calculation of the dependency model.}
 }
 
-\details{
-
-  The dependency models considered in \cite{Lahti et al. 2009} are
-  obtained as follows:
+\details{ Various choices for the model structure and parameters can
+  be set through the general function \code{fit.dependency.model}.
+  Special cases of the model, obtained with particular prior
+  assumptions, include probabilistic canonical correlation analysis
+  (\code{pcca}; \cite{Bach & Jordan 2005}), probabilistic principal
+  component analysis (\code{ppca}; \cite{Tipping & Bishop 1999}),
+  probabilistic factor analysis (\code{pfa}; \cite{Rubin & Thayer
+  1982}), and regularized canonical correlation analysis (pSimCCA;
+  \cite{Lahti et al. 2009}).
+ 
+  The standard probabilistic PCA and factor analysis are methods for
+  modeling a single data set as X ~ N(WZ, Bx*t(Bx)), where the
+  covariance Bx*t(Bx) is isotropic for pPCA and diagonal for pFA.
+  However, these methods can here be additionally applied to model
+  dependencies between two data sets (X, Y), assuming the model X ~
+  N(Wx*Z, Bx*t(Bx)); Y ~ N(Wy*Z, By*t(By)) i.e. shared latent variable
+  Z plus dataset specific variation.
+  
+ The special cases are obtained with the following choices in the
+ \code{fit.dependency.model} function:
 
 \describe{
 
@@ -110,7 +122,7 @@ is the default method.  (\cite{Lahti et al. 2009}) }
 %\code{link{z.expectation}}.
 
 To avoid computational singularities, the covariance matrix phi is
-regularised by adding a small constant to the diagonal
+regularised by adding a small constant to the diagonal.
 }
 
 \value{
@@ -118,11 +130,9 @@ regularised by adding a small constant to the diagonal
 }
 
 \references{
-
-  Dependency Detection with Similarity Constraints, Lahti et al., 2009
+Dependency Detection with Similarity Constraints, Lahti et al., 2009
 Proc. MLSP'09 IEEE International Workshop on Machine Learning for Signal
-Processing,
-\url{http://www.cis.hut.fi/lmlahti/publications/mlsp09_preprint.pdf}
+Processing, \url{http://arxiv.org/abs/1101.5919}
 
 A Probabilistic Interpretation of Canonical Correlation Analysis, Bach
 Francis R. and Jordan Michael I. 2005 Technical Report 688. Department
@@ -138,7 +148,6 @@ EM Algorithms for ML Factorial Analysis, Rubin D. and Thayer
 D. 1982. \emph{Psychometrika}, \bold{vol. 47}, no. 1.
 
 }
-
 \author{ Olli-Pekka Huovilainen \email{ohuovila@gmail.com} and Leo Lahti
 \email{leo.lahti@iki.fi} }
 
@@ -159,15 +168,16 @@ data(modelData) # Load example data X, Y
 # pSimCCA model
 model <- fit.dependency.model(X, Y, zDimension = 1)
 
-# pFA model
-model <- pfa(X, Y)
+# pPCA model for two data sets
+model <- ppca(X, Y)
 
 # Getting the latent variable Z when it has been calculated with the model
-getZ(model)
+#getZ(model)
 
-model2 <- fit.dependency.model(X, Y, includeData = FALSE, calculateZ = FALSE)
+#model2 <- fit.dependency.model(X, Y, includeData = FALSE, calculateZ = FALSE)
 # Calculating the latent variable Z when its not calculated and the original data is not included
-getZ(model, X, Y)
+#getZ(model, X, Y)
+
 }
 \keyword{math}
 \keyword{iteration}

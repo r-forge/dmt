@@ -28,18 +28,18 @@ calc.ppca = function (X,Y=NULL,zDimension=1) {
 
   if (is.null(Y)) {
     res <- ppca.calculate(X, zDimension)
-    phi <- list(total = diag(res$phi,nrow(X)))
+    phi <- list(total = diag(res$phi, nrow(X)))
     rownames(res$W) <- rownames(X)
-    rownames(phi$total) <- rownames(X)
-    colnames(phi$total) <- rownames(phi$total)
-    W <- list(X = res$W, total = res$W)
+    colnames(phi$total) <- rownames(phi$total) <- rownames(X)
+    #W <- list(X = res$W, total = res$W)
+    W <- list(total = res$W)    
   } else {
     # If second argument (Y) given, compute
     # pPCA with two concatenated data sets
     res <- ppca.calculate(rbind(X,Y), zDimension)
 
     # Make phi diagonal matrix
-    phitotal <- diag(res$phi,(nrow(X)+nrow(Y)))
+    phitotal <- diag(res$phi,(nrow(X) + nrow(Y)))
 
     # Variable names to W and phi
     rownames(res$W) <- c(rownames(X),rownames(Y))
@@ -47,9 +47,12 @@ calc.ppca = function (X,Y=NULL,zDimension=1) {
     colnames(phitotal) <- rownames(phitotal)
 
     # Divide W and phi to X and Y parts
-    phi <- list(X = phitotal[(1:nrow(X)),(1:nrow(X))], Y = phitotal[-(1:nrow(X)),-(1:nrow(X))],
+    phi <- list(X = phitotal[(1:nrow(X)),(1:nrow(X))], 
+                Y = phitotal[-(1:nrow(X)),-(1:nrow(X))],
     	        total = phitotal)
-    W <- list(X = as.matrix(res$W[(1:nrow(X)),]), Y = as.matrix(res$W[-(1:nrow(X)),]), total = res$W)
+    W <- list(X = as.matrix(res$W[(1:nrow(X)),]), 
+              Y = as.matrix(res$W[-(1:nrow(X)),]), 
+	      total = res$W)
 
   }
   # Note that if X, Y given then phi$X = phi$Y in the pCCA model

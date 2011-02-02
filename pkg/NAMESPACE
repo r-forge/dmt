@@ -4,6 +4,7 @@ export(
 # fixed.window,
 # fixed.window2,
 fit.dependency.model,
+generate.toydata,
 ppca,
 pcca,
 pcca.isotropic,
@@ -22,7 +23,8 @@ plotVar,
 regCCA,
 sharedVar,
 specificVar,
-SqrtInvMat
+SqrtInvMat,
+z.expectation
        )
 
 exportClasses(

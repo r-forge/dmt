@@ -1,3 +1,8 @@
+CHANGES IN VERSIOn 0.4.09 (2011-02-02)
+
+ o in calculate.ppca removed X field from W output in Y = NULL i.e.
+   one data case (now only W$total available)
+
 CHANGES IN VERSIOn 0.4.08 (2011-01-25)
 
   o The latent variable is calculated as dependency model

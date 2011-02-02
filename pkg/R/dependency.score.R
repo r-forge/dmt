@@ -10,8 +10,9 @@ dependency.score <- function (model) {
     wtw <- rbind(W$X,W$Y)%*%t(rbind(W$X,W$Y))
   }
   else {
+    # For single data case, check proportion between 
+    # latent covariance and expected diagonal noise
     noise <- sum(diag(as.matrix(phi$total)))
-
     wtw <- W$total %*% t(W$total)
   }
 
