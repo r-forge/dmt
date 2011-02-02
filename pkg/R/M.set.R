@@ -1,3 +1,11 @@
+
+
+set.M.full <- function (W, phi.inv, dz) {
+  # for full marginal covariance
+  solve(t(W)%*%phi.inv%*%W + diag(dz))
+}
+
+
 set.M.full2 <- function (W, phi.inv, dz) {
 
   # This corresponds to 
@@ -11,3 +19,11 @@ set.M.full2 <- function (W, phi.inv, dz) {
 
 
  
+set.M.isotropic <- function (wtw, sigma.sq, dx) {
+  solve(wtw + diag(sigma.sq, dx, dx))
+}
+
+
+set.M <-
+function (W, phi) {solve(t(W)%*%W/phi + diag(ncol(W)))}
+

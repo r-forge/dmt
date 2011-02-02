@@ -59,3 +59,5 @@ function (W, T, phi, Dim, Dcov, priors, H, epsilon = 1e-6, par.change = 1e6, cos
   list(W = W, phi = phi, T = T, costs = costs, score = costs[[length(costs)]])
 }
 
+
+
