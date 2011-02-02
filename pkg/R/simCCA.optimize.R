@@ -1,16 +1,16 @@
 simCCA.optimize <-
 function (X, Y, zDimension=1, H, sigma2.T = 1e-12, sigma2.W = 1e12, mySeed=123, epsilon = 1e-6) {
 
-        # sigma2.T: tuning parameter for T prior: large is uninformative i.e. ordinary CCA, small values lead to SimCCA
-	# sigma2.W: tuning parameter for W prior: large is uninformative 
-	# zDimension: assumed dimensionality for the shared latent variable z
-	# H: priori for T
+  # sigma2.T: tuning parameter for T prior: large is uninformative i.e. ordinary CCA, small values lead to SimCCA
+  # sigma2.W: tuning parameter for W prior: large is uninformative 
+  # zDimension: assumed dimensionality for the shared latent variable z
+  # H: priori for T
 
-  set.seed(mySeed)
+  set.seed( mySeed )
 
-	#################################################
-	# Initialize
-	#################################################
+  #################################################
+  # Initialize
+  #################################################
 
   Nsamples <- ncol(X)
   
@@ -45,7 +45,9 @@ function (X, Y, zDimension=1, H, sigma2.T = 1e-12, sigma2.W = 1e12, mySeed=123, 
   rownames(W$X) <- rownames(X)
   rownames(W$Y) <- rownames(Y)
   rownames(W$total) <- c(rownames(X),rownames(Y))
-  
+
+  ################################################
+
   # Make these diagonal matrices
   phiX <- diag(res$phi$X, nrow(X))
   rownames(phiX) <- rownames(X)

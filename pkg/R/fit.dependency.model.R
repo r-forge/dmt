@@ -61,24 +61,24 @@ function (X, Y,
   if (!matched) {
 
     #message("Assuming non-matched variables.")
-
+    if (!is.null(priors$Nm.wxwy.sigma)) { 
+      warning("priors$Nm.wxwy.sigma not implemented for non-matched variables. Setting priors$Nm.wxwy.sigma = NULL.")
+      priors$Nm.wxwy.sigma <- NULL
+    }
+  
     if (marginalCovariances == "full") {
 
-      if (!zDimension == 1) {
-        warning("For non-matched variables only 1-dimensional latent variable model has been implemented. Using zDimension = 1.") # FIXME: implement multidimensional cases for nonmatched variables. Some if it may rock already; test.
-        zDimension <- 1
-      }
-
       if (!is.null(priors$W)){
-        # Prior for W is given -> need to optimize W (no analytical
-        # solution to EM)
-        # Wx ~ Wy free and priors for W given    
-        # priors$W is the rate parameter of the exponential.
-        # The smaller, the flatter
+        # Prior for W is given -> need to optimize W (no analytical solution to EM)
+        # Wx ~ Wy free; priors for W given    
+	# Used to force positive W with exponential distribution.
+        # priors$W is the rate parameter of the exponential. 
+        # The smaller, the flatter tail.
         res <- simCCA.optimize3(X, Y, zDimension, epsilon = covLimit, priors = priors)
         method <- "pCCA with W priori"
       } else {
-        # Using normal pcca when no W priori is given
+        # Using normal pcca when no W prior is given
+	# FIXME: do we really need two separate functions: pcca and calc.pcca; and likewise with pca and pfa?
         method <- "pCCA"
         res <- calc.pcca(X, Y, zDimension)
       }
@@ -88,15 +88,12 @@ function (X, Y,
       # Thayer D. 1982    
       res <- calc.pfa(X, Y, zDimension)    
       method <- "pFA"
-      #message("Diagonal marginal covariances.")
+
     } else if(marginalCovariances == "identical isotropic"){        
       res <- calc.ppca(X, Y, zDimension)
-      #message("Identical isotropic marginal covariances.")
       method <- "pPCA"
-    } else {
-      # XXXXXXXXXX stop("Only the case marginalCovariances = full has been implemented for nonmatched variables.")
-    }
-
+    } 
+    
   } else if (matched) {
 
     # Matrix normal distribution variance not specified
@@ -230,15 +227,7 @@ function (X, Y,
         }
       } else if (priors$Nm.wxwy.sigma != 0) {
         # Case IIb: partially constrained Wx ~ Wy
-        
-        # Matched case (for instance, for non-segmented data)
-        # FIXME: move earlier?
-        #if (any(is.na(H))) {
-        #  warning("H cannot contain NAs! Using nonconstrained version with priors$sigma.w = Inf.")
-        #  H <- 1
-        #  priors$sigma.w <- Inf
-        #}
-        
+                
         if (nonnegative.w) {
           stop("Not implemented regularized (nonnegative) W with partially constrained Wx ~ Wy. Only special cases priors$sigma.w = 0 and priors$sigma.w = Inf are available.")            
         } else if (!nonnegative.w) {

@@ -1,4 +1,4 @@
-cost.W2 <-
+cost.W.exponential <-
 function (vec, phi, priors, Dim, Dcov) {
 
   # remove sign as we assume W always positive here
@@ -38,4 +38,3 @@ function (vec, phi, priors, Dim, Dcov) {
   cost.data + wcost
 
 }
-

@@ -1,19 +1,11 @@
-update.phi.EM2 <-
-function (Dcov, W.new, phi.inv, W.old, M, nullmat) {
+update.phi.EM.fullcov <- function (Dcov, W.new, phi.inv, W.old, M, nullmat) {
 
   # From BachJordan sec. 4.1	
-
-  #mat <- W.old$total%*%M%*%t(W.new$total)
-  #mat.x <- phi.inv$X%*%mat
-  #mat.y <- phi.inv$Y%*%mat
-  #foo <- rbind(cbind(mat.x, mat.x), cbind(mat.y, mat.y))
-  #mat2 <- Dcov$total - Dcov$total%*%foo
-
-  mat2 <- Dcov$total - Dcov$total%*%phi.inv$total%*%W.old$total%*%M%*%t(W.new$total)
-
+  mat2  <- Dcov$total - Dcov$total%*%phi.inv$total%*%W.old$total%*%M%*%t(W.new$total)
+  
   # ensure that diagonals are nonnegative by adding a small positive constant
   dd <- diag(mat2)
-  dd[dd<1e-6] <- 1e-6
+  dd[dd < 1e-6] <- 1e-6
   diag(mat2) <- dd
 
   # for large dimensionality, regularize more the diagonal

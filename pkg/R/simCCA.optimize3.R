@@ -1,29 +1,27 @@
 simCCA.optimize3 <-
 function (X, Y, zDimension = 1, epsilon = 1e-6, priors = NULL) {
-  
+
+  # Suitable for at least:
+  # nonmatched, prior$W, full marginals
+
+  #################################################
+
   # Different from simCCA.optimize.R in that T is not optimized here
-  # (not included in the model) and there is option to set prior on W
+  # (not included in the model) but there is option to set prior on W
   # (W.prior)
+  # FIXME: make this universal optimization function which combines also T as optional thing
 
-  # zDimension: assumed dimensionality for the shared latent variable z
-
-  # w.similarity parameter tuning Wx ~ Wy in the model where 
-  # sigma.w <- priors$sigma.w
-  # Wx - Wy ~ Nm(O, sigma.w*I, sigma.w*I)
-  # sigma.w <- 0 : Wx = Wy
-  # sigma.w <- Inf : Wx, Wy free
-  
-  #set.seed(mySeed)
-  
   #################################################
+
   # Initialize
+
   #################################################
 
-  # samples are always matched
+  # samples are always matched i.e. ncol(X) = ncol(Y)
   Nsamples <- ncol(X)
 
   if ( length(priors) == 0 ) { priors <- list() }
-  if ( is.null(priors$Nm.wxwy.sigma) ) { priors$Nm.wxwy.sigma <- Inf } # tunes similarity constraint Wx ~ Wy
+  if ( is.null(priors$Nm.wxwy.sigma) ) { priors$Nm.wxwy.sigma <- Inf } # tune similarity constraint Wx ~ Wy
 
   Dim <- list()
   Dim$X <- nrow(X)
@@ -35,10 +33,10 @@ function (X, Y, zDimension = 1, epsilon = 1e-6, priors = NULL) {
   Dcov$Y <- cov(t(Y))
   Dcov$total <- cov(t(rbind(X, Y)))
 
-  # scalar diagonal noise on the marginals (shared by all features) initially
+  # initialize with scalar diagonal noise on the marginals (shared by all features)
   phi.init <- list(X = diag(var(as.vector(X)), Dim$X), Y = diag(var(as.vector(Y)), Dim$Y)) 
   
-  # Initialize 
+  # Initialize W's
   W.init   <- list()
   W.init$X <- as.matrix(eigen(Dcov$X)$vectors[, 1:Dim$Z])
   W.init$Y <- as.matrix(eigen(Dcov$Y)$vectors[, 1:Dim$Z])
@@ -48,7 +46,7 @@ function (X, Y, zDimension = 1, epsilon = 1e-6, priors = NULL) {
   # optimize until convergence
   ##################################################
 
-  res <- optimize.W3(W.init, phi.init, Dim, Dcov, priors, epsilon, par.change = 1e6, cost.old = 1e6)
+  res <- optimize.W3(W.init, phi.init, Dim, Dcov, priors, epsilon)
 
   W <- list(X = res$W$X, Y = res$W$Y, total = rbind(res$W$X, res$W$Y))
   phi <- res$phi
@@ -65,8 +63,6 @@ function (X, Y, zDimension = 1, epsilon = 1e-6, priors = NULL) {
 
   #phitotal <- diag(c(diag(phiX), diag(phiY)), nrow(X) + nrow(Y))
   rownames(phi$total) <- colnames(phi$total) <- c(rownames(X), rownames(Y))
-
-  #phi <- list(X = phiX, Y = phiY, total = phitotal)
 
   return( list(W = W, phi = phi) )
 
