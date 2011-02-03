@@ -1,6 +1,5 @@
-optimize.simCCA.W2 <- function(w, phi, Dim, Dcov, nullmat, epsilon =
-                               1e-3, par.change = 1e6, cost.old = 1e6,
-                               mySeed = 123, dz = NULL, priors = NULL) {
+optimize.simCCA.W2 <- function(X, Y, epsilon = 1e-3, par.change = 1e6, cost.old = 1e6,                               
+                               dz = NULL, priors = NULL) {
 
   # option to give prior on W
   # no analytical solution in general case
@@ -9,17 +8,28 @@ optimize.simCCA.W2 <- function(w, phi, Dim, Dcov, nullmat, epsilon =
   # input otherwise similar, except that w is a single matrix
   # dimX x dimZ (note that dimX = dimY as always with simcca)
 
+  # SimCCA Wx = Wy with regularized W (W>=0)
+  #message("Case Wx = Wy and regularized W.")
+  # Initialize (FIXME: make initialization as in the other options)
+  inits <- initialize2(X, Y)
+  phi <- inits$phi
+  w <- inits$W$X
+  Dcov <- inits$Dcov
+  Dim <- inits$Dim
+  nullmat <- inits$nullmat
+  Nsamples <- inits$Nsamples
+  
   # if dimensionality not specified, use the dimensionality of
   # input w
   dz <- ifelse(is.null(dz), ncol(w), dz)
-
+  Dim$Z <- dz
+  
   # Ensure that the dimensionality of given w matches with given dz
   w <- w[, 1:dz]
   W <- list()
   W$X <- W$Y <- w
   W$total <- rbind(w, w)
 
-  set.seed( mySeed )
   cost.new <- cost7(abs(as.vector(W$X)), phi, Dcov, Dim, priors)
   initcost <- cost.new
 

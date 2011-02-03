@@ -1,5 +1,4 @@
-simCCA.optimize2 <-
-function (X, Y, zDimension = 1, mySeed = 123, epsilon = 1e-6, priors = NULL) {
+simCCA.optimize2 <- function (X, Y, zDimension = 1, mySeed = 123, epsilon = 1e-6, priors = NULL) {
   
   # Different from simCCA.optimize.R in that T is not optimized here
   # (not included in the model) and there is option to set prior on W

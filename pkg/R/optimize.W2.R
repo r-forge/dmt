@@ -56,7 +56,7 @@ function (W, phi, Dim, Dcov, priors, epsilon = 1e-6, par.change = 1e6, cost.old 
 
     M <- solve(t(W$total)%*%phi.inv$total%*%W$total + diag(ncol(W$total)))
 
-    phi <- update.phi.EM2(Dcov, W.new, phi.inv, W.old, M, nullmat)
+    phi <- update.phi.EM.fullcov(Dcov, W.new, phi.inv, W.old, M, nullmat)
 
     cnt <- cnt + 1
 

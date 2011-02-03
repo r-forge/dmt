@@ -1,5 +1,4 @@
-simCCA.optimize3 <-
-function (X, Y, zDimension = 1, epsilon = 1e-6, priors = NULL) {
+simCCA.optimize3 <- function (X, Y, zDimension = 1, epsilon = 1e-6, priors = NULL, marginalCovariances = "full") {
 
   # Suitable for at least:
   # nonmatched, prior$W, full marginals
@@ -14,8 +13,6 @@ function (X, Y, zDimension = 1, epsilon = 1e-6, priors = NULL) {
   #################################################
 
   # Initialize
-
-  #################################################
 
   # samples are always matched i.e. ncol(X) = ncol(Y)
   Nsamples <- ncol(X)
@@ -43,10 +40,9 @@ function (X, Y, zDimension = 1, epsilon = 1e-6, priors = NULL) {
   W.init$total <- rbind(W.init$X, W.init$Y) # can be possibly removed in some special cases
   
   ##################################################
-  # optimize until convergence
-  ##################################################
 
-  res <- optimize.W3(W.init, phi.init, Dim, Dcov, priors, epsilon)
+  # optimize until convergence
+  res <- optimize.parameters(W.init, phi.init, Dim, Dcov, priors, marginalCovariances = "full", epsilon)
 
   W <- list(X = res$W$X, Y = res$W$Y, total = rbind(res$W$X, res$W$Y))
   phi <- res$phi

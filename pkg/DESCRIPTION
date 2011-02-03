@@ -7,7 +7,7 @@ Author: Leo Lahti, Olli-Pekka Huovilainen, and Abhishek Tripathi
 Maintainer: Leo Lahti <leo.lahti@iki.fi>
 Description: Probabilistic dependency modeling toolkit. 
 License: FreeBSD
-Collate: AllClasses.R AllGenerics.R calc.pcca.R centerData.R costs.R DependencyModel-accessors.R dependency.score.R fit.dependency.model.R generate.toydata.R internals.R show-methods.R calc.pfa.R initialize2.R calc.pcca.with.isotropic.margins.R W.cca.EM.R M.set.R calc.ppca.R ppca.calculate.R simCCA.optimize.fullcov.EM.R optimize.fullcov.R simCCA.optimize.R optimize.W.R set.beta.R get.W.R optimize.simCCA.W.R firstlib.R concatenate.R drCCAcombine.R plotVar.R regCCA.R sharedVar.R specificVar.R optimize.W2.R optimize.W3.R optimize.simCCA.W2.R simCCA.optimize2.R simCCA.optimize3.R phi.updates.R z.expectation.R
+Collate: AllClasses.R AllGenerics.R centerData.R costs.R DependencyModel-accessors.R dependency.score.R fit.dependency.model.R generate.toydata.R internals.R show-methods.R initialize2.R pcca.with.isotropic.margins.R W.cca.EM.R M.set.R simCCA.optimize.fullcov.EM.R simCCA.optimize.R optimize.W.R set.beta.R get.W.R optimize.simCCA.W.R firstlib.R concatenate.R drCCAcombine.R plotVar.R regCCA.R sharedVar.R specificVar.R optimize.W2.R optimize.parameters.R optimize.simCCA.W2.R simCCA.optimize2.R simCCA.optimize3.R phi.updates.R z.expectation.R ppca.R pfa.R pcca.R
 LazyLoad: yes
 Depends: mvtnorm, methods, graphics, MASS, Matrix, ellipse
 Packaged: 2010-06-23 14:30:55 UTC; leo

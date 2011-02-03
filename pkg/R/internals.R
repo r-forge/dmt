@@ -1,4 +1,32 @@
+check.data <- function (X, Y, zDimension = NULL) {
 
+  if (is.null(zDimension)) { 
+    # No latent dimensionality specified: using full latent dim
+    zDimension <- min(nrow(X), nrow(Y))   
+  } else if (zDimension > min(nrow(X), nrow(Y))) {
+    warning("Latent variable dimensionality cannot exceed data dimensionality. Setting zDimension = min(nrow(X), nrow(Y))")
+    zDimension <- min(nrow(X), nrow(Y))
+  }
+        
+  # Check that data is given as a matrix
+  if ( !is.matrix(X) ){
+    stop("X data needs to be a matrix")
+  }
+	    
+  # Check that data is given as a matrix
+  if ( !is.null(Y) && !is.matrix(Y) ){
+    stop("Y data needs to be a matrix")
+  }
+
+  cat("Centering the data..\n")
+  X <- t(centerData(t(X), rm.na = TRUE))		        
+  if (!is.null(Y)) {			  
+    Y <- t(centerData(t(Y), rm.na = TRUE))			      
+  }			        				
+      
+  list(X = X, Y = Y, zDimension = zDimension)
+
+} 
 
 
 
@@ -37,7 +65,6 @@ solve.w <- function (Xc, Yc, Cxx, Cyy, dz = NULL) {
   # Cxx and Cyy are covariances from cov(Xc) and cov(Yc)
   # dz shows the desired rank of latent Z
 
-
   # NOTE: here the dimensions of Xc and Yc do not need to match
   # Note: in previous solve.w the input data was features x samples
 
@@ -49,19 +76,17 @@ solve.w <- function (Xc, Yc, Cxx, Cyy, dz = NULL) {
   dx <- qx$rank
   dy <- qy$rank
 
-  if (dx < ncol(Xc) || dy < ncol(Yc))
-    stop("Unable to calculate the pCCA model; the sample covariance matrix is not invertible.\nMake sure that you are not using segmented data")
-
+  if (dx < ncol(Xc) || dy < ncol(Yc)) {
+    stop("Unable to calculate the pCCA model; the sample covariance matrix is not invertible.")
+  }
+  
   z <- svd(qr.qty(qx, qr.qy(qy, diag(1, nr, dy)))[1L:dx, , drop = FALSE], dx, dy)
 
   xcoef <- backsolve((qx$qr)[1L:dx, 1L:dx, drop = FALSE], z$u)
   ycoef <- backsolve((qy$qr)[1L:dy, 1L:dy, drop = FALSE], z$v)
 
-  #rownames(xcoef) <- colnames(Xc)[qx$pivot][1L:dx]
-  #rownames(ycoef) <- colnames(Yc)[qy$pivot][1L:dy]
-  #cca <- list(cor = z$d, xcoef = xcoef, ycoef = ycoef)
-
   # Solve W using Archambeau06 equations
+  
   # Note: only requirement for Q is that Qx%*%t(Qy) = canonical correlations
   # Q corresponds to M (dz x dz) in Bach-Jordan 2005, p.8 (before sec 4.1)
   Qx <- diag(z$d[1:dz],dz,dz) # dz x dz matrix

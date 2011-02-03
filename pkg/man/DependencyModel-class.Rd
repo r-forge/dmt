@@ -25,8 +25,9 @@
 \description{A Dependency model for one or two data sets}
 
 \section{Objects from the Class}{
-  Returned by \code{\link{fit.dependency.model}}, \code{\link{ppca}}, \code{\link{pfa}}, \code{\link{pcca}} 
-  and \code{\link{pcca.isotropic}} functions.
+  Returned by \code{\link{fit.dependency.model}}, \code{\link{ppca}},
+\code{\link{pfa}}, and \code{\link{pcca}} functions.
+%  and \code{\link{pcca.isotropic}} 
 }
 \section{Slots}{
   \describe{
@@ -77,10 +78,6 @@
 data(modelData) # Load example data X, Y
 model <- fit.dependency.model(X, Y)
 # Getting the latent variable Z when it has been calculated with the model
-getZ(model)
-
-model2 <- fit.dependency.model(X, Y, includeData = FALSE, calculateZ = FALSE)
-# Getting the latent variable Z when its not calculated and the original data is not included
-getZ(model, X, Y)
+#getZ(model)
 }
 \keyword{classes}

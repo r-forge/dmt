@@ -8,7 +8,7 @@
 
 ############################################################################
 
-calc.pcca.with.isotropic.margins <- function (X, Y, dz = 1, epsilon = 1e-6, delta = 1e6) {
+pcca.with.isotropic.margins <- function (X, Y, dz = 1, epsilon = 1e-6, delta = 1e6) {
 
   # epsilon and delta are convergence parameters
   # dz determines the dimensionality of the shared latent variable Z

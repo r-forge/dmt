@@ -3,7 +3,7 @@
 \alias{fit.dependency.model}
 \alias{ppca}
 \alias{pcca}
-\alias{pcca.isotropic}
+%\alias{pcca.isotropic}
 \alias{pfa}
 \title{Fit dependency model between two data sets.}
 
@@ -19,16 +19,14 @@ fit.dependency.model(X, Y, zDimension = 1, marginalCovariances = "full",
                      priors = list(), matched = TRUE,
                      includeData = TRUE, calculateZ = TRUE)
 
-ppca(X, Y, zDimension = NULL, matched = FALSE, includeData = TRUE, calculateZ = TRUE)
-pfa(X, Y = NULL, zDimension = NULL, matched = FALSE, includeData = TRUE, calculateZ = TRUE)
-pcca.isotropic(X, Y, zDimension = NULL, matched = FALSE, covLimit = 1e-6, includeData = TRUE, calculateZ = TRUE)
-pcca(X, Y, zDimension = NULL, matched = FALSE, includeData = TRUE, calculateZ = TRUE)
-
+ppca(X, Y = NULL, zDimension = NULL, includeData = TRUE, calculateZ = TRUE)
+pfa(X, Y = NULL, zDimension = NULL, includeData = TRUE, calculateZ = TRUE)
+pcca(X, Y, zDimension = NULL, includeData = TRUE, calculateZ = TRUE)
+%pcca.isotropic(X, Y, zDimension = NULL, matched = FALSE, covLimit = 1e-6, includeData = TRUE, calculateZ = TRUE)
 }
 \arguments{
-  \item{X, Y}{
-The two data sets. 'Variables x samples'. The second data set
-(\code{Y}) is optional.}
+  \item{X, Y}{Data set/s X and Y. 'Variables x samples'. The second
+data set (\code{Y}) is optional.}
   \item{zDimension}{Dimensionality of the shared latent variable.}
   \item{marginalCovariances}{
     Structure of marginal covariances. Options: \code{"identical isotropic"},
@@ -126,7 +124,9 @@ regularised by adding a small constant to the diagonal.
 }
 
 \value{
-\linkS4class{DependencyModel}
+\linkS4class{DependencyModel} for fit.dependency.model; for ppca, pfa
+and pcca a list with elements W and phi, corresponding to the model
+parameters.
 }
 
 \references{
@@ -168,8 +168,8 @@ data(modelData) # Load example data X, Y
 # pSimCCA model
 model <- fit.dependency.model(X, Y, zDimension = 1)
 
-# pPCA model for two data sets
-model <- ppca(X, Y)
+# probabilistic CCA with full latent dimensionality:
+model <- pcca(X, Y)
 
 # Getting the latent variable Z when it has been calculated with the model
 #getZ(model)

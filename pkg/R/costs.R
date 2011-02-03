@@ -35,7 +35,7 @@ function (vec, phi, priors, Dim, Dcov, H) {
 
 
 cost.W.exponential <-
-function (vec, phi, priors, Dim, Dcov) {
+function (vec, phi, priors = NULL, Dim, Dcov) {
 
   # remove sign as we assume W always positive here
   vec <- abs(vec)
@@ -47,7 +47,7 @@ function (vec, phi, priors, Dim, Dcov) {
   # integrated over z
   # given parameters W, phi
   # P(X,Y | W, phi) = integral N(X|Wx*z,phix)*N(Y|Wy*z,phiy)*N(z|0,I)
-  # We report -logP here
+  # report -logP here
   
   # Data prob. Taken from probCCA paper, section 4, l1
   wtw.xy <- W$X%*%t(W$Y)
@@ -61,14 +61,11 @@ function (vec, phi, priors, Dim, Dcov) {
   # -logP for W prior
   # wcost <- sum((W$X)^2) * priors$W
   # Assuming exponential prior distribution with rate parameter priors$W
-  if (!is.null(priors)){
+  wcost <- 0 # no effect
+  if (!is.null(priors$W)){
     if (priors$W > 0) {
       wcost <- -sum(dexp(vec, rate = priors$W, log = TRUE))
-    } else {
-      wcost <- 0 # no effect
-      #(this option is selected also if rate parameter prior$W < 0)
     }
-    wcost <- 0 # no effect
   }
   
   cost.data + wcost

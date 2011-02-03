@@ -1,5 +1,9 @@
-optimize.W3 <-
-function (W, phi, Dim, Dcov, priors, epsilon = 1e-6, par.change = 1e6, cost.old = 1e6) {
+optimize.parameters <-
+function (W, phi, Dim, Dcov, priors, marginalCovariances = "full", epsilon = 1e-6, par.change = 1e6, cost.old = 1e6) {
+
+  # NOTE:
+  # 1) cost.W.exponential accepts also priors$W = NULL i.e. no W prior
+  # 2) FIXME: implement other marginalCov structures
 
   # initializing
   cost.new <- cost.W.exponential(c(as.vector(W$X), as.vector(W$Y)), phi, priors, Dim, Dcov)
@@ -21,7 +25,7 @@ function (W, phi, Dim, Dcov, priors, epsilon = 1e-6, par.change = 1e6, cost.old 
 
     # Update W: initialize with previous W	
     
-    # This optimizes Wx and Wy separately
+    # This optimizes Wx and Wy assuming they are independent
     opt <- optim(c(as.vector(W$X), as.vector(W$Y)), cost.W.exponential, method = "L-BFGS-B", phi = phi, priors = priors, Dim = Dim, Dcov = Dcov, control = list(maxit = 1e6), lower = -10*max(Dcov$total), upper = 10*max(Dcov$total))
 
     # Convert optimized W parameter vector to actual matrices
