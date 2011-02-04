@@ -90,16 +90,12 @@ function (X, Y,
       # implement sparsity prior W ~ N(0, sd*I)
 
       if (marginalCovariances == "full") {
-        res <- simCCA.optimize3(X, Y, zDimension, epsilon = covLimit, priors = priors, marginalCovariances)
+        res <- optimize.parameters(X, Y, zDimension, priors = priors, marginalCovariances, epsilon = covLimit)
         method <- "pCCA with exponential W prior"     
-
-        # FIXME: simCCA.optimize2 and simCCA.optimize3 should give same results - what is the difference? Merge.
         # FIXME: this should work also with constrained Wx ~ Wy, test and compare 
         # By default, this function does not constrain Wx~Wy
         # (priors$sigma.w = Inf) but imposes prior on W.  
         # any zDimension should work here
-        #res <- simCCA.optimize2(X, Y, zDimension, 
-        #                      epsilon = covLimit, priors = priors)
 
       } else if (marginalCovariances == "diagonal") {
         stop("nonmatched with diagonal covariances not yet implemented")       
@@ -202,18 +198,14 @@ function (X, Y,
         # message("Partially constrained Wx ~ Wy. No regularization for W.")
             		    
         if (marginalCovariances == 'isotropic') {
+	  # message("SimCCA with isotropic covariances and regularized H (through sigmas).")
+	
           # FIXME: consider later adding other covariance structures if needed?
-	  # note that the computation is slow then
-   
-          # Make H identity matrix if scalar is given
-          if(length(priors$Nm.wxwy.mean) == 1){ priors$Nm.wxwy.mean <- diag(1, nrow(X), nrow(Y)) }
-          if(ncol(priors$Nm.wxwy.mean) != nrow(X)){ stop("columns of H must match rows of X") }
-          if(nrow(priors$Nm.wxwy.mean) != nrow(Y)){ stop("rows of H must match rows of Y") }
-                
-          #message("SimCCA with isotropic covariances and regularized H (through sigmas).")
-          # FIXME: is sigma2.W really needed; handle all through 'priors' directly in the call
-          res <- simCCA.optimize(X, Y, zDimension, priors$Nm.wxwy.mean, sigma2.T = priors$Nm.wxwy.sigma, sigma2.W = 1e12, epsilon = covLimit)
+	  # note that the computation is slow then          		
+
+          res <- optimize.parameters(X, Y, zDimension, priors, marginalCovariances, epsilon = covLimit)
           method <- "constrained Wx~Wy with matrix normal distribution prior"
+
         } else if (!marginalCovariances == 'isotropic') {
           stop("Only isotropic marginal covariances implemented with constrained Wx ~ Wy in the general case.")
         }

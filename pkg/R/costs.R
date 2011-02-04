@@ -1,5 +1,7 @@
 cost.W <-
-function (vec, phi, priors, Dim, Dcov, H) {
+function (vec, phi, priors, Dim, Dcov) {
+
+  H <- priors$Nm.wxwy.mean
 
   # Retrieve the actual W and T from the parameter vector
   wt <- get.W(vec, Dim)
@@ -23,10 +25,10 @@ function (vec, phi, priors, Dim, Dcov, H) {
   cost.data <- log(det(Sigma)) + sum(diag(solve(Sigma)%*%Dcov$total))
 
   # -logP for T prior
-        tcost <- sum((T - H)^2) * priors$T
+  tcost <- sum((T - H)^2) * priors$T.tmp
     
   # -logP for W prior - skip since not used now
-  #wcost <- sum((W$X)^2) * priors$W
+  #wcost <- sum((W$X)^2) * priors$W.tmp
 
   cost.data + tcost #+ wcost
 
