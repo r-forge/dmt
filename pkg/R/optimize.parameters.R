@@ -3,20 +3,20 @@ function (W, phi, Dim, Dcov, priors, marginalCovariances = "full", epsilon = 1e-
 
   # NOTE:
   # 1) cost.W.exponential accepts also priors$W = NULL i.e. no W prior
-  # 2) FIXME: implement other marginalCov structures
+  # 2) FIXME: implement other marginalCov structures and sparse W prior
 
   # initializing
   cost.new <- cost.W.exponential(c(as.vector(W$X), as.vector(W$Y)), phi, priors, Dim, Dcov)
   costs    <- c(cost.new)
-  cnt      <- 1
-  phi.inv  <- list()
   nullmat  <- matrix(0, nrow = Dim$X, ncol = Dim$Y)
 
   # FIXME: if phi$Y is scalar (as in segmented/mir case) we can speed up here. Do later.
+  phi.inv  <- list()
   phi.inv$X <- solve(phi$X)
   phi.inv$Y <- solve(phi$Y)  
   phi.inv$total <- rbind(cbind(phi.inv$X, nullmat), cbind(t(nullmat), phi.inv$Y))
 
+  cnt <- 1
   while (par.change > epsilon) {
 
     cost.old <- cost.new
@@ -35,27 +35,38 @@ function (W, phi, Dim, Dcov, priors, marginalCovariances = "full", epsilon = 1e-
 
     ##################################################
 
-    # Update phi (full covariances)
+    # Update phi
 
-    phi.inv$X <- solve(phi$X)
-    phi.inv$Y <- solve(phi$Y)    
-    phi.inv$total <- rbind(cbind(phi.inv$X, nullmat),
+    if (marginalCovariances = "full") {
+
+      phi.inv$X <- solve(phi$X)
+      phi.inv$Y <- solve(phi$Y)    
+      phi.inv$total <- rbind(cbind(phi.inv$X, nullmat),
                            cbind(t(nullmat), phi.inv$Y))    
 
-    # also check from optimize.fullcov.R
-    M <- set.M.full2(W.old, phi.inv, dz = Dim$Z) 
+      # also check from optimize.fullcov.R
+      M <- set.M.full2(W.old, phi.inv, dz = Dim$Z) 
+      #M <- set.M.full2(W.new, phi.inv, dz = Dim$Z) # new or old here? check
 
-    phi <- update.phi.EM.fullcov(Dcov, W.new, phi.inv, W.old, M, nullmat)
+      # assuming in general Wx != Wy
+      phi <- phi.EM.cca(Dcov, W.new, phi.inv, W.old, M, nullmat)
+
+    } #else if (marginalCovariances = "isotropic") {
+      #   
+      #phi <- update.phi(Dcov, M, beta, W, phi)
+   # 
+   #   stop("With priors for W, only marginalCovariances = full has been implemented.")
+   #   # FIXME: add other cov structures
+   # }
 
     ###################################################
-
-    cnt <- cnt + 1
 
     # Check and print marginal likelihood (-logP) for the data
     # the smaller, the better are the parameters
     cost.new <- cost.W.exponential(c(as.vector(W$X), as.vector(W$Y)), phi, priors, Dim, Dcov)
     
     par.change <- (cost.old - cost.new)
+    cnt <- cnt + 1
     costs[[cnt]] <- cost.new
 
   }
