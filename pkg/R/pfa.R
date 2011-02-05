@@ -41,7 +41,7 @@ calc.pfa <- function (X, Y, zDimension) {
       beta <- t(eigen(cov(Y.rubin))$vectors[,1:zDimension])
     }
     else {
-      init <- initialize2(X,Y)
+      init <- initialize2(X, Y, zDimension, marginalCovariances = "diagonal")
       # Factor loading matrix
       beta <- t(init$W$total[,1:zDimension])
     }

@@ -1,22 +1,13 @@
-############################################################################
-
-# Example use
-#data(chromosome17)
-#X = t(centerData(t(geneExp$data[145:154,])))
-#Y = t(centerData(t(geneCopyNum$data[145:154,])))
-#res <- pcca.with.isotropic.margins(X, Y,1,1e-6)
-
-############################################################################
-
-pcca.with.isotropic.margins <- function (X, Y, dz = 1, epsilon = 1e-6, delta = 1e6) {
+pcca.with.isotropic.margins <- function (X, Y, zDimension = 1, epsilon = 1e-6, delta = 1e6) {
 
   # epsilon and delta are convergence parameters
-  # dz determines the dimensionality of the shared latent variable Z
+  # zDimension determines the dimensionality of the shared latent variable Z
 
-  dx <- nrow(X)
-  dy <- nrow(Y)
-  if (dz > min(dx,dy)) {stop("dz < min(nrow(X),nrow(Y)) required!")}
-  
+  dat <- check.data(X, Y, zDimension)
+  X <- dat$X
+  Y <- dat$Y
+  zDimension <- dat$zDimension
+		  
   #  Dependency model
   #  X ~ N(Wx*z, sigmax*I)
   #  y ~ N(Wy*z, sigmay*I)
@@ -28,16 +19,17 @@ pcca.with.isotropic.margins <- function (X, Y, dz = 1, epsilon = 1e-6, delta = 1
   # alternatively add mean parameter in the model
 
   # initialize
-     inits <- initialize2(X,Y)
-  phi.init <- inits$phi
+     inits <- initialize2(X, Y, zDimension, marginalCovariances = "isotropic")
+       phi <- inits$phi
       Dcov <- inits$Dcov
        Dim <- inits$Dim
-    W.init <- inits$W
-         W <- as.matrix(W.init$total[,1:dz])
-        Wx <- as.matrix(W[1:dx,1:dz])
-        Wy <- as.matrix(W[-(1:dx),1:dz])
+         W <- inits$W
+         W <- as.matrix(W$total[,1:zDimension])
+        Wx <- as.matrix(W[1:Dim$X,1:zDimension])
+        Wy <- as.matrix(W[-(1:Dim$X),1:zDimension])
        phi <- list(X = 1, Y = 1)
-
+       # redundancy??
+       # zDImension -> Dim$Z
   
   # iterate until convergence:
   while (delta>epsilon) {
@@ -54,11 +46,11 @@ pcca.with.isotropic.margins <- function (X, Y, dz = 1, epsilon = 1e-6, delta = 1
           #######################################
 
           phi.inv.full <- diag(c(rep(1/phi$X, Dim$X), rep(1/phi$Y, Dim$Y)))
-             M <- set.M.full(W, phi.inv.full, dz) # corresponds to G in Bishop's book
+             M <- set.M.full(W, phi.inv.full, zDimension) # corresponds to G in Bishop's book
           beta <- set.beta.fullcov(M, W, phi.inv.full)
              W <- as.matrix(W.cca.EM(Dcov, M, beta))
-            Wx <- as.matrix(W[1:dx,])
-            Wy <- as.matrix(W[-(1:dx),])
+            Wx <- as.matrix(W[1:Dim$X,])
+            Wy <- as.matrix(W[-(1:Dim$X),])
            
           ########################################
           
@@ -70,8 +62,8 @@ pcca.with.isotropic.margins <- function (X, Y, dz = 1, epsilon = 1e-6, delta = 1
   # retrieve W and phi as in other functions:
   W2 <- list()
   W2$total <- W
-  W2$X <- as.matrix(W[1:dx,])
-  W2$Y <- as.matrix(W[-(1:dx),])
+  W2$X <- as.matrix(W[1:Dim$X,])
+  W2$Y <- as.matrix(W[-(1:Dim$X),])
 
   phiX <- diag(phi$X, nrow(X))
   rownames(phiX) <- rownames(X)

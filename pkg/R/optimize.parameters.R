@@ -1,4 +1,6 @@
-optimize.parameters <- function (X, Y, zDimension = 1, priors = NULL, marginalCovariances = "full", epsilon = 1e-6, par.change = 1e6, cost.old = 1e6) {
+optimize.parameters <- function (X, Y, zDimension = 1, priors = NULL, 
+                                 marginalCovariances = "full", 
+				 epsilon = 1e-6, par.change = 1e6, cost.old = 1e6) {
 
   # Suitable for at least:
   # nonmatched, prior$W, full marginals
@@ -7,78 +9,51 @@ optimize.parameters <- function (X, Y, zDimension = 1, priors = NULL, marginalCo
   # (not included in the model) but there is option to set prior on W
   # (W.prior)
   
-  # FIXME: make this universal optimization function which combines also T as optional thing
-
-  ###############################################
-
-  # samples are always matched i.e. ncol(X) = ncol(Y)
-  Nsamples <- ncol(X)
-  
+  inits <- initialize2(X, Y, zDimension, marginalCovariances)
+  phi <- inits$phi
+  phi.inv <- inits$phi.inv
+  W <- inits$W
+  Dcov <- inits$Dcov
+  Dim <- inits$Dim
+  nullmat <- inits$nullmat
+  Nsamples <- inits$Nsamples
+	      
   # FIXME: handle priors completely outside this function later!
   
   if ( length(priors) == 0 ) { priors <- list() }
-
   # tune similarity constraint Wx ~ Wy
   if ( is.null(priors$Nm.wxwy.sigma) ) { priors$Nm.wxwy.sigma <- Inf } 
   if ( length(priors$Nm.wxwy.mean) == 1 ){ priors$Nm.wxwy.mean <- diag(1, nrow(X), nrow(Y)) }
   if ( ncol(priors$Nm.wxwy.mean) != nrow(X)){ stop("columns of H must match rows of X") }
   if ( nrow(priors$Nm.wxwy.mean) != nrow(Y)){ stop("rows of H must match rows of Y") }  
-
   if ( is.null(priors$W) ) { sigma2.W <- Inf }
   priors$W.tmp <- 1/(2 * sigma2.W * Nsamples)
   priors$T.tmp <- 1/(2 * Nsamples * priors$Nm.wxwy.sigma)
-  
-  ##############################################
-
-  Dim <- list()
-  Dim$X <- nrow(X)
-  Dim$Y <- nrow(Y)
-  Dim$Z <- zDimension
-  nullmat  <- matrix(0, nrow = Dim$X, ncol = Dim$Y)
-  
-  Dcov <- list()
-  Dcov$X <- cov(t(X))
-  Dcov$Y <- cov(t(Y))
-  Dcov$total <- cov(t(rbind(X, Y)))
-
-  # initialize with scalar diagonal noise on the marginals (shared by all features)
-  phi <- phi.init <- list(X = diag(var(as.vector(X)), Dim$X), Y = diag(var(as.vector(Y)), Dim$Y)) 
-
-  if (marginalCovariances == "isotropic") {
-    phi$X <- var(as.vector(X))
-    phi$Y <- var(as.vector(Y))   
-    phi.init <- phi # FIXME can phi.init be replaced solely by phi everywhere??
-  }
-
-  # FIXME: if phi$Y is scalar (as in segmented/mir case) we can speed up here. Do later.
-  phi.inv  <- list()
-  phi.inv$X <- solve(phi$X)
-  phi.inv$Y <- solve(phi$Y)  
-  phi.inv$total <- rbind(cbind(phi.inv$X, nullmat), cbind(t(nullmat), phi.inv$Y))
-
-  # Initialize W's
-  W.init   <- list()
-  W.init$X <- as.matrix(eigen(Dcov$X)$vectors[, 1:Dim$Z])
-  W.init$Y <- as.matrix(eigen(Dcov$Y)$vectors[, 1:Dim$Z])
-  W.init$total <- rbind(W.init$X, W.init$Y) # can be possibly removed in some special cases
-  W <- W.init
-
   if (!is.null(priors$W)) {
     # cost.W.exponential accepts also priors$W = NULL i.e. no W prior
     cost.new <- cost.W.exponential(c(as.vector(W$X), as.vector(W$Y)), phi, priors, Dim, Dcov)
   } else {
      # We assume here that Wy = T%*%Wx. Optimizing also T.
-     T <- T.init <- array(rnorm(Dim$Y*Dim$X,0,sd(W.init$X)), dim = c(Dim$Y, Dim$X))
+     T <- T.init <- array(rnorm(Dim$Y*Dim$X,0,sd(W$X)), dim = c(Dim$Y, Dim$X))
      # Ensure that Wy = T * Wx:
-     W.init$Y <- T.init%*%W.init$X
-     W <- W.init
-      
+     W$Y <- T.init%*%W$X
      # here W not necessarily positive
      cost.new <- cost.W(c(as.vector(W$X),as.vector(T)), phi, priors, Dim, Dcov)
   }
+  
+  if (priors$Nm.wxwy.sigma == 0) { # Wx = Wy
+    w <- inits$W$X  
+    # Ensure that the dimensionality of given w matches with given zDimension
+    w <- w[, 1:zDimension]
+    W <- list()
+    W$X <- W$Y <- w
+    W$total <- rbind(w, w)
+ 
+    cost.new <- initcost <- cost7(abs(as.vector(W$X)), phi, Dcov, Dim, priors)    
     
+  }
 
-  while (par.change > epsilon) {
+  while (par.change > epsilon || par.change < 0) {
 
     cost.old <- cost.new
 
@@ -86,15 +61,39 @@ optimize.parameters <- function (X, Y, zDimension = 1, priors = NULL, marginalCo
 
     # Update W: initialize with previous W	
 
+    W.old <- W
+
     if (!is.null(priors$W)) {
 
-      # optimizes Wx and Wy assuming they are independent
-      opt <- optim(c(as.vector(W$X), as.vector(W$Y)), cost.W.exponential, method = "L-BFGS-B", phi = phi, priors = priors, Dim = Dim, Dcov = Dcov, control = list(maxit = 1e6), lower = -10*max(Dcov$total), upper = 10*max(Dcov$total))
+      if (is.null(priors$Nm.wxwy.sigma) || priors$Nm.wxwy.sigma == Inf) {
+        # optimizes Wx and Wy assuming they are independent
+        opt <- optim(c(as.vector(W$X), as.vector(W$Y)), cost.W.exponential, 
+	             method = "L-BFGS-B", phi = phi, priors = priors, 
+		     Dim = Dim, Dcov = Dcov, control = list(maxit = 1e6), 
+		     lower = -10*max(Dcov$total), upper = 10*max(Dcov$total))
 
-      # Convert optimized W parameter vector to actual matrices
-      # Note that here we always assume that W is positive
-      W.old <- W
-      W.new <- W <- get.W2(opt$par, Dim)
+        # Convert optimized W parameter vector to actual matrices
+        # Note that here we always assume that W is positive
+        W <- get.W2(opt$par, Dim)
+      } else if (priors$Nm.wxwy.sigma == 0) {
+      
+      	# assuming Wx = Wy, we can speed up (FIXME; analytical alternatives?)
+
+        # SimCCA Wx = Wy with regularized W (W>=0)
+        # message("Case Wx = Wy and regularized W.")
+
+	opt <- optim(as.vector(W$X), cost7, method = "L-BFGS-B", 
+	             phi = phi, priors = priors, Dim = Dim, Dcov = Dcov, 
+		     control = list(maxit = 1e6), 
+                     lower = -10*max(Dcov$total), upper = 10*max(Dcov$total))
+	
+        w <- W$X <- W$Y <- get.W4(abs(opt$par), Dim)$X
+	W$total <- rbind(w, w)
+		
+      } else {
+        stop("W regularization implemented only for identical or independent Wx, Wy ie. priors$Nm.wxwy.sigma = 0 and priors$Nm.wxwy.sigma = Inf")
+        # FIXME add the intermediates, should be straightforward by combining penalized optimizations
+      }
 
     } else {
         			   
@@ -109,6 +108,8 @@ optimize.parameters <- function (X, Y, zDimension = 1, priors = NULL, marginalCo
 
     }
     
+    W.new <- W # redundant?
+    
     ##################################################
 
     # Update phi
@@ -120,13 +121,30 @@ optimize.parameters <- function (X, Y, zDimension = 1, priors = NULL, marginalCo
       phi.inv$total <- rbind(cbind(phi.inv$X, nullmat),
                            cbind(t(nullmat), phi.inv$Y))    
 
-      # also check from optimize.fullcov.R
-      M <- set.M.full2(W.old, phi.inv, dz = Dim$Z) 
-      #M <- set.M.full2(W.new, phi.inv, dz = Dim$Z) # new or old here? check
 
-      # assuming in general Wx != Wy
-      phi <- phi.EM.cca(Dcov, W.new, phi.inv, W.old, M, nullmat)
+      if (priors$Nm.wxwy.sigma == 0) {
+     
+        # Wx = Wy
+        # FIXME: implement this also for other covariance structures
 
+        # see Bach-Jordan 2005, sec. 4.1 for details
+        M <- solve(t(W.old$X)%*%(phi.inv$X + phi.inv$Y)%*%W.old$X + diag(zDimension))
+        # FIXME: replace this with the general M.set functions
+
+        # Update phi
+        phi <- phi.EM.simcca(Dcov, W.new, phi.inv, W.old, M)
+	     
+      } else {
+      
+        # also check from optimize.fullcov.R
+        M <- set.M.full2(W.old, phi.inv, dz = Dim$Z) 
+        #M <- set.M.full2(W.new, phi.inv, dz = Dim$Z) # new or old here? check
+
+        # assuming in general Wx != Wy
+        phi <- phi.EM.cca(Dcov, W.new, phi.inv, W.old, M, nullmat)
+
+     }
+     
     } else if (marginalCovariances == "isotropic") {
 
        # set.M is for isotropic X or Y
@@ -147,8 +165,18 @@ optimize.parameters <- function (X, Y, zDimension = 1, priors = NULL, marginalCo
     # Check and print marginal likelihood (-logP) for the data
     # the smaller, the better are the parameters
     if (!is.null(priors$W)) {
-      cost.new <- cost.W.exponential(c(as.vector(W$X), as.vector(W$Y)), phi, priors, Dim, Dcov)
-    } else{
+
+      # FIXME: cost7 and cost.W.exponential should both optimize nonneg W; combine
+      if (priors$Nm.wxwy.sigma == 0) {
+        cost.new <- cost7(abs(as.vector(W$X)), phi, Dcov, Dim, priors)
+      } else if (priors$Nm.wxwy.sigma == Inf) {
+        cost.new <- cost.W.exponential(c(as.vector(W$X), as.vector(W$Y)), phi, priors, Dim, Dcov)      
+      } else {
+        stop("W regularization implemented only for independent and identical Wx, Wy cases.")
+        # FIXME add the intermediates also
+      }
+    
+    } else {
       cost.new <- cost.W(c(as.vector(W$X), as.vector(T)), phi, priors, Dim, Dcov)
     }
     

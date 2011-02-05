@@ -7,7 +7,7 @@ function (X, Y, zDimension = NULL, mySeed = 123, epsilon = 1e-6) {
   # Initialize
   #################################################
 
-  inits <- initialize2(X, Y)
+  inits <- initialize2(X, Y, zDimension, marginalCovariances = "full")
   phi.init <- inits$phi
   W.init <- inits$W
   Dcov <- inits$Dcov

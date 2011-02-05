@@ -151,12 +151,9 @@ function (X, Y,
 
         if (marginalCovariances == "full") {
           # use this for full W (EM algorithm, unstable for n ~ p) (?)
-          res <- optimize.simCCA.W2(X, Y,
-                                  epsilon = covLimit,
-                                  par.change = 1e6,
-                                  dz = zDimension,
-                                  priors = priors)
-           method <- "pCCA with W prior"
+          res <- optimize.parameters(X, Y, zDimension, epsilon = covLimit,                                  
+                                  par.change = 1e6, priors = priors)                                 
+          method <- "pCCA with W prior"
         } else if (marginalCovariances == "diagonal") {	
           stop("Matched case with regularized W implemented only with full marginalCovariances")
 	  # FIXME: add diagonal covs
