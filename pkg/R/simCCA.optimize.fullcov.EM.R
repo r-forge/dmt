@@ -1,24 +1,5 @@
 simCCA.optimize.fullcov.EM <-
-function (X, Y, zDimension = NULL, mySeed = 123, epsilon = 1e-6) {
-
-  set.seed(mySeed)
-
-  #################################################
-  # Initialize
-  #################################################
-
-  inits <- initialize2(X, Y, zDimension, marginalCovariances = "full")
-  phi.init <- inits$phi
-  W.init <- inits$W
-  Dcov <- inits$Dcov
-  Dim <- inits$Dim
-  nullmat <- inits$nullmat
-  Nsamples <- inits$Nsamples
-  
-  ##################################################
-  # optimize until convergence
-  ##################################################
-
+function (X, Y, zDimension = NULL, epsilon = 1e-6) {
 
   # use this for full W (EM algorithm, unstable for n ~ p)
   res <- optimize.simCCA.W(W.init$X, phi.init, Dim, Dcov,
