@@ -1,7 +1,4 @@
-
-
-get.W <-
-function (vec, Dim) {
+get.W <- function (vec, Dim) {
 
   # Convert parameter vector into matrices Wx and Wy
   W <- list()
@@ -12,8 +9,7 @@ function (vec, Dim) {
   list(W = W, T = T)
 }
 
-get.W2 <-
-function (vec, Dim) {
+get.W2 <- function (vec, Dim) {
 
   # Convert parameter vector into matrices Wx and Wy
 
@@ -32,10 +28,10 @@ function (vec, Dim) {
 
 }
 
-get.W4 <-
-function (vec, Dim) {
+get.W4 <- function (vec, Dim) {
 
   # Convert parameter vector into matrices Wx and Wy
+  # assumes Wx = Wy
 
   # NOTE: assumes dx = dy  
   W <- list()

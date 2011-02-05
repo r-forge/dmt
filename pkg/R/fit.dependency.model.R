@@ -120,7 +120,7 @@ function (X, Y,
       
     # Matrix normal distribution mean matrix not specified
     if (is.null(priors$Nm.wxwy.mean)) {
-      message("The matrix Nm.wxwy.mean is not specified. Setting H = 1.")
+      message("The matrix Nm.wxwy.mean is not specified. Using identify matrix.")
       priors$Nm.wxwy.mean <- 1
     }    
 
@@ -169,7 +169,12 @@ function (X, Y,
 	if (marginalCovariances == 'full') {
           # mlsp'09 simcca
           # message("Case Wx = Wy. No regularization for W.")
-          res <- simCCA.optimize.fullcov.EM(X, Y, zDimension, epsilon = covLimit)
+	  
+	  # use this for full W (EM algorithm, unstable for n ~ p)
+	  res <- optimize.parameters(X, Y, zDimension, priors, 
+	      	 		     marginalCovariances, epsilon = covLimit,
+				     par.change = 1e6)
+
           method <- "pSimCCA"
           # FIXME: priors for phi todo? but I had these available for mlsp?
 	  # FIXME: add tests

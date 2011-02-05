@@ -1,13 +1,13 @@
 Package: dmt
 Type: Package
 Title: Dependency modelling toolbox
-Version: 0.4.11
-Date: 2011-02-03
+Version: 0.4.12
+Date: 2011-02-05
 Author: Leo Lahti, Olli-Pekka Huovilainen, and Abhishek Tripathi
 Maintainer: Leo Lahti <leo.lahti@iki.fi>
 Description: Probabilistic dependency modeling toolkit. 
 License: FreeBSD
-Collate: AllClasses.R AllGenerics.R centerData.R costs.R DependencyModel-accessors.R dependency.score.R fit.dependency.model.R generate.toydata.R internals.R show-methods.R initialize2.R pcca.with.isotropic.margins.R W.cca.EM.R M.set.R simCCA.optimize.fullcov.EM.R set.beta.R get.W.R optimize.simCCA.W.R firstlib.R concatenate.R drCCAcombine.R plotVar.R regCCA.R sharedVar.R specificVar.R optimize.parameters.R phi.updates.R z.expectation.R ppca.R pfa.R pcca.R
+Collate: AllClasses.R AllGenerics.R centerData.R costs.R DependencyModel-accessors.R dependency.score.R fit.dependency.model.R generate.toydata.R internals.R show-methods.R initialize2.R pcca.with.isotropic.margins.R W.cca.EM.R M.set.R set.beta.R get.W.R firstlib.R concatenate.R drCCAcombine.R plotVar.R regCCA.R sharedVar.R specificVar.R optimize.parameters.R phi.updates.R z.expectation.R ppca.R pfa.R pcca.R
 LazyLoad: yes
 Depends: mvtnorm, methods, graphics, MASS, Matrix, ellipse
 Packaged: 2010-06-23 14:30:55 UTC; leo

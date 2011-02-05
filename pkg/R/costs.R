@@ -1,5 +1,6 @@
-cost.W <-
-function (vec, phi, priors, Dim, Dcov) {
+cost.W <- function (vec, phi, priors, Dim, Dcov) {
+
+  # Wx ~ Wy constrained
 
   H <- priors$Nm.wxwy.mean
 
@@ -12,8 +13,7 @@ function (vec, phi, priors, Dim, Dcov) {
   # integrated over z
   # given parameters W, phi
   # P(X,Y | W, phi) = integral N(X|Wx*z,phix)*N(Y|Wy*z,phiy)*N(z|0,I)
-  # We report -logP here
-  
+  # We report -logP here  
   # Data prob. Taken from probCCA paper, section 4, l1
 
   wtw.xy <- W$X%*%t(W$Y)
@@ -26,8 +26,11 @@ function (vec, phi, priors, Dim, Dcov) {
 
   # -logP for T prior
   tcost <- sum((T - H)^2) * priors$T.tmp
-    
+
   # -logP for W prior - skip since not used now
+  # priors$W.tmp <- 1/(2 * Nsamples * priors$W)
+  # NOTE considerable speed increase in optimize iteration if 
+  # this is calculated outside this function!
   #wcost <- sum((W$X)^2) * priors$W.tmp
 
   cost.data + tcost #+ wcost
@@ -38,6 +41,8 @@ function (vec, phi, priors, Dim, Dcov) {
 
 cost.W.exponential <-
 function (vec, phi, priors = NULL, Dim, Dcov) {
+
+  # in general, Wx != Wy
 
   # remove sign as we assume W always positive here
   vec <- abs(vec)
@@ -74,59 +79,31 @@ function (vec, phi, priors = NULL, Dim, Dcov) {
 
 }
 
+cost7 <- function (Wvec, phi, Dcov, Dim, priors) {
 
+  # SimCCA: identical Wx = Wy
 
-cost5 <-
-function (W, phi, Dcov) {
+  # NOTE: possible to optimize quite much by removing W matrix conversions?
 
-  # SimCCA - just use identical Wx = Wy
-  wtw <- W%*%t(W)
+  if (!is.null(priors$W)) { Wvec <- abs(Wvec) }    
 
-  Sigma <- rbind(cbind(wtw + phi$X, wtw),
-          cbind(wtw,wtw + phi$Y))
-
-        # Marginal cost for the whole data set
-        # integrated over z
-        # given parameters W, phi
-        # P(X,Y | W, phi) = integral N(X|Wx*z,phix)*N(Y|Wy*z,phiy)*N(z|0,I)
-        # We report -logP here
-
-        # restrict solutions to cases where det(Sigma)>=0
-  detsigma <- det( Sigma )
-  if (detsigma > 0) {
-                #print(detsigma)
-    log(detsigma) + sum(diag(solve(Sigma)%*%Dcov$total))
-  } else { Inf }
-
-}
-
-
-
-cost7 <-
-function (Wvec, phi, Dcov, Dim, priors) {
-
-  if (!is.null(priors$W)) {
-    Wvec <- abs(Wvec)
-  }
-    
   W <- get.W4(Wvec, Dim)$X
-  
-  # SimCCA - just use identical Wx = Wy
   wtw <- W%*%t(W)
 
   Sigma <- rbind(cbind(wtw + phi$X, wtw),
-          cbind(wtw,wtw + phi$Y))
+                 cbind(wtw, wtw + phi$Y))
 
-        # Marginal cost for the whole data set
-        # integrated over z
-        # given parameters W, phi
-        # P(X,Y | W, phi) = integral N(X|Wx*z,phix)*N(Y|Wy*z,phiy)*N(z|0,I)
-        # We report -logP here
+  # Marginal cost for the whole data set
+  # integrated over z
+  # given parameters W, phi
+  # P(X,Y | W, phi) = integral N(X|Wx*z,phix)*N(Y|Wy*z,phiy)*N(z|0,I)
+  # We report -logP here
 
-        # restrict solutions to cases where det(Sigma)>=0
+  # restrict solutions to cases where det(Sigma)>=0
 
   # -logP for the data
   detsigma <- det( Sigma )
+
   if (detsigma > 0) {
     cost.data <- log(detsigma) + sum(diag(solve(Sigma)%*%Dcov$total))
   } else { cost.data <- Inf }
@@ -134,16 +111,17 @@ function (Wvec, phi, Dcov, Dim, priors) {
   # -logP for W prior
   # wcost <- sum((W$X)^2) * priors$W
   # Assuming exponential prior distribution with rate parameter priors$W
-  vec <- abs(as.vector(W))
-  if (!is.null(priors)) {
+  wcost <- 0 # no effect by efault
+  if (!is.null(priors$W)) {
     #multiply by 2 to count for both wx and wy
-    wcost <- -2*sum(dexp(vec, rate = priors$W, log = TRUE))
+    print("KUSTANNUKSII")
+    print(W)
+    print(priors$W)
+    print(dexp(abs(as.vector(W)), rate = priors$W, log = TRUE))
+    wcost <- -2*sum(dexp(abs(as.vector(W)), rate = priors$W, log = TRUE))
+  } 
 
-  } else {
-    wcost <- 0 # no effect
-  }
-
-  #print(paste("wcost", wcost))
+  print(paste("wcost", wcost))
   #print(paste("cost.data", cost.data))
   
   cost.data + wcost
