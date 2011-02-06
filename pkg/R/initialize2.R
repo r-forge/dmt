@@ -20,9 +20,11 @@ initialize2 <- function (X, Y, zDimension = NULL, marginalCovariances) {
     # initialize with scalar diagonal noise on the marginals (shared by all features)
     phi <- list(X = diag(var(as.vector(X)), Dim$X), 
                 Y = diag(var(as.vector(Y)), Dim$Y))  
-    phi$total <- rbind(cbind(phi$X,nullmat), cbind(nullmat, phi$Y))
+
+    phi$total <- rbind(cbind(phi$X,nullmat), cbind(t(nullmat), phi$Y))
 
   }
+
 
   # FIXME: if phi$Y is scalar (as in segmented/mir case) we can speed up here. Do later.
   phi.inv  <- list()
@@ -36,9 +38,11 @@ initialize2 <- function (X, Y, zDimension = NULL, marginalCovariances) {
   Dcov$xy <- cov(t(X), t(Y), use = "pairwise.complete.obs")
   Dcov$yx <- t(Dcov$xy)
   Dcov$total <- rbind(cbind(Dcov$X, Dcov$xy), cbind(Dcov$yx, Dcov$Y))
-  Dcov$sum   <- Dcov$X + Dcov$Y + Dcov$xy + Dcov$yx
-  Dcov$sum <- cov(t(X + Y), use = "pairwise.complete.obs")
-  
+  if (nrow(X) == nrow(Y)) {
+    Dcov$sum <- Dcov$X + Dcov$Y + Dcov$xy + Dcov$yx
+    #Dcov$sum <- cov(t(X + Y), use = "pairwise.complete.obs")
+  }
+
   # It is possible that covariances calculated with pairwise complete
   # observations are not positive semi-definite.
   # Check this. If not pos.sem.def, then replace with the closest
@@ -48,7 +52,9 @@ initialize2 <- function (X, Y, zDimension = NULL, marginalCovariances) {
     Dcov$X  <- as.matrix(nearPD(Dcov$X)$mat)
     Dcov$Y  <- as.matrix(nearPD(Dcov$Y)$mat)
     Dcov$total <- rbind(cbind(Dcov$X, Dcov$xy), cbind(Dcov$yx, Dcov$Y))
-    Dcov$sum   <- Dcov$X + Dcov$Y + Dcov$xy + Dcov$yx
+    if (nrow(X) == nrow(Y)) {
+      Dcov$sum <- Dcov$X + Dcov$Y + Dcov$xy + Dcov$yx
+    }
   }
 
   # Initialize W's

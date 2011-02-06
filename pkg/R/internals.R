@@ -18,7 +18,7 @@ check.data <- function (X, Y, zDimension = NULL) {
     stop("Y data needs to be a matrix")
   }
 
-  cat("Centering the data..\n")
+  #cat("Centering the data..\n")
   X <- t(centerData(t(X), rm.na = TRUE))		        
   if (!is.null(Y)) {			  
     Y <- t(centerData(t(Y), rm.na = TRUE))			      

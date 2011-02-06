@@ -4,7 +4,7 @@ function (X, Y,
           marginalCovariances = "full",
           covLimit = 1e-3,
           priors = list(), matched = TRUE,
-          includeData = TRUE, calculateZ = TRUE)
+          includeData = TRUE, calculateZ = TRUE, verbose = FALSE)
 {
 
   # (C) 2008-2011 Olli-Pekka Huovilainen and Leo Lahti 
@@ -17,24 +17,27 @@ function (X, Y,
   # Y = Wy * z + epsy
   # with various modeling assumptions
 
+  if (verbose) {cat("Checking data\n")}
   dat <- check.data(X, Y, zDimension)
   X <- dat$X
   Y <- dat$Y
   zDimension <- dat$zDimension
 	
   # FIXME store/return intercepts as well; further dependency models including intercepts
-  if (nrow(X) < nrow(Y)) {stop("If the two data matrices do not have equal dimensionality, place the smaller one in Y.")} # FIXME automate
-  if (!nrow(X) == nrow(Y)) {
+  if ( nrow(X) < nrow(Y) ) {stop("If the two data matrices do not have equal dimensionality, place the smaller one in Y.")} # FIXME automate
+  if ( !nrow(X) == nrow(Y) ) {
     #message("The data sets have unequal dimensionality.")
-    if (matched) {stop("Cannot use matched methods for nonmatched data.")}
+    if ( matched ) { stop("Cannot use matched methods for nonmatched data.") }
   }
 
-  if (!is.null(priors$Nm.wxwy.sigma) && priors$Nm.wxwy.sigma == Inf) { matched <- FALSE; message("priors$Nm.wxwy.sigma == Inf; Wx ~ Wy independendent i.e. matched = FALSE") }
-  
+  if (verbose) {cat("Checking inputs\n")}
+  if (!is.null(priors$Nm.wxwy.sigma) && priors$Nm.wxwy.sigma == Inf) { matched <- FALSE; message("priors$Nm.wxwy.sigma == Inf; Wx ~ Wy independendent i.e. matched = FALSE") }  
   if ( covLimit == 0 )  { covLimit <- 1e-3 } # avoid numerical overflows
   res <- NA; method <- ""
   
   if (!matched) {
+
+    if (verbose) {cat("Model for non-matched case\n")}
 
     if ( !is.null(priors$Nm.wxwy.sigma )) {
       warning("priors$Nm.wxwy.sigma not implemented for non-matched variables. Setting priors$Nm.wxwy.sigma = NULL.")
@@ -43,9 +46,11 @@ function (X, Y,
 
     if ( is.null(priors$W) ) { 
 
-      # message("Wx ~ Wy free. No regularization for W.")
+      if ( verbose ) {cat("Wx ~ Wy free. No regularization for W.\n")}
+      if ( verbose ) {cat(marginalCovariances); cat("\n")}
+      
 
-      if (marginalCovariances == "full") { # standard pCCA
+      if ( marginalCovariances == "full" ) { # standard pCCA
 
         method <- "pCCA"
         res <- calc.pcca(X, Y, zDimension)
@@ -77,7 +82,8 @@ function (X, Y,
       } else { stop("Erroneous marginalCovariances parameter provided!") }
 
      } else if ( !is.null(priors$W) ) { # for some reason stating priors$W caused crash before   
-      # Wx ~ Wy free; priors for W given    
+      
+      if ( verbose ) {cat("Wx ~ Wy free; prior for W.\n")}
 
       # Prior for W is given -> no analytical solution to EM
       # Exponential prior for W,
@@ -88,13 +94,15 @@ function (X, Y,
       # FIXME: in addition to exponential prior W ~ exp(alpha)
       # implement sparsity prior W ~ N(0, sd*I)
 
-      res <- optimize.parameters(X, Y, zDimension, priors = priors, marginalCovariances, epsilon = covLimit)
+      res <- optimize.parameters(X, Y, zDimension, priors = priors, marginalCovariances, epsilon = covLimit, verbose = verbose)
       method <- "Unconstrained Wx ~ Wy with exponential priors for Wx and Wy. Check marginal covariances from parameters."
 	
     }
     
   } else if (matched) {
 
+    if ( verbose ) {cat("Matched features case\n")}
+      
     # Matrix normal distribution variance not specified
     if (is.null(priors$Nm.wxwy.sigma)) {
       message("Matched variables but priors$Nm.wxwy.sigma not given, using strong matching with Wx = Wy.")
@@ -117,6 +125,8 @@ function (X, Y,
     # Case IIa: fully constrained case Wx = Wy
     if (priors$Nm.wxwy.sigma == 0) { #Wx = Wy        
         
+      if ( verbose ) {cat("Assuming Wx = Wy\n")}
+	
       #  SimCCA with full covariances with constraint Wx = Wy
       #  "probsimcca.full" = aucs.simcca.full      
       #  Denoting Wy = T*Wx = TW; W = Wx this fits the case T = I with
@@ -129,9 +139,9 @@ function (X, Y,
       # Regularization for W (W > 0 implemented)
       if (!is.null(priors$W)) {
             
-        # SimCCA Wx = Wy with regularized W (W>=0)
-        #message("Case Wx = Wy and regularized W.")
-
+	if ( verbose ) {cat("Wx = Wy with regularized W (W>=0)\n")}
+	if ( verbose ) {cat(marginalCovariances); cat("\n")}	
+	
         if (marginalCovariances == "full") {
           # use this for full W (EM algorithm, unstable for n ~ p) (?)
           res <- optimize.parameters(X, Y, zDimension, epsilon = covLimit,                                  
@@ -149,6 +159,8 @@ function (X, Y,
        	
       } else if (is.null(priors$W)) {
         
+	if ( verbose ) {cat("Wx = Wy; free W.\n")}
+
           # mlsp'09 simcca
           # message("Case Wx = Wy. No regularization for W.")
 	  
@@ -164,12 +176,16 @@ function (X, Y,
     } else if (priors$Nm.wxwy.sigma > 0) {
       # Case IIb: partially constrained Wx ~ Wy
                 
+      if ( verbose ) {cat("partially constrained Wx ~ Wy.\n")}
+		
       if (!is.null(priors$W)) {
+        if ( verbose ) {cat("regularized W.\n")}
         # FIXME: consider adding fast option with simply nonnegative W but no distributional priors
         stop("Not implemented regularization for W with partially constrained Wx ~ Wy.")
       } else if (is.null(priors$W)) {
-        # message("Partially constrained Wx ~ Wy. No regularization for W.")
-            		    
+        if ( verbose ) {cat("Partially constrained Wx ~ Wy. No regularization for W.\n")}
+        if ( verbose ) {cat(marginalCovariances); cat("\n")}            		  
+			  
         if (marginalCovariances == 'isotropic') {
 	  # message("SimCCA with isotropic covariances and regularized H (through sigmas).")
 	
@@ -188,6 +204,8 @@ function (X, Y,
 
   ##################################################################
 
+  if ( verbose ) {cat("Checking the model..\n")}
+
   # Test whether model exists for given arguments
   if (any(is.na(unlist(res)))) {
     stop("Error with model parameters.")
@@ -196,9 +214,14 @@ function (X, Y,
     score <- dependency.score(res)
   }
   
+  if ( verbose ) {cat("Creating DependenyModel object..\n")}
+  
   model <- new("DependencyModel", W = res$W, phi = res$phi, score = score, method = method, params = params)	
   if (includeData) model@data <- list(X = X, Y = Y)
   if (calculateZ) model@z <- z.expectation(model, X, Y)
+  
+  if ( verbose ) {cat("fit.dependency.model OK.\n")}
+  
   model
 }
 

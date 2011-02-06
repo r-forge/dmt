@@ -17,7 +17,7 @@ analysis and CCA are available as special cases.}
 fit.dependency.model(X, Y, zDimension = 1, marginalCovariances = "full",
                      covLimit = 1e-3,
                      priors = list(), matched = TRUE,
-                     includeData = TRUE, calculateZ = TRUE)
+                     includeData = TRUE, calculateZ = TRUE, verbose = FALSE)
 
 ppca(X, Y = NULL, zDimension = NULL, includeData = TRUE, calculateZ = TRUE)
 pfa(X, Y = NULL, zDimension = NULL, includeData = TRUE, calculateZ = TRUE)
@@ -57,7 +57,6 @@ selected model. }
     distribution of the transformation matrix \code{T}. Described the allowed
     deviation scale of the transformation matrix \code{T} from the mean matrix
     \code{Nm.wxwy.mean}.}
-    
     }
 
   \item{matched}{Logical indicating if the variables (dimensions) are
@@ -71,6 +70,9 @@ included to the model output. Using \code{FALSE} can be used to
   \item{calculateZ}{Logical indicating whether an expectation of the latent variable Z
 is included in the model output. Otherwise the expectation can be
 calculated with \code{getZ} or \code{z.expectation}. Using \code{FALSE} speeds up the calculation of the dependency model.}
+  
+  \item{verbose}{ Follow procedure by intermediate messages.}
+
 }
 
 \details{ Various choices for the model structure and parameters can
