@@ -1,6 +1,10 @@
 update.phi <- function (Dcov, M, beta, W, phi) {
 
-  # This assumes simple marginal covariance: sigma2 * I
+  # Empirical estimate. Should give similar results than
+  # update.phi.isotropic. Compare and combine.
+  # FIXME: remove M, not neeed here
+
+  # simple marginal covariance: sigma2 * I
   # i.e. just one parameter; in general phix != phiy
 
   # Mean equals to dividing with dimension
@@ -12,10 +16,9 @@ update.phi <- function (Dcov, M, beta, W, phi) {
 
 }
 
-
 update.phi.isotropic <- function (Xcov, W, epsilon, dx) {
 
-  # apparently assuming phix = phiy
+  # used to update phix and phiy, one at a time
 
   # ML estimate of the variance given W
   # See Roweis, 'EM Algorithms for PCA and SPCA'
@@ -60,6 +63,7 @@ phi.EM.simcca <- function (Dcov, W.new, phi.inv, W.old, M) {
 phi.EM.cca <- function (Dcov, W.new, phi.inv, W.old, M, nullmat) {
 
   # for general Wx != Wy
+  # with full covariances
 
   # From BachJordan sec. 4.1
   dx <- ncol(Dcov$X)

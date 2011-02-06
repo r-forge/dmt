@@ -1,6 +1,7 @@
 cost.W <- function (vec, phi, priors, Dim, Dcov) {
 
   # Wx ~ Wy constrained
+  # no W prior
 
   H <- priors$Nm.wxwy.mean
 
@@ -17,7 +18,6 @@ cost.W <- function (vec, phi, priors, Dim, Dcov) {
   # Data prob. Taken from probCCA paper, section 4, l1
 
   wtw.xy <- W$X%*%t(W$Y)
-
   Sigma <- rbind(cbind(W$X%*%t(W$X) + phi$X*diag(Dim$X), wtw.xy),
           cbind(t(wtw.xy),W$Y%*%t(W$Y) + phi$Y*diag(Dim$Y)))
 
@@ -38,10 +38,10 @@ cost.W <- function (vec, phi, priors, Dim, Dcov) {
 }
 
 
-
 cost.W.exponential <-
 function (vec, phi, priors = NULL, Dim, Dcov) {
 
+  # allows exponential prior for W
   # in general, Wx != Wy
 
   # remove sign as we assume W always positive here
@@ -82,6 +82,7 @@ function (vec, phi, priors = NULL, Dim, Dcov) {
 cost7 <- function (Wvec, phi, Dcov, Dim, priors) {
 
   # SimCCA: identical Wx = Wy
+  # allows W prior
 
   # NOTE: possible to optimize quite much by removing W matrix conversions?
 
@@ -127,4 +128,3 @@ cost7 <- function (Wvec, phi, Dcov, Dim, priors) {
   cost.data + wcost
 
 }
-

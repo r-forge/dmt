@@ -2,8 +2,6 @@ initialize2 <- function (X, Y, zDimension = NULL, marginalCovariances) {
 
   zDimension <- ifelse(is.null(zDimension), min(nrow(X), nrow(Y)), zDimension)
 
-
-
   Nsamples <- ncol(X)
   Dim <- list(X = nrow(X), Y = nrow(Y), Z = zDimension)
   nullmat  <- matrix(0, nrow = Dim$X, ncol = Dim$Y)

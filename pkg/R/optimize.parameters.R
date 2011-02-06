@@ -22,7 +22,6 @@ optimize.parameters <- function (X, Y, zDimension = 1, priors = NULL,
   
   if ( length(priors) == 0 ) { priors <- list() }
 
-
   ###  Wx ~ Wy prior inits  ###
 
   if ( length(priors$Nm.wxwy.mean) == 1 ){ priors$Nm.wxwy.mean <- diag(1, nrow(X), nrow(Y)) }
@@ -105,26 +104,11 @@ optimize.parameters <- function (X, Y, zDimension = 1, priors = NULL,
         
       if (priors$Nm.wxwy.sigma == 0) { # Wx = Wy
 
-        # assuming Wx = Wy!
+        # assuming Wx = Wy
         # see Bach-Jordan 2005, sec. 4.1 for details
 	# equations modified from there to match Wx = Wy case
-	
-	what <- 2*W$X
-	phihat.inv <- solve(phi$X + phi$Y)
-	M.w <- solve(t(what)%*%phihat.inv%*%what + diag(zDimension))
-	beta.w <- M.w%*%t(what)%*%phihat.inv
-	what <- Dcov$sum%*%t(beta.w)%*%solve(M.w + beta.w%*%Dcov$sum%*%t(beta.w))
-        w <- what/2
-        W$X <- W$Y <- w
-	W$total <- rbind(w,w)
 
-        ## EM update
-        # W$total = Dcov$total%*%t(beta)%*%solve(M + beta%*%Dcov$total%*%t(beta))
-        #W$X = W$total[1:Dim$X,]
-        #W$Y = W$total[-c(1:Dim$X),]
-	## robust solution: take average of the two estimates
-	#W$X = W$Y = (W$X+W$Y)/2
-	#W$total = rbind(W$X,W$Y)
+        W <- W.simcca.EM(W, phi, Dim, Dcov)
 		    		    
       } else if (priors$Nm.wxwy.sigma > 0 && priors$Nm.wxwy.sigma < Inf) { # Wx ~ Wy constrained
 
@@ -147,12 +131,12 @@ optimize.parameters <- function (X, Y, zDimension = 1, priors = NULL,
 
     # Update phi
 
-    if (marginalCovariances == "full") {
-
-      phi.inv$X <- solve(phi$X)
-      phi.inv$Y <- solve(phi$Y)    
-      phi.inv$total <- rbind(cbind(phi.inv$X, nullmat),
+    phi.inv$X <- solve(phi$X)
+    phi.inv$Y <- solve(phi$Y)    
+    phi.inv$total <- rbind(cbind(phi.inv$X, nullmat),
                            cbind(t(nullmat), phi.inv$Y))    
+
+    if (marginalCovariances == "full") {
 
       if (priors$Nm.wxwy.sigma == 0) { # Wx = Wy
  
@@ -162,6 +146,7 @@ optimize.parameters <- function (X, Y, zDimension = 1, priors = NULL,
         M <- solve(t(W.old$X)%*%(phi.inv$X + phi.inv$Y)%*%W.old$X + diag(zDimension))
         # beta <- M%*%t(W$X)%*%phi.inv.sum # ct. set.beta.fullcov(M, W$total, phi.inv$total)
         # FIXME: replace this with the general M.set functions
+        # FIXME: speedup by sharing M/beta with W.simcca.EM?
 
         # Update phi
         phi <- phi.EM.simcca(Dcov, W.new, phi.inv, W.old, M)
@@ -170,11 +155,12 @@ optimize.parameters <- function (X, Y, zDimension = 1, priors = NULL,
       
         # also check from optimize.fullcov.R
         M <- set.M.full2(W.old, phi.inv, dz = Dim$Z) 
-        #M <- set.M.full2(W.new, phi.inv, dz = Dim$Z) # new or old here? check
         phi <- phi.EM.cca(Dcov, W.new, phi.inv, W.old, M, nullmat)
       }
 
      } else if (marginalCovariances == "isotropic") {
+
+        # FIXME: speedups possible when Wx = Wy. Implement.
 
         # set.M is for isotropic X or Y
         M <- list()
@@ -187,13 +173,22 @@ optimize.parameters <- function (X, Y, zDimension = 1, priors = NULL,
 
         phi <- update.phi(Dcov, M, beta, W, phi)
 
+     } else if ( marginalCovariances == "diagonal" ) {
+     
+       # FIXME: speedups possible when Wx = Wy. Implement.     
+       # FIXME: compare M, beta to isotropic/full cases and join common parts
+       # FIXME needs to be checked!
+       phi <- phi.diagonal.double(W$total, phi.inv$total, Dcov$total, Dim)
+       #phi$X <- phi.diagonal.single(W$total, phi.inv$total, Dcov$X, Dim)       
+       #phi$Y <- phi.diagonal.single(W$total, phi.inv$total, Dcov$Y, Dim)            
+     
+     } else {
+       stop("Unknown marginalCovariances parameter!")
      }
-    
+
     ##########################################################################
 
-
     # MONITORING CONVERGENCE
-
 
     if (!is.null(priors$W)) { # W regularized
 

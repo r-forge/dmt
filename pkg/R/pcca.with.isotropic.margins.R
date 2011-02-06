@@ -3,79 +3,80 @@ pcca.with.isotropic.margins <- function (X, Y, zDimension = 1, epsilon = 1e-6, d
   # epsilon and delta are convergence parameters
   # zDimension determines the dimensionality of the shared latent variable Z
 
-  dat <- check.data(X, Y, zDimension)
-  X <- dat$X
-  Y <- dat$Y
-  zDimension <- dat$zDimension
-		  
   #  Dependency model
   #  X ~ N(Wx*z, sigmax*I)
   #  y ~ N(Wy*z, sigmay*I)
   #  i.e. isotropic marginals but in general  sigmax != sigmay
   # This is a special case of probabilistic factor analysis model
-  # X ~ N(W*z, Sigma), where Sigma is diagonal (but not necessarily isotropic).
 
   # FIXME: ensure that X, Y have zero-mean (shift if necessary);
   # alternatively add mean parameter in the model
 
+  res <- calc.pcca.with.isotropic.margins(X, Y, zDimension, epsilon = 1e-6, delta = 1e6)
+  phi <- res$phi  
+    W <- res$W   
+
+  colnames(phi$X) <- rownames(phi$X) <- rownames(X)
+  colnames(phi$Y) <- rownames(phi$Y) <- rownames(Y)
+  colnames(phi$total) <- rownames(phi$total) <- c(rownames(X), rownames(Y))
+  
+  list(phi = phi, W = W)
+
+  # FIXME provide here proper DependencyModel object as in pcca, pfa and ppca
+}
+
+
+calc.pcca.with.isotropic.margins <- function (X, Y, zDimension, epsilon = 1e-6, delta = 1e6) {
+
+  dat <- check.data(X, Y, zDimension)
+  X <- dat$X
+  Y <- dat$Y
+  zDimension <- dat$zDimension
+  
   # initialize
      inits <- initialize2(X, Y, zDimension, marginalCovariances = "isotropic")
-       phi <- inits$phi
       Dcov <- inits$Dcov
        Dim <- inits$Dim
-         W <- inits$W
-         W <- as.matrix(W$total[,1:zDimension])
-        Wx <- as.matrix(W[1:Dim$X,1:zDimension])
-        Wy <- as.matrix(W[-(1:Dim$X),1:zDimension])
-       phi <- list(X = 1, Y = 1)
-       # redundancy??
-       # zDImension -> Dim$Z
+         W <- inits$W  
+
+  # FIXME: ensure that X, Y have zero-mean (shift if necessary);
+  # alternatively add mean parameter in the model
+  phi <- list(X = 1, Y = 1)
   
   # iterate until convergence:
-  while (delta>epsilon) {
+  while (delta > epsilon) {
 
-          # print(delta)
-          W.old <- W
+    W.old <- W
           
-          ##########################################
+    ##########################################
 
-          # Update Phi
-          phi$X <- update.phi.isotropic(Dcov$X, Wx, phi$X, Dim$X) 
-          phi$Y <- update.phi.isotropic(Dcov$Y, Wy, phi$Y, Dim$Y)
+    # Update Phi
+    phi$X <- update.phi.isotropic(Dcov$X, W$X, phi$X, Dim$X) 
+    phi$Y <- update.phi.isotropic(Dcov$Y, W$Y, phi$Y, Dim$Y)
           
-          #######################################
+    #######################################
 
-          phi.inv.full <- diag(c(rep(1/phi$X, Dim$X), rep(1/phi$Y, Dim$Y)))
-             M <- set.M.full(W, phi.inv.full, zDimension) # corresponds to G in Bishop's book
-          beta <- set.beta.fullcov(M, W, phi.inv.full)
-             W <- as.matrix(W.cca.EM(Dcov, M, beta))
-            Wx <- as.matrix(W[1:Dim$X,])
-            Wy <- as.matrix(W[-(1:Dim$X),])
+    # Full CCA update for W
+    
+    phi.inv.full <- diag(c(rep(1/phi$X, Dim$X), rep(1/phi$Y, Dim$Y)))
+    M <- set.M.full(W, phi.inv.full, Dim$Z) # corresponds to G in Bishop's book
+    beta <- set.beta.fullcov(M, W, phi.inv.full)
+    W$total <- as.matrix(W.cca.EM(Dcov, M, beta))
+    W$X <- as.matrix(W$total[1:Dim$X,])
+    W$Y <- as.matrix(W$total[-(1:Dim$X),])
            
-          ########################################
+    ########################################
           
-          # check convergence (enough to check W)
-          delta <- max(abs(as.vector(W-W.old)))
+    # check convergence (enough to check W)
+    delta <- max(abs(as.vector(W$total - W.old$total)))
           
-        }
+  }
 
-  # retrieve W and phi as in other functions:
-  W2 <- list()
-  W2$total <- W
-  W2$X <- as.matrix(W[1:Dim$X,])
-  W2$Y <- as.matrix(W[-(1:Dim$X),])
+  # Format
+  phi$total <- diag(c(diag(phi$X), diag(phi$Y)), (Dim$X + Dim$Y))
+  phi$X <- diag(phi$X, Dim$X)
+  phi$Y <- diag(phi$Y, Dim$Y)
 
-  phiX <- diag(phi$X, nrow(X))
-  rownames(phiX) <- rownames(X)
-  colnames(phiX) <- rownames(phiX)
-  phiY <- diag(phi$Y, nrow(Y))
-  rownames(phiY) <- rownames(Y)
-  colnames(phiY) <- rownames(phiY)
-  phitotal <- diag(c(diag(phiX),diag(phiY)),(nrow(X)+nrow(Y)))
-  rownames(phitotal) <- c(rownames(X),rownames(Y))
-  colnames(phitotal) <- rownames(phitotal)
-  phi <- list(X = phiX, Y = phiY, total = phitotal)
-
-  list(W=W2, phi=phi)
+  list(W = W, phi = phi)
 
 }

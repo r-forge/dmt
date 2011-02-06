@@ -62,7 +62,7 @@ function (X, Y,
       
         # phiX != phiY in general
         # FIXME: add tests
-        res <- pcca.with.isotropic.margins(X, Y, zDimension, epsilon = covLimit)  
+        res <- calc.pcca.with.isotropic.margins(X, Y, zDimension)
         method <- "pCCA with isotropic margins"
 	
       } else if (marginalCovariances == "identical isotropic") {
@@ -79,9 +79,8 @@ function (X, Y,
      } else if ( !is.null(priors$W) ) { # for some reason stating priors$W caused crash before   
       # Wx ~ Wy free; priors for W given    
 
-      # Prior for W is given -> need to optimize W (no analytical solution to EM)
-
-      # Currently implemented exponential prior for W,
+      # Prior for W is given -> no analytical solution to EM
+      # Exponential prior for W,
       # Used to force positive W with exponential distribution.
       # priors$W is the rate parameter of the exponential. 
       # The smaller, the flatter tail.
@@ -89,27 +88,11 @@ function (X, Y,
       # FIXME: in addition to exponential prior W ~ exp(alpha)
       # implement sparsity prior W ~ N(0, sd*I)
 
-      if (marginalCovariances == "full") {
-        res <- optimize.parameters(X, Y, zDimension, priors = priors, marginalCovariances, epsilon = covLimit)
-        method <- "pCCA with exponential W prior"     
-        # FIXME: this should work also with constrained Wx ~ Wy, test and compare 
-        # By default, this function does not constrain Wx~Wy
-        # (priors$sigma.w = Inf) but imposes prior on W.  
-        # any zDimension should work here
-
-      } else if (marginalCovariances == "diagonal") {
-        stop("nonmatched with diagonal covariances not yet implemented")       
-        # FIXME implement
-      } else if (marginalCovariances == "isotropic") {                 
-        stop("nonmatched with isotropic covariances not yet implemented")
-        # FIXME implement      
-      } else if (marginalCovariances == "identical isotropic") {                 
-        stop("nonmatched with isotropic covariances not yet implemented")
-        # FIXME implement
-      } else {
-        stop("Provide proper marginalCovariances!")
-      }                   
+      res <- optimize.parameters(X, Y, zDimension, priors = priors, marginalCovariances, epsilon = covLimit)
+      method <- "Unconstrained Wx ~ Wy with exponential priors for Wx and Wy. Check marginal covariances from parameters."
+	
     }
+    
   } else if (matched) {
 
     # Matrix normal distribution variance not specified
@@ -166,7 +149,6 @@ function (X, Y,
        	
       } else if (is.null(priors$W)) {
         
-	if (marginalCovariances == 'full') {
           # mlsp'09 simcca
           # message("Case Wx = Wy. No regularization for W.")
 	  
@@ -174,20 +156,9 @@ function (X, Y,
 	  res <- optimize.parameters(X, Y, zDimension, priors, 
 	      	 		     marginalCovariances, epsilon = covLimit,
 				     par.change = 1e6)
-
-          method <- "pSimCCA"
-          # FIXME: priors for phi todo? but I had these available for mlsp?
-	  # FIXME: add tests
-	  
-	} else if (marginalCovariances == 'diagonal') {
-          stop("Matched case with free Ws implemented only with full marginalCovariances")	  
-	} else if (marginalCovariances == 'isotropic') {
-          stop("Matched case with free Ws implemented only with full marginalCovariances")	  
-	} else if (marginalCovariances == 'identical isotropic') {
-          stop("Matched case with free Ws implemented only with full marginalCovariances")	  
-	} else {
-          stop("Matched case with free Ws implemented only with full marginalCovariances")	  
-	} # FIXME add all missing options, check examples from mlsp09 code? test.	  
+				     
+          method <- "matched case Wx = Wy with unconstrained W. Check covariances from parameters."
+          # FIXME: speeups possible here when Wx = Wy but not yet implemented with other than full covs
       }
       
     } else if (priors$Nm.wxwy.sigma > 0) {
