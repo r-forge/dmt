@@ -55,6 +55,8 @@ W.simcca.EM <- function (W, phi, Dim, Dcov) {
 	
 solve.w <- function (Xc, Yc, Cxx, Cyy, dz = NULL) {
 
+  # FIXME: compare with the other W updates, e.g. W.cca.EM
+
   # assumes Xc, Yc : samples x features, zero-mean features
   # Cxx and Cyy are covariances from cov(Xc) and cov(Yc)
   # dz shows the desired rank of latent Z
