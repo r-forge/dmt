@@ -38,8 +38,7 @@ cost.W <- function (vec, phi, priors, Dim, Dcov) {
 }
 
 
-cost.W.exponential <-
-function (vec, phi, priors = NULL, Dim, Dcov) {
+cost.W.exponential <- function (vec, phi, priors = NULL, Dim, Dcov) {
 
   # allows exponential prior for W
   # in general, Wx != Wy
@@ -86,7 +85,7 @@ cost7 <- function (Wvec, phi, Dcov, Dim, priors) {
 
   # NOTE: possible to optimize quite much by removing W matrix conversions?
 
-  if (!is.null(priors$W)) { Wvec <- abs(Wvec) }    
+  if ( !is.null(priors$W) ) { Wvec <- abs(Wvec) }    
 
   W <- get.W4(Wvec, Dim)$X
   wtw <- W%*%t(W)
@@ -108,21 +107,17 @@ cost7 <- function (Wvec, phi, Dcov, Dim, priors) {
   if (detsigma > 0) {
     cost.data <- log(detsigma) + sum(diag(solve(Sigma)%*%Dcov$total))
   } else { cost.data <- Inf }
-  
+    
   # -logP for W prior
   # wcost <- sum((W$X)^2) * priors$W
   # Assuming exponential prior distribution with rate parameter priors$W
   wcost <- 0 # no effect by efault
-  if (!is.null(priors$W)) {
+  if ( !is.null(priors$W) ) {
     #multiply by 2 to count for both wx and wy
-    print("KUSTANNUKSII")
-    print(W)
-    print(priors$W)
-    print(dexp(abs(as.vector(W)), rate = priors$W, log = TRUE))
-    wcost <- -2*sum(dexp(abs(as.vector(W)), rate = priors$W, log = TRUE))
+    wcost <- -2*sum(dexp(Wvec, rate = priors$W, log = TRUE))
   } 
 
-  print(paste("wcost", wcost))
+  #print(paste("wcost", wcost))
   #print(paste("cost.data", cost.data))
   
   cost.data + wcost

@@ -9,7 +9,7 @@ optimize.parameters <- function (X, Y, zDimension = 1, priors = NULL,
   # (not included in the model) but there is option to set prior on W
   # (W.prior)
 
-  if ( verbose ) {cat("Initialize\n")}
+  if ( verbose ) { cat("Initialize\n") }
   inits <- initialize2(X, Y, zDimension, marginalCovariances)
   phi <- inits$phi
   phi.inv <- inits$phi.inv
@@ -25,20 +25,19 @@ optimize.parameters <- function (X, Y, zDimension = 1, priors = NULL,
 
   ###  Wx ~ Wy prior inits  ###
 
-  if ( verbose ) {cat("Checking the priors\n")}
+  if ( verbose ) { cat("Checking the priors\n") }
   
   if ( !is.null(priors$Nm.wxwy.mean) ) {
-    if ( length(priors$Nm.wxwy.mean) == 1 ){ 
-      priors$Nm.wxwy.mean <- priors$Nm.wxwy.mean*diag(1, nrow(X), nrow(Y)) 
+    if ( length(priors$Nm.wxwy.mean) == 1 ) { 
+      priors$Nm.wxwy.mean <- priors$Nm.wxwy.mean * diag(1, nrow(X), nrow(Y)) 
     }
     if ( ncol(priors$Nm.wxwy.mean) != nrow(X)){ stop("columns of priors$Nm.wxwy.mean must match rows of X") }
     if ( nrow(priors$Nm.wxwy.mean) != nrow(Y)){ stop("rows of priors$Nm.wxwy.mean must match rows of Y") }  
   }
 
-  if ( is.null(priors$Nm.wxwy.sigma) || priors$Nm.wxwy.sigma == Inf ) { 
+  if ( is.null(priors$Nm.wxwy.sigma) || priors$Nm.wxwy.sigma == Inf ) {
     # Wx, Wy relation not constrained
-        if ( verbose ) {cat("Wx ~ Wy free\n")}
-    
+    if ( verbose ) { cat("Wx ~ Wy free\n") }
     priors$Nm.wxwy.sigma <- Inf 
     # cost.W.exponential accepts also priors$W = NULL i.e. no W prior
     cost.new <- cost.W.exponential(c(as.vector(W$X), as.vector(W$Y)), phi, priors, Dim, Dcov)
@@ -58,21 +57,25 @@ optimize.parameters <- function (X, Y, zDimension = 1, priors = NULL,
 
   } else if (priors$Nm.wxwy.sigma == 0) { # Wx = Wy
 
-        if ( verbose ) {cat("Wx = Wy \n")}
+    if ( verbose ) { cat("Wx = Wy \n") }
 
     # Ensure that the dimensionality of given w matches with given zDimension
     w <- as.matrix(inits$W$X[, 1:zDimension], ncol = zDimension)
     W <- list(X = w, Y = w, total = rbind(w, w))
     if ( !is.null(priors$W) ) {
-      if ( verbose ) {cat(paste("prior for W: ", priors$W, "\n"))}
+     if ( verbose ) { cat(paste("prior for W: ", priors$W, "\n")) }
       cost.new <- cost7(abs(as.vector(W$X)), phi, Dcov, Dim, priors)    
     } else {
-       if ( verbose ) {cat(paste("no prior for W. \n"))}
+      if ( verbose ) { cat(paste("no prior for W. \n")) }
       cost.new <- cost7(as.vector(W$X), phi, Dcov, Dim, priors)        
     }  
   }
   
-  
+
+
+  ###################################################
+
+
   if ( verbose ) {cat(paste("Starting iterations \n"))}
   while (par.change > epsilon || par.change < 0) {
 
@@ -141,6 +144,9 @@ optimize.parameters <- function (X, Y, zDimension = 1, priors = NULL,
         stop("Special case, corresponding to pCCA. No need to loop over W, phi in optimization. Use pCCA function for direct solution.")
       }
     }
+    
+    
+    
     
     W.new <- W # redundant?
     
@@ -258,4 +264,14 @@ optimize.parameters <- function (X, Y, zDimension = 1, priors = NULL,
   return( list(W = W, phi = phi) )
 
 }
+
+
+
+
+
+
+
+
+
+
 

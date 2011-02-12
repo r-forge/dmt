@@ -101,7 +101,7 @@ function (X, Y,
     
   } else if (matched) {
 
-    if ( verbose ) {cat("Matched features case\n")}
+    if ( verbose ) { cat("Matched features case\n") }
       
     # Matrix normal distribution variance not specified
     if (is.null(priors$Nm.wxwy.sigma)) {
@@ -116,16 +116,16 @@ function (X, Y,
     }    
 
     # FIXME siirra sisemmas
-    if (priors$Nm.wxwy.sigma == 0 && !marginalCovariances == "full") {
-      stop("With priors$sigma.w = 0 the matched simcca model is implemented only with full marginal covariances.")
-    }    
+    #if (priors$Nm.wxwy.sigma == 0 && !marginalCovariances == "full") {
+    #  stop("With priors$sigma.w = 0 the matched simcca model is implemented only with full marginal covariances.")
+    #}    
 
     method <- "pSimCCA"
         
     # Case IIa: fully constrained case Wx = Wy
     if (priors$Nm.wxwy.sigma == 0) { #Wx = Wy        
         
-      if ( verbose ) {cat("Assuming Wx = Wy\n")}
+      if ( verbose ) { cat("Assuming Wx = Wy\n") }
 	
       #  SimCCA with full covariances with constraint Wx = Wy
       #  "probsimcca.full" = aucs.simcca.full      
@@ -144,8 +144,7 @@ function (X, Y,
 	
         if (marginalCovariances == "full") {
           # use this for full W (EM algorithm, unstable for n ~ p) (?)
-          res <- optimize.parameters(X, Y, zDimension, epsilon = covLimit,                                  
-                                  par.change = 1e6, priors = priors)                                 
+          res <- optimize.parameters(X, Y, zDimension, epsilon = covLimit, par.change = 1e6, priors = priors)
           method <- "pCCA with W prior"
         } else if (marginalCovariances == "diagonal") {	
           stop("Matched case with regularized W implemented only with full marginalCovariances")

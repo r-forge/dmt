@@ -1,25 +1,37 @@
 generate.toydata <- function (N = 100, zDim = 2, xDim = 3, yDim = 3, marginal.covariances = "full", priors = NULL) {
 
-  # FIXME: add Wx = Wy prior option and Wx ~ Wy or Wy = TWx option
+  # FIXME: add Wx ~ Wy or Wy = TWx option
+  # FIXME: add non-full marginal noises (started, not finished)
 
-  Z <- matrix(rnorm(N*zDim), nrow = zDim)
+  #########################################################
+  
+  # LATENT VARIABLES
 
-  # So far, have marginal noise dimensionality equal 
-  # the whole span of X/Y data
+  Z <- matrix( rnorm(zDim * N), nrow = zDim )
+
+  # marginal noise dimensionality equals data dimensionality
+  
   zxDim <- xDim
   Zx <- matrix(rnorm(N*zxDim), nrow = zxDim)
 
   zyDim <- yDim
   Zy <- matrix(rnorm(N*zyDim), nrow = zyDim)  
 
+  
+  ######################################################
+
   if (is.null(priors$W)) {
     Wx <- matrix(rnorm(zDim*xDim), nrow = xDim)
     Wy <- matrix(rnorm(zDim*yDim), nrow = yDim)
   } else if (priors$W > 0) {
-    Wx <- matrix(rexp(zDim*xDim, rate = priors$W), nrow = xDim)
-    Wy <- matrix(rexp(zDim*yDim, rate = priors$W), nrow = yDim)
+    Wx <- matrix(rexp(zDim*xDim, rate = 1), nrow = xDim)
+    Wy <- matrix(rexp(zDim*yDim, rate = 1), nrow = yDim)
   }
   
+  if (!is.null(priors$Nm.wx.wy.sigma) && priors$Nm.wx.wy.sigma == 0) {
+     Wy <- Wx
+  }
+
   if (marginal.covariances == "full") {
 
     Bx <- matrix(rnorm(zxDim*xDim), nrow = xDim)
@@ -43,12 +55,12 @@ generate.toydata <- function (N = 100, zDim = 2, xDim = 3, yDim = 3, marginal.co
 
   }  
 
-  # Marginal noise. Note: full marginal noise assumed for the time being
+  # Marginal noise
   nx <- Bx%*%Zx
   ny <- By%*%Zy    
 
-  X <- as.matrix(Wx%*%Z + nx, nrow = xDim)
-  Y <- as.matrix(Wy%*%Z + ny, nrow = yDim)
+  X <- Wx%*%Z + nx
+  Y <- Wy%*%Z + ny
 		      
   list(Z = Z, X = X, Y = Y, Wx = Wx, Wy = Wy, Bx = Bx, By = By, Zx = Zx, Zy = Zy)
 
