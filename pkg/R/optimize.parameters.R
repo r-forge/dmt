@@ -28,9 +28,7 @@ optimize.parameters <- function (X, Y, zDimension = 1, priors = NULL,
   if ( verbose ) { cat("Checking the priors\n") }
   
   if ( !is.null(priors$Nm.wxwy.mean) ) {
-    if ( length(priors$Nm.wxwy.mean) == 1 ) { 
-      priors$Nm.wxwy.mean <- priors$Nm.wxwy.mean * diag(1, nrow(X), nrow(Y)) 
-    }
+    if ( length(priors$Nm.wxwy.mean) == 1 ) { priors$Nm.wxwy.mean <- priors$Nm.wxwy.mean * diag(1, nrow(X), nrow(Y)) }
     if ( ncol(priors$Nm.wxwy.mean) != nrow(X)){ stop("columns of priors$Nm.wxwy.mean must match rows of X") }
     if ( nrow(priors$Nm.wxwy.mean) != nrow(Y)){ stop("rows of priors$Nm.wxwy.mean must match rows of Y") }  
   }

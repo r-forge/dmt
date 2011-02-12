@@ -62,7 +62,21 @@ cost.W.exponential <- function (vec, phi, priors = NULL, Dim, Dcov) {
                  cbind(t(wtw.xy), W$Y%*%t(W$Y) + phi$Y))
   
   # -logP for the data
+print("HERHE")
+print("PHI")
+print(phi)
+print("WYW")
+print(W$Y%*%t(W$Y))
+print("WXW")
+print(W$X%*%t(W$X))
+print("WXYW")
+print(wtw.xy)
+print("Sigma")
+print(Sigma)
+print("detSigma")
+print(det(Sigma))
   cost.data <- log(det(Sigma)) + sum(diag(solve(Sigma)%*%Dcov$total))
+print("HERHE2")  
   
   # -logP for W prior
   # wcost <- sum((W$X)^2) * priors$W

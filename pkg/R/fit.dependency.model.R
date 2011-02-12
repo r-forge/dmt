@@ -39,9 +39,9 @@ function (X, Y,
 
     if (verbose) {cat("Model for non-matched case\n")}
 
-    if ( !is.null(priors$Nm.wxwy.sigma )) {
-      warning("priors$Nm.wxwy.sigma not implemented for non-matched variables. Setting priors$Nm.wxwy.sigma = NULL.")
-      priors$Nm.wxwy.sigma <- NULL
+    if ( is.null(priors$Nm.wxwy.sigma )) {
+      #warning("priors$Nm.wxwy.sigma not implemented for non-matched variables. Setting priors$Nm.wxwy.sigma = Inf.")
+      priors$Nm.wxwy.sigma <- Inf
     }
 
     if ( is.null(priors$W) ) { 
@@ -83,7 +83,7 @@ function (X, Y,
 
      } else if ( !is.null(priors$W) ) { # for some reason stating priors$W caused crash before   
       
-      if ( verbose ) {cat("Wx ~ Wy free; prior for W.\n")}
+      if ( verbose ) { cat("Wx ~ Wy free; exponential (nonnegative) prior for W.\n") }
 
       # Prior for W is given -> no analytical solution to EM
       # Exponential prior for W,
@@ -91,11 +91,11 @@ function (X, Y,
       # priors$W is the rate parameter of the exponential. 
       # The smaller, the flatter tail.
 
-      # FIXME: in addition to exponential prior W ~ exp(alpha)
-      # implement sparsity prior W ~ N(0, sd*I)
+      # TODO: implement also sparsity prior W ~ N(0, sd*I)
 
       res <- optimize.parameters(X, Y, zDimension, priors = priors, marginalCovariances, epsilon = covLimit, verbose = verbose)
-      method <- "Unconstrained Wx ~ Wy with exponential priors for Wx and Wy. Check marginal covariances from parameters."
+
+      method <- "Free Wx ~ Wy with exponential priors for Wx and Wy. Check marginal covariances from parameters."
 	
     }
     
@@ -114,11 +114,6 @@ function (X, Y,
       message("The matrix Nm.wxwy.mean is not specified. Using identify matrix.")
       priors$Nm.wxwy.mean <- 1
     }    
-
-    # FIXME siirra sisemmas
-    #if (priors$Nm.wxwy.sigma == 0 && !marginalCovariances == "full") {
-    #  stop("With priors$sigma.w = 0 the matched simcca model is implemented only with full marginal covariances.")
-    #}    
 
     method <- "pSimCCA"
         
