@@ -1,36 +1,41 @@
-initialize2 <- function (X, Y, zDimension = NULL, marginalCovariances) {
+initialize2 <- function (X, Y, zDim = NULL, marginalCovariances) {
 
-  zDimension <- ifelse(is.null(zDimension), min(nrow(X), nrow(Y)), zDimension)
+  zDim <- ifelse(is.null(zDim), min(nrow(X), nrow(Y)), zDim)
 
   Nsamples <- ncol(X)
-  Dim <- list(X = nrow(X), Y = nrow(Y), Z = zDimension)
+  Dim <- list(X = nrow(X), Y = nrow(Y), Z = zDim)
   nullmat  <- matrix(0, nrow = Dim$X, ncol = Dim$Y)
 
   if (marginalCovariances == "isotropic") {
     # Scalar values
-    phi$X <- var(as.vector(X))
-    phi$Y <- var(as.vector(Y))
-    phi$total <- c(phi$X, phi$Y)
+    phi <- list()
+    phi$X <- diag(var(as.vector(X)), Dim$X)
+    phi$Y <- diag(var(as.vector(Y)), Dim$Y)
+    phi$total <- diag(c(diag(phi$X), diag(phi$Y)))
+    #nullmat <- 0
   } else if (marginalCovariances == "identical isotropic") {
     # Scalar values phix = phiy
-    phi$X <- phi$Y <- var(c(as.vector(X), as.vector(Y)))
-    phi$total <- c(phi$X, phi$Y)
+    phi <- list()
+    phi.est <- var(c(as.vector(X), as.vector(Y)))
+    phi$X <- diag(phi.est, Dim$X)
+    phi$Y <- diag(phi.est, Dim$Y)
+    phi$total <- diag(c(diag(phi$X), diag(phi$Y)))    
+    #nullmat <- 0
   } else {
     # diagonal matrices
     # initialize with scalar diagonal noise on the marginals (shared by all features)
     phi <- list(X = diag(var(as.vector(X)), Dim$X), 
                 Y = diag(var(as.vector(Y)), Dim$Y))  
-
     phi$total <- rbind(cbind(phi$X,nullmat), cbind(t(nullmat), phi$Y))
 
   }
 
-
   # FIXME: if phi$Y is scalar (as in segmented/mir case) we can speed up here. Do later.
+
   phi.inv  <- list()
   phi.inv$X <- solve(phi$X)
   phi.inv$Y <- solve(phi$Y)
-  phi.inv$total <- rbind(cbind(phi.inv$X, nullmat), cbind(t(nullmat), phi.inv$Y))
+  #phi.inv$total <- rbind(cbind(phi.inv$X, nullmat), cbind(t(nullmat), phi.inv$Y))
 
   Dcov <- list()
   Dcov$X <- cov(t(X), use = "pairwise.complete.obs")

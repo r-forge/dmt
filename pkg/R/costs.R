@@ -62,30 +62,21 @@ cost.W.exponential <- function (vec, phi, priors = NULL, Dim, Dcov) {
                  cbind(t(wtw.xy), W$Y%*%t(W$Y) + phi$Y))
   
   # -logP for the data
-print("HERHE")
-print("PHI")
-print(phi)
-print("WYW")
-print(W$Y%*%t(W$Y))
-print("WXW")
-print(W$X%*%t(W$X))
-print("WXYW")
-print(wtw.xy)
-print("Sigma")
-print(Sigma)
-print("detSigma")
-print(det(Sigma))
-  cost.data <- log(det(Sigma)) + sum(diag(solve(Sigma)%*%Dcov$total))
-print("HERHE2")  
+  det.sigma <- det(Sigma) 
+  if (det.sigma > 1e-18) { # using > 0 caused overflows 
+    cost.data <- log(det.sigma) + sum(diag(solve(Sigma)%*%Dcov$total))
+  } else {
+    # In some rare situations det.sigma appears non-positive;
+    # such solutions are not feasible
+    cost.data <- 1e308 # 1e309 gives Inf; Inf gives error
+  }
   
   # -logP for W prior
   # wcost <- sum((W$X)^2) * priors$W
   # Assuming exponential prior distribution with rate parameter priors$W
-  wcost <- 0 # no effect
-  if (!is.null(priors$W)){
-    if (priors$W > 0) {
-      wcost <- -sum(dexp(vec, rate = priors$W, log = TRUE))
-    }
+  wcost <- 0 # no effect # FIXME: would be faster without this 'if' check
+  if ( !is.null(priors$W) && priors$W > 0 ) {
+    wcost <- -sum(dexp(vec, rate = priors$W, log = TRUE))
   }
   
   cost.data + wcost

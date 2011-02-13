@@ -131,8 +131,8 @@ phi.diagonal.double <- function (W, phi.inv, Cxx, Dim) {
   D <- diag(Dim$Z) - t(W)%*%d
   Cxxd <- Cxx%*%d
 
-  phi$total <- diag(diag(Cxx - Cxxd%*%solve(t(d)%*%Cxxd + D)%*%t(Cxxd)))
-
+  phi <- list()
+  phi$total <- diag(diag(Cxx - Cxxd %*% solve(t(d) %*% Cxxd + D) %*% t(Cxxd)))
   phi <- list(X = phi$total[1:Dim$X,1:Dim$X], Y = phi$total[-(1:Dim$X),-(1:Dim$X)], total = phi$total)                
   
   phi

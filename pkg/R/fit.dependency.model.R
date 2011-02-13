@@ -1,5 +1,4 @@
-fit.dependency.model <-
-function (X, Y,
+fit.dependency.model <- function (X, Y,
           zDimension = 1,
           marginalCovariances = "full",
           covLimit = 1e-3,
@@ -17,7 +16,7 @@ function (X, Y,
   # Y = Wy * z + epsy
   # with various modeling assumptions
 
-  if (verbose) {cat("Checking data\n")}
+  if ( verbose ) { cat("Checking data\n") }
   dat <- check.data(X, Y, zDimension)
   X <- dat$X
   Y <- dat$Y
@@ -30,7 +29,7 @@ function (X, Y,
     if ( matched ) { stop("Cannot use matched methods for nonmatched data.") }
   }
 
-  if (verbose) {cat("Checking inputs\n")}
+  if (verbose) { cat("Checking inputs\n") }
   if (!is.null(priors$Nm.wxwy.sigma) && priors$Nm.wxwy.sigma == Inf) { matched <- FALSE; message("priors$Nm.wxwy.sigma == Inf; Wx ~ Wy independendent i.e. matched = FALSE") }  
   if ( covLimit == 0 )  { covLimit <- 1e-3 } # avoid numerical overflows
   res <- NA; method <- ""
@@ -81,7 +80,7 @@ function (X, Y,
 	
       } else { stop("Erroneous marginalCovariances parameter provided!") }
 
-     } else if ( !is.null(priors$W) ) { # for some reason stating priors$W caused crash before   
+    } else if ( !is.null(priors$W) ) { # for some reason stating priors$W caused crash before   
       
       if ( verbose ) { cat("Wx ~ Wy free; exponential (nonnegative) prior for W.\n") }
 
@@ -134,16 +133,20 @@ function (X, Y,
       # Regularization for W (W > 0 implemented)
       if (!is.null(priors$W)) {
             
-	if ( verbose ) {cat("Wx = Wy with regularized W (W>=0)\n")}
-	if ( verbose ) {cat(marginalCovariances); cat("\n")}	
+	if ( verbose ) { cat("Wx = Wy with regularized W (W>=0)\n") }
+	if ( verbose ) { cat(marginalCovariances); cat("\n") }	
 	
         if (marginalCovariances == "full") {
           # use this for full W (EM algorithm, unstable for n ~ p) (?)
           res <- optimize.parameters(X, Y, zDimension, epsilon = covLimit, par.change = 1e6, priors = priors)
           method <- "pCCA with W prior"
         } else if (marginalCovariances == "diagonal") {	
+	
           stop("Matched case with regularized W implemented only with full marginalCovariances")
 	  # FIXME: add diagonal covs
+
+          #res <- optimize.parameters(X, Y, zDimension, priors = priors, marginalCovariances, epsilon = covLimit, verbose = verbose)
+ 
         } else if (marginalCovariances == "isotropic") {
           stop("Matched case with regularized W implemented only with full marginalCovariances")
 	  # FIXME: add this and also identical isotropic

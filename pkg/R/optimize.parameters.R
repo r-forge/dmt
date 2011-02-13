@@ -1,4 +1,4 @@
-optimize.parameters <- function (X, Y, zDimension = 1, priors = NULL, 
+optimize.parameters <- function (X, Y, zDim = 1, priors = NULL, 
                                  marginalCovariances = "full", 
 				 epsilon = 1e-6, par.change = 1e6, verbose = FALSE) {
 
@@ -10,7 +10,7 @@ optimize.parameters <- function (X, Y, zDimension = 1, priors = NULL,
   # (W.prior)
 
   if ( verbose ) { cat("Initialize\n") }
-  inits <- initialize2(X, Y, zDimension, marginalCovariances)
+  inits <- initialize2(X, Y, zDim, marginalCovariances)
   phi <- inits$phi
   phi.inv <- inits$phi.inv
   W <- inits$W
@@ -18,7 +18,15 @@ optimize.parameters <- function (X, Y, zDimension = 1, priors = NULL,
   Dim <- inits$Dim
   nullmat <- inits$nullmat
   Nsamples <- inits$Nsamples
-	      
+
+  # FIXME: this duv variance calculation also used in ppca
+  # make a separate function and call that
+  # eigenvalues D and eigenvectors U
+  #duv <- svd(rbind(X, Y))
+  #U <- duv$u
+  #D <- sort(duv$d, decreasing = TRUE)
+  #phi.ml <- sum(D[-seq(zDim)])/(nrow(U) - zDim)		
+
   # FIXME: handle priors completely outside this function later!
   
   if ( length(priors) == 0 ) { priors <- list() }
@@ -38,6 +46,7 @@ optimize.parameters <- function (X, Y, zDimension = 1, priors = NULL,
     if ( verbose ) { cat("Wx ~ Wy free\n") }
     priors$Nm.wxwy.sigma <- Inf 
     # cost.W.exponential accepts also priors$W = NULL i.e. no W prior
+
     cost.new <- cost.W.exponential(c(as.vector(W$X), as.vector(W$Y)), phi, priors, Dim, Dcov)
 
   } else if (priors$Nm.wxwy.sigma > 0) { # Wx ~ Wy constrained
@@ -57,8 +66,8 @@ optimize.parameters <- function (X, Y, zDimension = 1, priors = NULL,
 
     if ( verbose ) { cat("Wx = Wy \n") }
 
-    # Ensure that the dimensionality of given w matches with given zDimension
-    w <- as.matrix(inits$W$X[, 1:zDimension], ncol = zDimension)
+    # Ensure that the dimensionality of given w matches with given zDim
+    w <- as.matrix(inits$W$X[, 1:zDim], ncol = zDim)
     W <- list(X = w, Y = w, total = rbind(w, w))
     if ( !is.null(priors$W) ) {
      if ( verbose ) { cat(paste("prior for W: ", priors$W, "\n")) }
@@ -69,13 +78,13 @@ optimize.parameters <- function (X, Y, zDimension = 1, priors = NULL,
     }  
   }
   
-
-
   ###################################################
 
 
-  if ( verbose ) {cat(paste("Starting iterations \n"))}
+  if ( verbose ) { cat(paste("Starting iterations \n")) }
   while (par.change > epsilon || par.change < 0) {
+
+    if ( verbose ) { cat(cost.new); cat("\n") }
 
     cost.old <- cost.new
 
@@ -88,7 +97,8 @@ optimize.parameters <- function (X, Y, zDimension = 1, priors = NULL,
     if (!is.null(priors$W)) {
       # Regularized W
 
-      if (is.null(priors$Nm.wxwy.sigma) || priors$Nm.wxwy.sigma == Inf) {
+      if ( is.null(priors$Nm.wxwy.sigma) || priors$Nm.wxwy.sigma == Inf ) {
+
         # optimizes Wx and Wy assuming they are independent
         opt <- optim(c(as.vector(W$X), as.vector(W$Y)), cost.W.exponential, 
 	             method = "L-BFGS-B", phi = phi, priors = priors, 
@@ -98,9 +108,10 @@ optimize.parameters <- function (X, Y, zDimension = 1, priors = NULL,
         # Convert optimized W parameter vector to actual matrices
         # Note that here we always assume that W is positive
         W <- get.W2(opt$par, Dim)
-      } else if (priors$Nm.wxwy.sigma == 0) {
+	
+      } else if ( priors$Nm.wxwy.sigma == 0 ) {
       
-      	# assuming Wx = Wy, we can speed up (FIXME; analytical alternatives?)
+      	# assuming Wx = Wy, we can speed up (FIXME; use analytical alternatives?)
 
         # SimCCA Wx = Wy with regularized W (W>=0)
         # message("Case Wx = Wy and regularized W.")
@@ -120,7 +131,7 @@ optimize.parameters <- function (X, Y, zDimension = 1, priors = NULL,
 
     } else { # Unconstrained W
         
-      if (priors$Nm.wxwy.sigma == 0) { # Wx = Wy
+      if ( priors$Nm.wxwy.sigma == 0 ) { # Wx = Wy
 
         # assuming Wx = Wy
         # see Bach-Jordan 2005, sec. 4.1 for details
@@ -128,7 +139,7 @@ optimize.parameters <- function (X, Y, zDimension = 1, priors = NULL,
 
         W <- W.simcca.EM(W, phi, Dim, Dcov)
 		    		    
-      } else if (priors$Nm.wxwy.sigma > 0 && priors$Nm.wxwy.sigma < Inf) { # Wx ~ Wy constrained
+      } else if ( priors$Nm.wxwy.sigma > 0 && priors$Nm.wxwy.sigma < Inf ) { # Wx ~ Wy constrained
 
         # Update W: initialize with previous W			       
         opt <- optim(c(as.vector(W$X), as.vector(T)), cost.W, method = "L-BFGS-B", phi = phi, priors = priors, Dim = Dim, Dcov = Dcov,
@@ -142,10 +153,7 @@ optimize.parameters <- function (X, Y, zDimension = 1, priors = NULL,
         stop("Special case, corresponding to pCCA. No need to loop over W, phi in optimization. Use pCCA function for direct solution.")
       }
     }
-    
-    
-    
-    
+        
     W.new <- W # redundant?
     
     ##################################################
@@ -154,17 +162,18 @@ optimize.parameters <- function (X, Y, zDimension = 1, priors = NULL,
 
     phi.inv$X <- solve(phi$X)
     phi.inv$Y <- solve(phi$Y)    
-    phi.inv$total <- rbind(cbind(phi.inv$X, nullmat),
-                           cbind(t(nullmat), phi.inv$Y))    
 
     if (marginalCovariances == "full") {
 
-      if (priors$Nm.wxwy.sigma == 0) { # Wx = Wy
- 
+      phi.inv$total <- rbind(cbind(phi.inv$X, nullmat),
+                           cbind(t(nullmat), phi.inv$Y))    
+
+      if ( priors$Nm.wxwy.sigma == 0 ) { # Wx = Wy
+
         # FIXME: implement this also for other covariance structures
 
         # see Bach-Jordan 2005, sec. 4.1 for details
-        M <- solve(t(W.old$X)%*%(phi.inv$X + phi.inv$Y)%*%W.old$X + diag(zDimension))
+        M <- solve(t(W.old$X)%*%(phi.inv$X + phi.inv$Y)%*%W.old$X + diag(zDim))
         # beta <- M%*%t(W$X)%*%phi.inv.sum # ct. set.beta.fullcov(M, W$total, phi.inv$total)
         # FIXME: replace this with the general M.set functions
         # FIXME: speedup by sharing M/beta with W.simcca.EM?
@@ -179,23 +188,61 @@ optimize.parameters <- function (X, Y, zDimension = 1, priors = NULL,
         phi <- phi.EM.cca(Dcov, W.new, phi.inv, W.old, M, nullmat)
       }
 
-     } else if (marginalCovariances == "isotropic") {
+    } else if (marginalCovariances == "isotropic") {
 
-        # FIXME: speedups possible when Wx = Wy. Implement.
-
+        # M and beta Possibly useful for speedups later, when 
+	# considering joint analysis of W and phi
         # set.M is for isotropic X or Y
-        M <- list()
-        M$X <- set.M(W$X, phi$X)
-        M$Y <- set.M(W$Y, phi$Y)
-	       
-        beta <- list()
-        beta$X <- set.beta(M$X, W$X, phi$X)
-        beta$Y <- set.beta(M$Y, W$Y, phi$Y)
+	# these should OK without modifications here.
+        #M <- list()
+        #M$X <- set.M(W$X, phi$X)
+        #M$Y <- set.M(W$Y, phi$Y)      
+        #beta <- list()
+        #beta$X <- set.beta(M$X, W$X, phi$X)
+        #beta$Y <- set.beta(M$Y, W$Y, phi$Y)
+        # FIXME: if this is not used, remove M and beta
+        # however check their use in W update
+        #phi <- update.phi(Dcov, M, beta, W, phi)
+	
+	# FIXME: speed up by using scalars as in the ppca/pfa/pcca
+        phi.scalar.x <- unique(diag(phi$X))
+        phi.scalar.y <- unique(diag(phi$Y))	
+        phi$X <- update.phi.isotropic(Dcov$X, W$X, phi.scalar.x, Dim$X)
+        phi$Y <- update.phi.isotropic(Dcov$Y, W$Y, phi.scalar.y, Dim$Y)
 
-        phi <- update.phi(Dcov, M, beta, W, phi)
+        # convert to matrices
+	phi$X <- diag(phi$X, Dim$X)
+	phi$Y <- diag(phi$Y, Dim$Y)
+	phi$total <- diag(c(diag(phi$X), diag(phi$Y)))
 
+        # FIXME: update.phi.isotropic possibly also usable here
+	# but perhaps slower; update.phi is just an empirical estimate
+	# the ML used in identical isotropic would be better
+
+     } else if (marginalCovariances == "identical isotropic") {
+
+        # FIXME: perhaps using similar implementation with "isotropic"
+	# (separately for X and Y)
+	# would be faster and about as accurate? test.
+
+        # Calling set.M.isotropic
+	# FIXME: speed up by using scalars as in the ppca/pfa/pcca
+        phi.scalar <- unique(diag(phi$total))
+        phi.estimate <- update.phi.isotropic(Dcov$total, W$total, phi.scalar, Dim$X + Dim$Y)
+	#phi <- list(X = phi.estimate, Y = phi.estimate)
+
+        # convert to matrices
+	phi$X <- diag(phi.estimate, Dim$X)
+	phi$Y <- diag(phi.estimate, Dim$Y)
+	phi$total <- diag(c(diag(phi$X), diag(phi$Y)))	
+
+        # FIXME could be sped up by using scalars here, and similar treatment with W updates than with the "isotropic" option
+	    
      } else if ( marginalCovariances == "diagonal" ) {
-     
+  
+       phi.inv$total <- rbind(cbind(phi.inv$X, nullmat),
+                           cbind(t(nullmat), phi.inv$Y))    
+  
        # FIXME: speedups possible when Wx = Wy. Implement.     
        # FIXME: compare M, beta to isotropic/full cases and join common parts
        # FIXME needs to be checked!
@@ -241,14 +288,16 @@ optimize.parameters <- function (X, Y, zDimension = 1, priors = NULL,
 
   }
 
-    if ( verbose ) {cat(paste(" Iterations OK. \n"))}
+  if ( verbose ) {cat(paste(" Iterations OK. \n"))}
 
-  if (marginalCovariances == "isotropic") {
-    # force these scalars into diagonal matrices
-    phi$X <- diag(phi$X, nrow(X))
-    phi$Y <- diag(phi$Y, nrow(Y))
-    phi$total <- diag(c(diag(phi$X),diag(phi$Y)),(nrow(X)+nrow(Y)))
-  }
+  # FIXME
+  # Needed later if phis are treated as scalars
+  #if (marginalCovariances == "isotropic" || marginalCovariances == "identical isotropic") {
+  #  # force these scalars into diagonal matrices
+  #  phi$X <- diag(phi$X, nrow(X))
+  #  phi$Y <- diag(phi$Y, nrow(Y))
+  #  phi$total <- diag(c(diag(phi$X),diag(phi$Y)),(nrow(X)+nrow(Y)))
+  #}
 
   W$total <- rbind(W$X, W$Y)  
   rownames(W$X) <- rownames(X)
