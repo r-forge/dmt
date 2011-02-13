@@ -1,4 +1,9 @@
 
+CHANGES IN VERSIOn 0.4.19 (2011-02-13)
+
+  o added tests/depmod.R for case Wx != Wy; W free
+    still some unoptimal convergence with full covariances
+
 CHANGES IN VERSIOn 0.4.18 (2011-02-13)
 
   o added marginalCovariances isotropic, identical isotropic, diagonal

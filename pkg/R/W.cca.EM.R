@@ -11,8 +11,9 @@ W.cca.EM <- function (Dcov, M, beta) {
   # Return total W, i.e. [Wx; Wy]
 
   #beta <-M%*%t(W$total)%*%phi.inv$total
-  #M <- solve(t(W)%*%phi.inv%*%W + I)
-  Dcov$total%*%t(beta)%*%solve(M + beta%*%Dcov$total%*%t(beta))
+  #M <- solve(t(W)%*%phi.inv%*%W + I) # W$total meant here
+
+  matrix(Dcov$total%*%t(beta)%*%solve(M + beta%*%Dcov$total%*%t(beta)), nrow = nrow(Dcov$total))
 
 }
 

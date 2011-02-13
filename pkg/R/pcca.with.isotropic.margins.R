@@ -13,8 +13,10 @@ pcca.with.isotropic.margins <- function (X, Y, zDimension = 1, epsilon = 1e-6, d
   # alternatively add mean parameter in the model
 
   res <- calc.pcca.with.isotropic.margins(X, Y, zDimension, epsilon = 1e-6, delta = 1e6)
+
   phi <- res$phi  
     W <- res$W   
+
 
   colnames(phi$X) <- rownames(phi$X) <- rownames(X)
   colnames(phi$Y) <- rownames(phi$Y) <- rownames(Y)
@@ -57,14 +59,14 @@ calc.pcca.with.isotropic.margins <- function (X, Y, zDimension, epsilon = 1e-6, 
     #######################################
 
     # Full CCA update for W
-    
+
     phi.inv.full <- diag(c(rep(1/phi$X, Dim$X), rep(1/phi$Y, Dim$Y)))
-    M <- set.M.full(W, phi.inv.full, Dim$Z) # corresponds to G in Bishop's book
-    beta <- set.beta.fullcov(M, W, phi.inv.full)
-    W$total <- as.matrix(W.cca.EM(Dcov, M, beta))
-    W$X <- as.matrix(W$total[1:Dim$X,])
-    W$Y <- as.matrix(W$total[-(1:Dim$X),])
-           
+          M <- set.M.full(W$total, phi.inv.full, Dim$Z) # corresponds to G in Bishop's book
+       beta <- set.beta.fullcov(M, W$total, phi.inv.full)
+    W$total <- W.cca.EM(Dcov, M, beta)
+        W$X <- matrix(W$total[1:Dim$X,], nrow = Dim$X)
+        W$Y <- matrix(W$total[-(1:Dim$X),], nrow = Dim$Y)
+
     ########################################
           
     # check convergence (enough to check W)
@@ -72,11 +74,12 @@ calc.pcca.with.isotropic.margins <- function (X, Y, zDimension, epsilon = 1e-6, 
           
   }
 
-  # Format
-  phi$total <- diag(c(diag(phi$X), diag(phi$Y)), (Dim$X + Dim$Y))
-  phi$X <- diag(phi$X, Dim$X)
-  phi$Y <- diag(phi$Y, Dim$Y)
+  # Format scalars into matrices
+  #phi$X <- diag(phi$X, Dim$X)
+  #phi$Y <- diag(phi$Y, Dim$Y)
+  #phi$total <- diag(c(diag(phi$X), diag(phi$Y)))
 
   list(W = W, phi = phi)
 
 }
+

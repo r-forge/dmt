@@ -45,10 +45,9 @@ fit.dependency.model <- function (X, Y,
 
     if ( is.null(priors$W) ) { 
 
-      if ( verbose ) {cat("Wx ~ Wy free. No regularization for W.\n")}
-      if ( verbose ) {cat(marginalCovariances); cat("\n")}
+      if ( verbose ) { cat("Wx ~ Wy free. No regularization for W.\n") }
+      if ( verbose ) { cat(marginalCovariances); cat("\n") }
       
-
       if ( marginalCovariances == "full" ) { # standard pCCA
 
         method <- "pCCA"
@@ -66,7 +65,21 @@ fit.dependency.model <- function (X, Y,
       
         # phiX != phiY in general
         # FIXME: add tests
+
         res <- calc.pcca.with.isotropic.margins(X, Y, zDimension)
+
+        # force these scalars into diagonal matrices                  
+        res$phi$X <- diag(res$phi$X, nrow(X))
+        res$phi$Y <- diag(res$phi$Y, nrow(Y))           
+        res$phi$total <- diag(c(diag(res$phi$X),diag(res$phi$Y)), (nrow(X) + nrow(Y)))
+
+        # Update Phi                                         
+	#phi.scalar.x <- unique(diag(phi$X))
+	#phi.scalar.y <- unique(diag(phi$Y))	
+        # modified from calc.pcca.with.isotropic.margins
+        #phi$X <- update.phi.isotropic(Dcov$X, W$X, phi.scalar.x, Dim$X)
+        #phi$Y <- update.phi.isotropic(Dcov$Y, W$Y, phi.scalar.y, Dim$Y) 
+                                                     							      						       							
         method <- "pCCA with isotropic margins"
 	
       } else if (marginalCovariances == "identical isotropic") {
