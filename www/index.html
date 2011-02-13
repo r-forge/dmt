@@ -118,25 +118,22 @@ div.menu th.selected, div.menu th.selected a{
 <table width="100%" cellpadding="0" cellspacing="0"> 
 <tr> 
 <td valign="top"> 
-Leo Lahti*&sup1;, Olli-Pekka Huovilainen&sup1;, and Abhishek Tripathi&sup2;
+Leo Lahti*&sup1;, Olli-Pekka Huovilainen&sup1;
 <br /> 
 <small> 
 <p>(1) Department of Information and Computer
-Science, Aalto University, Finland<br/> 
-(2) Department of
-Computer Science, University of Helsinki, Finland<br /> 
-* Corresponding author; (<a href="http://www.iki.fi/Leo.Lahti">contact information</a>)</p> 
+Science, Aalto University, Finland.<br/> 
+<!--(2) Department of Computer Science, University of Helsinki, Finland<br/>-->
+</p> 
 </small> 
 
-<p></p><p></p> Investigation of dependencies between multiple data
-sources allows the discovery of regularities and interactions that are
-not seen in individual data sets. The importance of such methods is
-increasing with the availability and size of co-occurring data sets
-in <a href="http://tcga.cancer.gov/">computational
+<p></p><p></p> Dependency detection between co-occurring observations allows the discovery of regularities and interactions that are
+not seen in individual data sets. Demand such methods is
+increasing with the availability of co-occurrence data 
+in many fields, including <a href="http://tcga.cancer.gov/">computational
 biology</a>, <a href="http://data.worldbank.org/">open data
-initiatives</a>, and in <a href="http://www.isitopendata.org/">other
-domains</a>. Practical, open access implementations of general-purpose
-algorithms will help to realize the full potential of these information
+initiatives</a>, and <a href="http://www.isitopendata.org/">other
+domains</a>. Convenient open access implementations help to realize the full potential of these information
 sources.
 
 <p></p> Your feedback and contributions are welcome. See
@@ -156,30 +153,22 @@ admin</a>.
 <td valign="top" width="45%"> 
 <h3>Software &amp; Documentation</h3> 
  
-The current version provides functionality for regularized dependency
-detection [2-3] and dependency-based dimensionality reduction (<a
-href="http://www.cis.hut.fi/projects/mi/software/drCCA/">drCCA</a>;
-[4]). 
+The package provides algorithms for regularized dependency detection
+[2-3] and dependency-based dimensionality reduction [4]. 
 
-In particular, the package provides an implementation of a general
-latent variable framework, which includes as special cases the
-probabilistic versions of PCA, factor analysis, and CCA, and their
-regularized variants.
-
-
-<!--
-in three
-independent modules (follow links for documentation and source code):
--->
+Probabilistic versions of PCA, factor analysis, and CCA and their
+regularized variants are obtained as special cases of the general
+latent variable framework.
 
 <!--<li> multi-way modeling of co-occurrence data
 (<a href="http://www.cis.hut.fi/projects/mi/software/multiWayCCA/">multiWayCCA</a>; [2])
 -->
 
 <p></p> The applicability of the models has been demonstrated in
-previous case studies [2-4]. See also our <a target="_new"
-href="http://r-forge.r-project.org/projects/dmt/">project page at
-R-Forge</a>.
+previous case studies [2-4]. 
+
+<!--Source code is available at <a target="_new"
+href="http://r-forge.r-project.org/projects/dmt/">R-Forge</a>.-->
 
 <table><tr> 
 <td>
@@ -203,11 +192,11 @@ source environment for statistical computing.
 <p></p>
 The implementations are based on well-established models such as
 probabilistic canonical correlation analysis and its variants
-[1-4]. Probabilistic framework deals rigorously with the uncertainties
+[1-4]. 
+
+Probabilistic framework deals rigorously with the uncertainties
 associated with small sample sizes, and allows incorporation of prior
 information in the analysis. 
-<p></p> The modules will later be integrated into a unified set of
-tools for dependency modeling.
 
 </p> 
  
@@ -217,10 +206,8 @@ tools for dependency modeling.
 
 <h3>Installation</h3>
 
-Each module has to be installed independently. For installation
-instructions and description of the modules, see the
-package <a href="../pkg/inst/doc/dmt.pdf">vignette</a>. Note
-that this is a development version.
+For installation instructions and functionality, see
+the package <a href="../pkg/inst/doc/dmt.pdf">vignette</a>. 
 
 <h3>Licensing terms</h3>
 
@@ -229,15 +216,16 @@ Licensed under an open source software license (FreeBSD).
 <h3>Acknowledgements</h3> 
 <div id="support"> 
 
-The project is a joint effort by <a href="http://www.iki.fi/Leo.Lahti">Leo Lahti</a>,
-Olli-Pekka Huovilainen, and Abhishek
-Tripathi from the <a href =
+<b>Project authors: </b> <a href="http://www.iki.fi/Leo.Lahti">Leo
+Lahti</a> and Olli-Pekka Huovilainen.
+
+<b>Project contributors: </b> Arto Klami, Abhishek Tripathi 
+
+The authors are associated with the <a href =
 "http://www.cis.hut.fi/projects/mi/">Statistical Machine Learning and
 Bioinformatics group</a> at the Department of Information and Computer
-Science, Aalto University School of Science and Technology,
-Finland. Abhishek Tripathi is with Department of Computer Science,
-University of Helsinki, Finland. The authors belong also
-to <a href="http://www.hiit.fi/">Helsinki Institute for Information
+Science, Aalto University, Finland, and
+<a href="http://www.hiit.fi/">Helsinki Institute for Information
 Technology HIIT</a> and <a href =
 "http://www.cis.hut.fi/research/">Adaptive Informatics Research Centre
 AIRC</a>.
