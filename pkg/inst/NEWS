@@ -1,4 +1,10 @@
 
+CHANGES IN VERSIOn 0.4.18 (2011-02-13)
+
+  o added marginalCovariances isotropic, identical isotropic, diagonal
+    in fit.dependency.model and tests/psimcca.nnW.R. Still needs
+    simple speedups and more robustness but tests are ok.
+
 CHANGES IN VERSIOn 0.4.17 (2011-02-13)
 
   o added tests/pcca.nnW.R for case Wx != Wy; W>=0

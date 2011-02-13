@@ -1,7 +1,7 @@
 Package: dmt
 Type: Package
 Title: Dependency modelling toolbox
-Version: 0.4.17
+Version: 0.4.18
 Date: 2011-02-13
 Author: Leo Lahti, Olli-Pekka Huovilainen, and Abhishek Tripathi
 Maintainer: Leo Lahti <leo.lahti@iki.fi>

@@ -109,7 +109,7 @@ cost7 <- function (Wvec, phi, Dcov, Dim, priors) {
   # -logP for the data
   detsigma <- det( Sigma )
 
-  if (detsigma > 0) {
+  if (detsigma > 1e-100) { # crashes with > 0
     cost.data <- log(detsigma) + sum(diag(solve(Sigma)%*%Dcov$total))
   } else { cost.data <- Inf }
     

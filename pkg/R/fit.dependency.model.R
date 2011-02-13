@@ -136,23 +136,8 @@ fit.dependency.model <- function (X, Y,
 	if ( verbose ) { cat("Wx = Wy with regularized W (W>=0)\n") }
 	if ( verbose ) { cat(marginalCovariances); cat("\n") }	
 	
-        if (marginalCovariances == "full") {
-          # use this for full W (EM algorithm, unstable for n ~ p) (?)
-          res <- optimize.parameters(X, Y, zDimension, epsilon = covLimit, par.change = 1e6, priors = priors)
-          method <- "pCCA with W prior"
-        } else if (marginalCovariances == "diagonal") {	
-	
-          stop("Matched case with regularized W implemented only with full marginalCovariances")
-	  # FIXME: add diagonal covs
-
-          #res <- optimize.parameters(X, Y, zDimension, priors = priors, marginalCovariances, epsilon = covLimit, verbose = verbose)
- 
-        } else if (marginalCovariances == "isotropic") {
-          stop("Matched case with regularized W implemented only with full marginalCovariances")
-	  # FIXME: add this and also identical isotropic
-        } else {
-          stop("Matched case with regularized W implemented only with full marginalCovariances")
-	}      
+        res <- optimize.parameters(X, Y, zDimension, epsilon = covLimit, par.change = 1e6, priors = priors, verbose = verbose)
+        method <- "pCCA with W prior"
        	
       } else if (is.null(priors$W)) {
         
@@ -170,20 +155,20 @@ fit.dependency.model <- function (X, Y,
           # FIXME: speeups possible here when Wx = Wy but not yet implemented with other than full covs
       }
       
-    } else if (priors$Nm.wxwy.sigma > 0) {
+    } else if ( priors$Nm.wxwy.sigma > 0 ) {
       # Case IIb: partially constrained Wx ~ Wy
                 
-      if ( verbose ) {cat("partially constrained Wx ~ Wy.\n")}
+      if ( verbose ) { cat("partially constrained Wx ~ Wy.\n") }
 		
-      if (!is.null(priors$W)) {
+      if ( !is.null(priors$W) ) {
         if ( verbose ) {cat("regularized W.\n")}
         # FIXME: consider adding fast option with simply nonnegative W but no distributional priors
         stop("Not implemented regularization for W with partially constrained Wx ~ Wy.")
       } else if (is.null(priors$W)) {
-        if ( verbose ) {cat("Partially constrained Wx ~ Wy. No regularization for W.\n")}
-        if ( verbose ) {cat(marginalCovariances); cat("\n")}            		  
+        if ( verbose ) { cat("Partially constrained Wx ~ Wy. No regularization for W.\n") }
+        if ( verbose ) { cat(marginalCovariances); cat("\n") }            		  
 			  
-        if (marginalCovariances == 'isotropic') {
+        if ( marginalCovariances == 'isotropic' ) {
 	  # message("SimCCA with isotropic covariances and regularized H (through sigmas).")
 	
           # FIXME: consider later adding other covariance structures if needed?
@@ -192,7 +177,7 @@ fit.dependency.model <- function (X, Y,
           res <- optimize.parameters(X, Y, zDimension, priors, marginalCovariances, epsilon = covLimit)
           method <- "constrained Wx~Wy with matrix normal distribution prior"
 
-        } else if (!marginalCovariances == 'isotropic') {
+        } else if ( !marginalCovariances == 'isotropic' ) {
           stop("Only isotropic marginal covariances implemented with constrained Wx ~ Wy in the general case.")
         }
       } 
@@ -201,7 +186,7 @@ fit.dependency.model <- function (X, Y,
 
   ##################################################################
 
-  if ( verbose ) {cat("Checking the model..\n")}
+  if ( verbose ) { cat("Checking the model..\n") }
 
   # Test whether model exists for given arguments
   if (any(is.na(unlist(res)))) {
@@ -211,7 +196,7 @@ fit.dependency.model <- function (X, Y,
     score <- dependency.score(res)
   }
   
-  if ( verbose ) {cat("Creating DependenyModel object..\n")}
+  if ( verbose ) {cat("Creating DependencyModel object..\n")}
   
   model <- new("DependencyModel", W = res$W, phi = res$phi, score = score, method = method, params = params)	
   if (includeData) model@data <- list(X = X, Y = Y)
