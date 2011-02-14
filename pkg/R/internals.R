@@ -1,3 +1,13 @@
+
+# (C) 2008-2011 Leo Lahti and Olli-Pekka Huovilainen          
+# All rights reserved. 
+# FreeBSD License (keep this notice)     
+
+
+
+
+
+
 check.data <- function (X, Y, zDimension = NULL) {
 
   if (is.null(zDimension)) { 

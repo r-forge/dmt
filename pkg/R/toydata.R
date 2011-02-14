@@ -1,3 +1,12 @@
+# (C) 2008-2011 Leo Lahti
+# All rights reserved. 
+# FreeBSD License (keep this notice)     
+
+
+
+
+
+
 generate.toydata <- function (N = 100, zDim = 2, xDim = 3, yDim = 3, marginal.covariances = "full", priors = NULL) {
 
   # FIXME: add Wx ~ Wy or Wy = TWx option

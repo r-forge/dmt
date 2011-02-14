@@ -1,3 +1,15 @@
+
+# (C) 2008-2011 Leo Lahti and Olli-Pekka Huovilainen          
+# All rights reserved. 
+# FreeBSD License (keep this notice)     
+
+
+# "Where a calculator on the ENIAC is equipped with 18,000 vacuum tubes
+# and weighs 30 tons, computers in the future may have only 1,000
+# vaccuum tubes and perhaps weigh 1.5 tons."
+# - unknown, Popular Mechanics, March 1949
+
+
 centerData <- function (X, rm.na = TRUE, meanvalue = NULL) {
 
   # Shift data matrix (columns) to zero, or given 'meanvalue'

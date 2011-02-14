@@ -1,3 +1,13 @@
+# (C) 2008-2011 Leo Lahti and Olli-Pekka Huovilainen          
+# All rights reserved. 
+# FreeBSD License (keep this notice)     
+
+
+# "The important thing in science is not so much to obtain new facts as
+#  to discover new ways of thinking about them."
+#  - Sir William Bragg 
+
+
 dependency.score <- function (model) {
 
   W <- model$W

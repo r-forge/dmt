@@ -1,3 +1,15 @@
+# (C) 2008-2011 Olli-Pekka Huovilainen and Leo Lahti 
+# All rights reserved.
+# FreeBSD license (keep this notice).
+
+
+
+# "Computer Science is no more about computers than astronomy is about
+#  telescopes." 
+# - E. W. Dijkstra
+
+
+
 fit.dependency.model <- function (X, Y,
           zDimension = 1,
           marginalCovariances = "full",
@@ -5,9 +17,6 @@ fit.dependency.model <- function (X, Y,
           priors = list(), matched = TRUE,
           includeData = TRUE, calculateZ = TRUE, verbose = FALSE)
 {
-
-  # (C) 2008-2011 Olli-Pekka Huovilainen and Leo Lahti 
-  # FreeBSD license (keep this notice).
 
   # zDimension = 1; marginalCovariances = "full"; H = 1; sigmas = 0; covLimit = 1e-3; mySeed = 123; priors = NULL
   

@@ -56,12 +56,12 @@ will not be used for the whitening.}  }
 
         Kettenring J.R. (1971), Canonical Analysis of several sets of variables, \emph{Biometrika}, \bold{58:3}, 433-451.
 
-
-       	Tripathi A., Klami A., Kaski S. (2007), Simple integrative preprocessing preserves what is shared in data sources, \emph{submitted for publication}
+       	Tripathi A., Klami A., Kaski S. (2007), Simple integrative
+preprocessing preserves what is shared in data sources.
 }
 
 
-\author{Abhishek Tripathi, Arto Klami}
+\author{Abhishek Tripathi \email{abhishektripathi.at@gmail.com}, Arto Klami}
 
 \seealso{\code{cancor},\code{prcomp},\code{svd} }
 \examples{

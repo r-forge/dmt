@@ -1,3 +1,16 @@
+
+# (C) 2008-2011 Leo Lahti and Olli-Pekka Huovilainen          
+# All rights reserved. 
+# FreeBSD License (keep this notice)     
+
+
+
+# Part of the inhumanity of the computer is that, once it is competently
+# programmed and working smoothly, it is completely honest.
+# - Isaac Asimov 
+
+
+
 optimize.parameters <- function (X, Y, zDim = 1, priors = NULL, 
                                  marginalCovariances = "full", 
 				 epsilon = 1e-6, par.change = 1e6, verbose = FALSE) {

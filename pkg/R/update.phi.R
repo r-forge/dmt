@@ -1,3 +1,14 @@
+# (C) 2008-2011 Leo Lahti and Olli-Pekka Huovilainen          
+# All rights reserved. 
+# FreeBSD License (keep this notice)     
+
+
+# "In science the credit goes to the man who convinces the world, not the
+#  man to whom the idea first occurs."
+# - Sir Francis Darwin
+
+
+
 update.phi <- function (Dcov, M, beta, W, phi) {
 
   # Empirical estimate. Should give similar results than

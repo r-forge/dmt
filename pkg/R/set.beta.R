@@ -1,3 +1,13 @@
+
+# (C) 2008-2011 Leo Lahti and Olli-Pekka Huovilainen          
+# All rights reserved. 
+# FreeBSD License (keep this notice)     
+
+
+
+
+
+
 set.beta <-
 function (M, W, phi) {
 	# assuming isotropic marginal covariance

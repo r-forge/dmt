@@ -1,3 +1,8 @@
+# (C) 2008-2011 Leo Lahti and Olli-Pekka Huovilainen
+# All rights reserved.
+# FreeBSD License (keep this notice)
+
+
 setMethod("getW","DependencyModel", 
   function(model) { 
     return(model@W) 

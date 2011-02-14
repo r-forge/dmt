@@ -1,3 +1,12 @@
+# (C) 2008-2011 Leo Lahti and Olli-Pekka Huovilainen          
+# All rights reserved. 
+# FreeBSD License (keep this notice)     
+
+
+# "The mathematics is not there till we put it there."
+# - Sir Arthur Eddington, The Philosophy of Physical Science
+
+
 cost.W <- function (vec, phi, priors, Dim, Dcov) {
 
   # Wx ~ Wy constrained

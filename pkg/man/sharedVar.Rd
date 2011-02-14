@@ -56,10 +56,11 @@
 }
 
 \references{ 
-	Tripathi A., Klami A., Kaski S. (2007), Simple integrative preprocessing preserves what is shared in data sources, \emph{submitted for publication}.
+	Tripathi A., Klami A., Kaski S. (2007), Simple integrative
+preprocessing preserves what is shared in data sources.
 
 }
-\author{Abhishek Tripathi, Arto Klami}
+\author{Abhishek Tripathi \email{abhishektripathi.at@gmail.com}, Arto Klami}
 
 \seealso{\code{\link{specificVar}}}
 \examples{

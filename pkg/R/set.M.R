@@ -1,3 +1,12 @@
+# (C) 2008-2011 Leo Lahti and Olli-Pekka Huovilainen          
+# All rights reserved. 
+# FreeBSD License (keep this notice)     
+
+
+
+# "Do not worry about your difficulties in Mathematics. I can assure you
+# mine are still greater."
+# - Albert Einstein
 
 
 set.M.isotropic <- function (wtw, sigma.sq, dx) {solve(wtw + diag(sigma.sq, dx, dx)) }

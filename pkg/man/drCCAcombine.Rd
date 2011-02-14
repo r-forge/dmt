@@ -1,17 +1,15 @@
 \name{drCCAcombine}
 \alias{drCCAcombine}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{A function to combine several data sets}
 \description{
 
-   Performs drCCA on a collection of data sets with co-occurring
-   samples. The method utilizes regularized canonical correlation
-   analysis to find linear projections for each of the data sets, and
-   uses those to construct a combined representation of lower
-   dimensionality than the original collection. The method suggests a
-   specific dimensionality for the combined representation, but it is
-   possible to obtain also combined data sets of different
-   dimensionality.
+Performs drCCA on a collection of data sets with co-occurring samples.
+The method utilizes regularized canonical correlation analysis to find
+linear projections for each of the data sets, and uses those to
+construct a combined representation of lower dimensionality than the
+original collection. The method suggests a specific dimensionality for
+the combined representation, but it is possible to obtain also
+combined data sets of different dimensionality.
 
 }
 \usage{drCCAcombine(datasets, reg=0, nfold=3, nrand=50)}
@@ -71,9 +69,10 @@ reference.
 
 }
 
-\references{Tripathi A., Klami A., Kaski S. (2007), Simple integrative preprocessing preserves what is shared in data sources}
+\references{Tripathi A., Klami A., Kaski S. (2007), Simple integrative
+preprocessing preserves what is shared in data sources.}
 
-\author{Abhishek Tripathi, Arto Klami }
+\author{Abhishek Tripathi \email{abhishektripathi.at@gmail.com}, Arto Klami}
 
 \seealso{\code{\link{regCCA}}}
 \examples{

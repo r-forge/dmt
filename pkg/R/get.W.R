@@ -1,3 +1,12 @@
+# (C) 2008-2011 Leo Lahti and Olli-Pekka Huovilainen          
+# All rights reserved. 
+# FreeBSD License (keep this notice)     
+
+
+# "Reality is merely an illusion, albeit a very persistent one."
+# - Albert Einstein
+        
+
 get.W <- function (vec, Dim) {
 
   # Convert parameter vector into matrices Wx and Wy

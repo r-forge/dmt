@@ -19,14 +19,14 @@ Huovilainen\\Department of Information and Computer Science\\Aalto University, F
 \section{Introduction}
 
 This package provides general tools for the discovery and analysis of
-statistical dependencies between co-occurring measurement data. The
-tools include well-established models such as probabilistic canonical
-correlation analysis \cite{Archambeau06, Bach05}. Probabilistic
-framework deals rigorously with the uncertainties associated with
-small sample sizes, and allows incorporation of prior information in
-the analysis through Bayesian priors \cite{Lahti10thesis}. The
-applicability of the models has been demonstrated in previous case
-studies \cite{Lahti09mlsp, Tripathi08}.
+statistical dependencies between co-occurring measurement data
+\cite{Lahti10icml}. The tools include well-established models such as
+probabilistic canonical correlation analysis \cite{Bach05}.
+Probabilistic framework deals rigorously with the uncertainties
+associated with small sample sizes, and allows incorporation of prior
+information in the analysis through Bayesian priors
+\cite{Lahti10thesis}. The applicability of the models has been
+demonstrated in previous case studies \cite{Lahti09mlsp, Tripathi08}.
 
 Dependency models help to discover regularities and interactions that
 are not seen in individual data sets.  Multiple, complementary views
@@ -64,7 +64,7 @@ The underlying linear model is described in Section~\ref{sec:framework}.
 \label{sec:framework}
 
 The {\it fit.dependency.model} function implements the probabilistic
-dependency modeling framework presented in \cite{Bach05} and
+dependency modeling framework presented in \cite{Bach05} and its
 subsequent extensions \cite{Archambeau06, Klami08, Lahti09mlsp}. The
 latent variable model assumes that the two data sets, \(X\) and \(Y\)
 can be decomposed in {\it shared} and {\it data set-specific}
@@ -167,16 +167,16 @@ Special cases of the model include probabilistic versions of canonical
 correlation analysis, factor analysis, and principal component
 analysis, and their regularized variants.
 
-{\bf Probabilistic CCA} (pCCA) assumes full covariance matrices \(\Psi_x\),
-\(\Psi_y\). This gives the most detailed model for the data set
-specific effects. The connection of this latent variable model and the
-traditional canonical correlation analysis has been established in
-\cite{Bach05}.
+{\bf Probabilistic CCA} (pCCA) assumes full covariance
+matrices \(\Psi_x\), \(\Psi_y\). This gives the most detailed model
+for the data set specific effects. The connection of this latent
+variable model and the traditional canonical correlation analysis has
+been established in \cite{Bach05}.
 
-{\bf Probabilistic SimCCA} (pSimCCA) assumes full covariance matrices
-\(\Psi_x\), \(\Psi_y\) and identical latent transformations \(W_x =
-W_y\). The model is more robust to overfitting than pCCA when the data
-is scarce, as demonstrated in \cite{Lahti09mlsp}.
+{\bf Probabilistic SimCCA} (pSimCCA) assumes full
+covariance matrices \(\Psi_x\), \(\Psi_y\) and identical latent
+transformations \(W_x = W_y\). The model is more robust to overfitting
+than pCCA when the data is scarce \cite{Lahti09mlsp}.
 
 {\bf Probabilistic factor analysis} (pFA) is obtained with diagonal
 covariances \(\Psi_x\), \(\Psi_y\). In addition, a special case is
@@ -187,14 +187,14 @@ probabilistic factor analysis on the concatenated data set. The
 structure of the covariances is simpler than in pCCA. This regularizes
 the solution and can potentially reduce overfitting in some
 applications. Also the standard probabilistic factor analysis model
-for a single data set is available.
+for a single data set is available \cite{Rubin82}.
 
 {\bf Probabilistic PCA} (pPCA) is obtained with identical isotropic
 covariances for the data set-specific effects: \(\Psi_x = \Psi_y =
 \sigma I\). This model is identical to concatenating \(X\), \(Y\), and
 fitting ordinary probabilistic PCA on the concatenated data. Also the
-standard probabilistic PCA model for a single data set is available.
-
+standard probabilistic PCA model for a single data set is available
+\cite{Tipping99}.
 
 
 \subsection{Parameter estimation}
@@ -267,53 +267,64 @@ the drCCA functionality.
 \begin{thebibliography}{1}
 
 \bibitem{Archambeau06}
-C{\'e}dric Archambeau, Nicolas Delannay, and Michel Verleysen.
+C. Archambeau, N, Delannay, and M. Verleysen.
 \newblock Robust probabilistic projections.
 \newblock In W.W. Cohen and A.~Moore, editors, {\em Proceedings of the 23rd
   International conference on machine learning}, pages 33--40. ACM, 2006.
 
 \bibitem{Bach05}
-Francis~R. Bach and Michael~I. Jordan.
+F.R. Bach and M.I. Jordan.
 \newblock A probabilistic interpretation of canonical correlation analysis.
 \newblock Technical Report 688, Department of Statistics, University of
   California, Berkeley, 2005.
 
-%\bibitem{Huopaniemi10}
-%Ilkka Huopaniemi, Tommi Suvitaival, Janne Nikkil\"{a}, Matej Ore\u{s}ic, and
-%  Samuel Kaski.
-%\newblock Multivariate multi-way analysis of multi-source data.
-%\newblock {\em Bioinformatics}, 2010.
-%\newblock (ISMB 2010, to appear).
+\bibitem{Klami08}
+A. Klami and S. Kaski.
+\newblock Probabilistic approach to detecting dependencies between data sets.
+\newblock {\em Neurocomputing}, 72(1-3):39--46, 2008.
 
 \bibitem{Lahti09mlsp}
-Leo Lahti, Samuel Myllykangas, Sakari Knuutila, and Samuel Kaski.
+L. Lahti, S. Myllykangas, S. Knuutila, and S. Kaski.
 \newblock Dependency detection with similarity constraints.
 \newblock In {\em Proc. MLSP'09 IEEE International Workshop on Machine Learning
   for Signal Processing}, IEEE, Piscataway, NJ, 2009.
 
 \bibitem{Lahti10thesis}                                           
-Leo Lahti (2010).                                     
+L. Lahti (2010).                                     
 \newblock Probabilistic analysis of the human transcriptome with side information.                       
 \newblock PhD thesis. Aalto University School of Science and Technology, Department of information and Computer Science, Espoo, Finland, 2010. 
 \newblock http://lib.tkk.fi/Diss/2010/isbn9789526033686/        
 
 \bibitem{Lahti10icml}                                           
-Leo Lahti {\it et al.} (2010).                                     
+L. Lahti {\it et al.} (2010).                                     
 \newblock Dependency modeling toolkit.
 \newblock International Conference on Machine Learning (ICML-2010). Workshop on Machine Learning Open Source Software. Haifa, Israel, 2010.
 \newblock Project url: http://dmt.r-forge.r-project.org
  
+\bibitem{Rubin82}
+D.B. Rubin and D.T. Thayer (1982).
+\newblock EM algorithms for ML factor analysis.
+\newblock Psychometrika 47(1):69--76.
+\newblock url: http://www.springerlink.com/content/f7x37l8656877311/
+
+\bibitem{Tipping99}   
+M,E. Tipping and C.M. Bishop (1999).
+\newblock Probabilistic principal component analysis.
+\newblock Journal of Royal Statistical Society B 61(3):611--622.
 
 \bibitem{Tripathi08}
-Arto~Klami Abhishek~Tripathi and Samuel Kaski.
+A. Klami, A. Tripathi and S. Kaski.
 \newblock Simple integrative preprocessing preserves what is shared in data
   sources.
 \newblock {\em BMC Bioinformatics}, 9(111), 2008.
 
-\bibitem{Klami08}
-Arto Klami and Samuel Kaski.
-\newblock Probabilistic approach to detecting dependencies between data sets.
-\newblock {\em Neurocomputing}, 72(1-3):39--46, 2008.
+%\bibitem{Huopaniemi10}
+%Ilkka Huopaniemi, Tommi Suvitaival, Janne Nikkil\"{a}, Matej Ore\u{s}ic, and
+%  S. Kaski.
+%\newblock Multivariate multi-way analysis of multi-source data.
+%\newblock {\em Bioinformatics}, 2010.
+%\newblock (ISMB 2010, to appear).
+
 
 \end{thebibliography}
 
