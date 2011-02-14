@@ -118,7 +118,7 @@ div.menu th.selected, div.menu th.selected a{
 <table width="100%" cellpadding="0" cellspacing="0"> 
 <tr> 
 <td valign="top"> 
-Leo Lahti*&sup1;, Olli-Pekka Huovilainen&sup1;
+Leo Lahti*&sup1; and Olli-Pekka Huovilainen&sup1;
 <br /> 
 <small> 
 <p>(1) Department of Information and Computer
@@ -151,21 +151,23 @@ admin</a>.
 
 <table width="100%"><tr> 
 <td valign="top" width="45%"> 
-<h3>Software &amp; Documentation</h3> 
- 
-The package provides algorithms for regularized dependency detection
-[2-3] and dependency-based dimensionality reduction [4]. 
+<h3>Overview</h3> 
 
-Probabilistic versions of PCA, factor analysis, and CCA and their
-regularized variants are obtained as special cases of the general
-latent variable framework.
+The package provides implementations of well-established dependency
+detection models such as probabilistic canonical correlation analysis
+and its regularized variants [1-8]. 
+
+Probabilistic versions of PCA [7], factor analysis [6], and CCA [1-2]
+are obtained as special cases of the general latent variable
+framework. Further tools are available for regularized dependency
+detection [3-4] and dependency-based dimensionality reduction [8].
 
 <!--<li> multi-way modeling of co-occurrence data
 (<a href="http://www.cis.hut.fi/projects/mi/software/multiWayCCA/">multiWayCCA</a>; [2])
 -->
 
-<p></p> The applicability of the models has been demonstrated in
-previous case studies [2-4]. 
+<!--<p></p> The applicability of the models has been demonstrated in
+previous case studies [3-5,8].-->
 
 <!--Source code is available at <a target="_new"
 href="http://r-forge.r-project.org/projects/dmt/">R-Forge</a>.-->
@@ -190,9 +192,6 @@ Techniques for the discovery and analysis of statistical dependencies
 are implemented in <a href="http://www.r-project.org">R</a>, an open
 source environment for statistical computing.
 <p></p>
-The implementations are based on well-established models such as
-probabilistic canonical correlation analysis and its variants
-[1-4]. 
 
 Probabilistic framework deals rigorously with the uncertainties
 associated with small sample sizes, and allows incorporation of prior
@@ -216,19 +215,15 @@ Licensed under an open source software license (FreeBSD).
 <h3>Acknowledgements</h3> 
 <div id="support"> 
 
-<b>Project authors: </b> <a href="http://www.iki.fi/Leo.Lahti">Leo
+<b>Authors: </b> <a href="http://www.iki.fi/Leo.Lahti">Leo
 Lahti</a> and Olli-Pekka Huovilainen.
-
-<b>Project contributors: </b> Arto Klami, Abhishek Tripathi 
-
+<br/>
+<b>Contributors: </b> Arto Klami, Abhishek Tripathi.
+<br/>
 The authors are associated with the <a href =
 "http://www.cis.hut.fi/projects/mi/">Statistical Machine Learning and
 Bioinformatics group</a> at the Department of Information and Computer
-Science, Aalto University, Finland, and
-<a href="http://www.hiit.fi/">Helsinki Institute for Information
-Technology HIIT</a> and <a href =
-"http://www.cis.hut.fi/research/">Adaptive Informatics Research Centre
-AIRC</a>.
+Science, Aalto University, Finland.
 
 </div> 
 
@@ -238,29 +233,48 @@ AIRC</a>.
 
 <ol>
 
-<li> Francis Bach and Michael Jordan (2005). <b>A probabilistic
-    interpretation of canonical correlation analysis</b>. <i>Technical
+<li> F. Bach and M. Jordan (2005). <b>A probabilistic
+    interpretation of canonical correlation analysis</b>. Technical
     report. Department of Statistics, University of California,
-    Berkeley</i>
+    Berkeley.
+
+<li>C. Archambeau, Nicolas Delannay, and Michel Verleysen (2006). <b>Robust probabilistic projections.</b> In W.W. Cohen and A.~Moore, editors,
+<i>Proceedings of the 23rd International conference on machine
+learning</i>, p. 33--40. ACM.
+                     
+<li>L. Lahti, S. Myllykangas, S. Knuutila, and S. Kaski (2009). <b>
+Dependency detection with similarity constraints.</b>  In <i>Proc. MLSP'09 IEEE International Workshop on Machine Learning for Signal Processing</i> p. 89-94, IEEE, Piscataway, NJ, 2009. (<a href="publications/mlsp09_preprint.pdf">preprint pdf</a>)
+
+<li>L. Lahti (2010)<b> Probabilistic analysis of the human transcriptome
+with side information</a>.</b> PhD thesis, Aalto University School of
+Science and Technology, Faculty of Information and Natural Sciences,
+Espoo, Finland, 2010. (<a href="http://lib.tkk.fi/Diss/2010/isbn9789526033686">electronic version</a>)
+
+
+<li>L. Lahti <i>et al.</i> (2010). <b>Probabilistic dependency
+modeling toolkit.</b> International Conference on Machine Learning (ICML-2010).
+Workshop on Machine Learning Open Source Software. Haifa, Israel, June
+2010.
+
+<li> D.B. Rubin and D.T. Thayer (1982).
+<b>EM Algorithms for ML Factorial Analysis</b>
+<i>Psychometrika</i> 47(1):69--76, 1982. <a href = "http://www.springerlink.com/content/f7x37l8656877311/">(electronic version)</a>
+
+<li>M.E. Tipping and C.M. Bishop (1999). <b>Probabilistic principal component
+analysis.</b> <i>Journal of Royal Statistical Society B</i> 61(3):611--622, 1999.
+
+<li>A. Tripathi, A. Klami and S. Kaski (2008). <b>Simple
+integrative preprocessing preserves what is shared in data
+sources.</b> <i>BMC
+Bioinformatics </i>9:111, 2008. (<a href="http://www.biomedcentral.com/1471-2105/9/111">html</a>)
 
 <!--<li>Ilkka Huopaniemi, Tommi Suvitaival, Janne Nikkil&auml;, Matej
 Oresic, and Samuel Kaski. <b>Multivariate multi-way analysis of
 multi-source data.</b> <i>Bioinformatics</i>, to appear. (ISMB 2010)</li>
 -->
 
-<li>Leo Lahti, Samuel Myllykangas, Sakari Knuutila, and Samuel Kaski. <b> Dependency detection with similarity constraints.</b>  In <i>Proc. MLSP'09 IEEE International Workshop on Machine Learning for Signal Processing</i> p. 89-94, IEEE, Piscataway, NJ, 2009. (<a href="publications/mlsp09_preprint.pdf">preprint pdf</a>)
 
-<li>Leo Lahti<b> Probabilistic analysis of the human transcriptome
-with side information</a>.</b> PhD thesis, Aalto University School of
-Science and Technology, Faculty of Information and Natural Sciences,
-Espoo, Finland, 2010. (<a href="http://lib.tkk.fi/Diss/2010/isbn9789526033686">electronic version</a>)
-
-<li>Abhishek Tripathi, Arto Klami and Samuel Kaski. <b>Simple
-integrative preprocessing preserves what is shared in data
-sources.</b> <i>BMC
-Bioinformatics,</i>2008, 9:111. (<a href="http://www.biomedcentral.com/1471-2105/9/111">html</a>)
-
-<!--<li> Arto Klami and Samuel Kaski (2008). <b>Probabilistic approach to
+<!--<li> Arto Klami and S. Kaski (2008). <b>Probabilistic approach to
     detecting dependencies between data sets</b>. <i>Neurocomputing</i>
     72(1-3)</li>
 -->
