@@ -1,6 +1,13 @@
 %\VignetteIndexEntry{DMT}
 \documentclass[a4paper]{article}
 \usepackage{amsmath}
+\setlength{\textwidth}{430pt}                          
+\setlength{\oddsidemargin}{20pt}                             
+\setlength{\marginparwidth}{20pt}                              
+\setlength{\parindent}{0mm}                        
+\setlength{\parskip}{2mm}
+%\setlength{\topmargin}{9pt}    
+
 
 \title{Probabilistic dependency modeling toolkit}
 
@@ -9,8 +16,12 @@ Huovilainen\\Department of Information and Computer Science\\Aalto University, F
 
 \usepackage{Sweave}
 \usepackage{float}
+\usepackage{hyperref}
 
 \def\z{\mathbf{z}}
+\def\x{\mathbf{x}}
+\def\y{\mathbf{y}}
+\def\N{\mathcal{N}}
 
 \begin{document}
 
@@ -20,44 +31,34 @@ Huovilainen\\Department of Information and Computer Science\\Aalto University, F
 
 This package provides general tools for the discovery and analysis of
 statistical dependencies between co-occurring measurement data
-\cite{Lahti10icml}. The tools include well-established models such as
-probabilistic canonical correlation analysis \cite{Bach05}.
+\cite{Lahti10icml}, including well-established models such as
+probabilistic canonical correlation analysis and its regularized
+variants \cite{Archambeau06, Bach05, Lahti09mlsp, Tripathi08}.
 Probabilistic framework deals rigorously with the uncertainties
 associated with small sample sizes, and allows incorporation of prior
 information in the analysis through Bayesian priors
 \cite{Lahti10thesis}. The applicability of the models has been
-demonstrated in previous case studies \cite{Lahti09mlsp, Tripathi08}.
+demonstrated in case studies \cite{Lahti09mlsp, Tripathi08}.
 
 Dependency models help to discover regularities and interactions that
 are not seen in individual data sets.  Multiple, complementary views
 of the same objects are available in many fields including
 computational biology, economics, linguistics, neuroinformatics, open
 data initiatives, social sciences, and other domains.  Demand for
-methods that can reveal dependencies between heterogeneous
-observations is increasing with the availability of co-occurring
-observations. Open access implementations of the algorithmic solutions
-help to realize the full potential of these information sources.
-
-Your feedback and contributions are welcome.\footnote{See the project
-page at R-Forge: http://dmt.r-forge.r-project.org/}
+methods to analyze such data is increasing with the availability of
+co-occurring observations. Open access implementations of the
+algorithmic solutions help to realize the full potential of these
+information sources. Your feedback and contributions are
+welcome.\footnote{See the project page at R-Forge:
+http://dmt.r-forge.r-project.org/}
 
 \subsection{Installation}
 
 Install dmt from within R using command\\
 'install.packages("dmt", repos="http://R-Forge.R-project.org")'
 
-\section{Regularized dependency detection}
 
-The fit.dependency.model function is used to detect dependencies
-between two data sets, X and Y:
-
-<<example1>>=
-library(dmt) 
-data(modelData) # load example data X, Y
-model <- fit.dependency.model(X, Y)
-@
-
-The underlying linear model is described in Section~\ref{sec:framework}.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 \section{Probabilistic dependency modeling framework}
@@ -68,51 +69,60 @@ dependency modeling framework presented in \cite{Bach05} and its
 subsequent extensions \cite{Archambeau06, Klami08, Lahti09mlsp}. The
 latent variable model assumes that the two data sets, \(X\) and \(Y\)
 can be decomposed in {\it shared} and {\it data set-specific}
-components (Figure~\ref{modelpic}). We provide tools to discover these
+components (Figure \ref{modelpic}). We provide tools to discover these
 components.
 
 \begin{figure}[htb] \centering \includegraphics[height=3.5cm,
 keepaspectratio=TRUE]{cca2} \caption{Graphical description of the
-shared latent variable model. The model assumes a shared latent
-variable $\z$, with dataset-specific manifestations (\(W_x \z\) and
-\(W_y \z\)). The observed data sets, \(X\) and \(Y\), consist of
-shared and dataset-specific components. The model assumes co-occurring
-observations, i.e. paired samples in the two data sets.}
-\label{modelpic} \end{figure}
+shared latent variable model with observations \(X, Y\) and a shared
+latent variable \(Z\).} \label{modelpic} \end{figure}
 
-The shared signal is modeled with a latent variable $\mathbf{z}$.
-Intuitively, this measures the strength of the shared signal in each
-sample. The shared signal can have different manifestation in each
-data set, as described by the linear transformations \(W_x\) and
-\(W_y\).  
-
-A standard Gaussian model for the shared latent variable \(\mathbf{z}
-\sim N(0, I)\) and data set-specific effects gives the following model
-where the data set-specific effects are modelled by the covariance
-matrices $\Psi_x$, $\Psi_y$. 
+The shared signal between two (multivariate) observations \(\x, \y\)
+is modeled with a shared latent variable $\z$. The shared component
+can have different manifestation in each data set, described by the
+linear transformations \(W_x\) and \(W_y\).  A standard Gaussian model
+for the shared latent variable \(\z \sim N(0, I)\) and data
+set-specific effects gives the following model:
 
 \begin{equation}\label{eq:model}             
 \begin{aligned}
-  X \sim W_x\mathbf{z} + \varepsilon_x\\
-  Y \sim W_y\mathbf{z} + \varepsilon_y \\
-\varepsilon_. \sim \mathcal{N}(0, \Psi_.)\\
-\mathbf{z} \sim \mathcal{N}(0, I)   
+  X \sim W_x\z + \varepsilon_x\\
+  Y \sim W_y\z + \varepsilon_y
 \end{aligned}
 \end{equation}
 
-The options of the fit.dependency.model function provides can be used
-to tune the model structure. For instance, it is possible to tune the
-dimensionality of the latent variable and to regularize model
-parameters. An overview is provided below. 
+The data set-specific effects are modelled by multivariate Gaussians
+\(\varepsilon_. \sim \mathcal{N}(0, \Psi_.)\) with covariances
+$\Psi_x$, $\Psi_y$, respectively. 
+
+Particular constraints on the model structure can be set through prior
+parameters in the fit.dependency.model function. For instance, it is
+possible to tune the dimensionality of the latent variable, require
+non-negativity for \(W\), or to set particular structure on the
+marginal covariances.  An overview is provided below. 
+
+\subsection{Dependency detection algorithm}
+
+The modeling framework described in Section~\ref{sec:framework} is
+implemented in the fit.dependency.model function. To use the default
+method to detect dependencies between two data sets, X and Y, try:
+
+<<example1>>=
+library(dmt) 
+data(modelData) # load example data X, Y
+model <- fit.dependency.model(X, Y)
+@
+
 
 \subsection{Regularized dependency detection}
 
 Various options are available to tune the model structure and to guide
-dependency modeling through Bayesian priors in the 'priors' option in
-the fit.dependency.model function \cite{Lahti09mlsp}. For instance,
-the following will fit a model with \(W_x = W_y\), with non-negative
-(but otherwise unconstrained) \(W_x, W_y\) and with full marginal
-covariances for the dataset-specific effects.
+dependency modeling through Bayesian priors implemented in the
+'priors' option in the fit.dependency.model function
+\cite{Lahti09mlsp}. For instance, the following will fit a model with
+\(W_x = W_y\), with non-negative (but otherwise unconstrained) \(W_x,
+W_y\) and with full marginal covariances (\(\Psi_x, \Psi_y\)) for the
+dataset-specific effects.
 
 <<example22>>=
 model <- fit.dependency.model(X, Y, 
@@ -120,45 +130,45 @@ model <- fit.dependency.model(X, Y,
 			      marginalCovariances = "full")
 @
 
-Below is a brief summary of the available options. For further options
-and examples, see help(fit.dependency.model):
 
-\begin{itemize}
+\subsubsection{Available regularization options}
 
-\item[zDimension] Dimensionality of the latent variable, which
-is used to characterize the latent effects. By default, full
-dimensionality is used, but in many applications the relevant
-dependencies can be described with lower-dimensional representation of
-the shared effects.
+Here is a brief summary of the available options. See
+help(fit.dependency.model) for further options and examples.
 
-\item[W] By default, no constraints are applied on \(W_x\) and
-\(W_y\). However, non-negative solutions can be obtained by setting an
+
+{\bf zDimension} Dimensionality of the latent variable, which is used
+to characterize the latent effects. By default, full dimensionality is
+used, but in many applications the relevant dependencies can be
+described with lower-dimensional representation of the shared effects.
+
+{\bf W} By default, no constraints are applied on \(W_x\) and \(W_y\).
+However, non-negative solutions can be obtained by setting an
 exponential prior with rate parameter \(W\): \(W_x \sim exp(-W
 W_x(i))\) for each element \(i\) of the matrix \(W_x\), and
 respectively for \(W_y\). Small values of the rate parameter enforce
 non-negativity but are otherwise non-informative. 
 
-\item[marginalCovariances] Dataset-specific effects can come from
+{\bf marginalCovariances} Dataset-specific effects can come from
 Gaussian distribution with either full, diagonal, isotropic, or
 identical isotropic covariance structure. The last option refers to a
-model with \(\Phi_x = \Phi_y\).
+model with \(\Psi_x = \Psi_y\).
 
-\item[matched] If matched = TRUE, it is possible to tune the
+{\bf matched} If matched = TRUE, it is possible to tune the
 relationship between \(W_x\) and \(W_y\). See Nm.wx.wy.sigma.
 
-\item[Nm.wx.wy.sigma, Nm.wx.wy.mean] Assuming that \(W_y
-= TW_x\), it is possible to tune the relationship between \(W_x\) and
-\(W_y\) through a prior on T. This can be useful for guiding the
-modeling to focus on certain types of dependencies, and to avoid
-overfitting. Here, a matrix normal distribution is applied: \(T \sim
-N_m(H, \sigma*I, \sigma I)\), with mean and covariance \(H =
-Nm.wx.wy.mean\), \(\sigma I = Nm.wx.wy.sigma I\), respectively. By
-default, Nm.wx.wy.mean = I. The prior can be tuned through $\sigma$. 
-When \(\sigma = 0\), \(W_x = W_y\); when \(\sigma \rightarrow
-\infty\), the relationship between \(W_x\) and \(W_y\) is not
-constrained.
+{\bf Nm.wx.wy.sigma} Assuming that \(W_y = TW_x\), it is possible to
+tune the relationship between \(W_x\) and \(W_y\) through a prior on
+T. This can be useful for guiding the modeling to focus on certain
+types of dependencies, and to avoid overfitting. Here, a matrix normal
+distribution is applied: \(T \sim N_m(H, \sigma I, \sigma I)\), with
+mean and covariance H = Nm.wx.wy.mean, \(\sigma I = Nm.wx.wy.sigma
+I\), respectively. By default, Nm.wx.wy.mean = I. The prior can be
+tuned through $\sigma$.  When \(\sigma = 0\), \(W_x = W_y\); when
+\(\sigma \rightarrow \infty\), the relationship between \(W_x\) and
+\(W_y\) is not constrained.
 
-\end{itemize}
+
 
 
 \subsection{Special cases}
@@ -167,34 +177,62 @@ Special cases of the model include probabilistic versions of canonical
 correlation analysis, factor analysis, and principal component
 analysis, and their regularized variants.
 
-{\bf Probabilistic CCA} (pCCA) assumes full covariance
-matrices \(\Psi_x\), \(\Psi_y\). This gives the most detailed model
-for the data set specific effects. The connection of this latent
-variable model and the traditional canonical correlation analysis has
-been established in \cite{Bach05}.
+{\bf Probabilistic CCA} (pCCA) assumes full covariance matrices
+\(\Psi_x\), \(\Psi_y\), and arbitrary linear transformations \(W_x,
+W_y\) that maximize the likelihood of the model in Eq.~\ref{eq:model}.
+Full marginal covariances provide the most detailed model for the data
+set specific effects. The connection of this latent variable model and
+the traditional canonical correlation analysis has been established in
+\cite{Bach05}.
 
-{\bf Probabilistic SimCCA} (pSimCCA) assumes full
-covariance matrices \(\Psi_x\), \(\Psi_y\) and identical latent
-transformations \(W_x = W_y\). The model is more robust to overfitting
-than pCCA when the data is scarce \cite{Lahti09mlsp}.
+{\bf Probabilistic SimCCA} (pSimCCA) is equivalent to pCCA, but has
+the additional constraint \(W_x = W_y\). This less flexible model is
+more robust against overfitting when the data is scarce
+\cite{Lahti09mlsp}.
 
-{\bf Probabilistic factor analysis} (pFA) is obtained with diagonal
-covariances \(\Psi_x\), \(\Psi_y\). In addition, a special case is
-implemented where each covariance matrix \(\Psi_.\) is isotropic but
-not necessarily identical (as would be the case in pPCA). This model
-is identical to concatenating \(X\), \(Y\), and fitting ordinary
-probabilistic factor analysis on the concatenated data set. The
-structure of the covariances is simpler than in pCCA. This regularizes
-the solution and can potentially reduce overfitting in some
-applications. Also the standard probabilistic factor analysis model
-for a single data set is available \cite{Rubin82}.
+{\bf Probabilistic factor analysis} (pFA) is equivalent to pCCA,
+except diagonal covariances \(\Psi_x\), \(\Psi_y\). The simplified
+structure regularizes the solution and can potentially reduce
+overfitting in applications.  The model is identical to concatenating
+\(X\), \(Y\), and fitting ordinary probabilistic factor analysis on
+the concatenated data set. In addition, a special case is implemented
+where each covariance matrix \(\Psi_.\) is isotropic (but not
+necessarily identical).  The standard probabilistic factor analysis
+model for a single data set is also available \cite{Rubin82}.
 
 {\bf Probabilistic PCA} (pPCA) is obtained with identical isotropic
-covariances for the data set-specific effects: \(\Psi_x = \Psi_y =
-\sigma I\). This model is identical to concatenating \(X\), \(Y\), and
-fitting ordinary probabilistic PCA on the concatenated data. Also the
-standard probabilistic PCA model for a single data set is available
-\cite{Tipping99}.
+covariances \(\Psi_x = \Psi_y = \sigma I\). This model is identical to
+concatenating \(X\), \(Y\), and fitting ordinary probabilistic PCA on
+the concatenated data. The standard probabilistic PCA model for a
+single data set is also available \cite{Tipping99}.
+
+
+\subsection{Interpreting the results}
+
+The {\it fit.dependency.model} function provides an object of
+DependencyModel class. To retrieve options and model parameters
+corresponding to the model in Equation \ref{eq:model}, investigate the
+output as follows:
+
+<<ouputs>>=
+W <- getW(model)      # model parameters Wx, Wy
+psi <- getPhi(model)  # model parameters Psix, Psiy
+Z <- getZ(model)      # ML-estimate of the shared latent variable
+@
+
+
+For a full list of model output, including the original inputs for
+function call, check:
+
+<<ouputs2>>=
+slotNames(model)
+@
+
+For detailed explanation of the output, see
+help(fit.dependency.model). 
+
+The tests/ directory of the package contains a comprehensive set of
+examples with toy data.
 
 
 \subsection{Parameter estimation}
@@ -204,7 +242,7 @@ optimization methods are used when no analytical solution exists for
 particular variables.
 
 
-\section{Dependency-based dimensionality reduction (drCCA)}
+\section{Dependency-based dimensionality reduction}
 
 The drCCA algorithm \cite{Tripathi08} provides tools for
 dimensionality reduction and data fusion that retains the variation
@@ -215,9 +253,10 @@ representation of low dimensionality based on linear transformations
 through generalized CCA.  This helps to discover dependencies between
 multiple data sets (two or more) simultaneously.  Regularization
 options and automated tools are available to select the final
-dimensionality of the combined data set.  This example shows how to
-perform dependency-based dimension reduction on two data sets (samples
-x features matrices).  
+dimensionality of the combined data set.  
+
+The following example shows how to perform dependency-based dimension
+reduction on two data sets (samples x features matrices). 
 
 <<drcca>>=
 data(expdata1) 
@@ -234,16 +273,24 @@ combined representation of the dependent components is constructed on
 a lower-dimensional space. See the original publication for further
 details \cite{Tripathi08}:
 
-\section{Details}
+
+\subsection*{Acknowledgements}
+
+%The project is a joint effort by several people. 
+
+Particular thanks go to contributors Arto Klami and Abhishek Tripathi
+regarding the drCCA functionality.
+
+\subsection*{Details}
 
 \begin{itemize}
 \item {\it Licensing terms:} the package is licensed under FreeBSD
 open software license.
 
-\item {\it Citing DMT:} Please cite \cite{Lahti10icml, Lahti10thesis}
-when using the package; for particular algorithms (drCCA,
-fit.dependency.model, etc.), see separate citation information in the
-function help.
+\item {\it Citing DMT:} Please cite \cite{Lahti10icml, Lahti10thesis};
+for particular algorithms (drCCA, fit.dependency.model, etc.), see
+also separate citation information in the documentation. 
+
 \end{itemize}
 
 This document was written using:
@@ -251,14 +298,6 @@ This document was written using:
 <<details>>=
 sessionInfo()
 @
-
-
-\subsection*{Acknowledgements}
-
-The project is a joint effort by several people. In addition to
-package authors Leo Lahti and Olli-Pekka Huovilainen, particular
-thanks go to contributors Arto Klami and Abhishek Tripathi regarding
-the drCCA functionality.
 
 
 %\bibliographystyle{unsrt}
@@ -289,28 +328,31 @@ L. Lahti, S. Myllykangas, S. Knuutila, and S. Kaski.
 \newblock In {\em Proc. MLSP'09 IEEE International Workshop on Machine Learning
   for Signal Processing}, IEEE, Piscataway, NJ, 2009.
 
-\bibitem{Lahti10thesis}                                           
-L. Lahti (2010).                                     
-\newblock Probabilistic analysis of the human transcriptome with side information.                       
-\newblock PhD thesis. Aalto University School of Science and Technology, Department of information and Computer Science, Espoo, Finland, 2010. 
-\newblock http://lib.tkk.fi/Diss/2010/isbn9789526033686/        
 
 \bibitem{Lahti10icml}                                           
-L. Lahti {\it et al.} (2010).                                     
+L. Lahti {\it et al.}
 \newblock Dependency modeling toolkit.
 \newblock International Conference on Machine Learning (ICML-2010). Workshop on Machine Learning Open Source Software. Haifa, Israel, 2010.
 \newblock Project url: http://dmt.r-forge.r-project.org
  
+ 
+\bibitem{Lahti10thesis}                                           
+L. Lahti.                                     
+\newblock Probabilistic analysis of the human transcriptome with side information.                       
+\newblock PhD thesis. Aalto University School of Science and Technology, Department of information and Computer Science, Espoo, Finland, 2010. 
+\newblock http://lib.tkk.fi/Diss/2010/isbn9789526033686/        
+
 \bibitem{Rubin82}
-D.B. Rubin and D.T. Thayer (1982).
+D.B. Rubin and D.T. Thayer.
 \newblock EM algorithms for ML factor analysis.
-\newblock Psychometrika 47(1):69--76.
+\newblock Psychometrika 47(1):69--76, 1982.
 \newblock url: http://www.springerlink.com/content/f7x37l8656877311/
+%\newblock \url{http://www.springerlink.com/content/f7x37l8656877311/}{(url)}
 
 \bibitem{Tipping99}   
-M,E. Tipping and C.M. Bishop (1999).
+M,E. Tipping and C.M. Bishop.
 \newblock Probabilistic principal component analysis.
-\newblock Journal of Royal Statistical Society B 61(3):611--622.
+\newblock Journal of Royal Statistical Society B 61(3):611--622, 1999.
 
 \bibitem{Tripathi08}
 A. Klami, A. Tripathi and S. Kaski.
@@ -357,6 +399,10 @@ A. Klami, A. Tripathi and S. Kaski.
 %Then uncompress the folder; readme.txt in the uncompressed folder
 %contains instructions for running the analysis. For documentation and
 %examples, see the readme.txt file included in the package.
+
+
+
+
 
 
 \end{document}
