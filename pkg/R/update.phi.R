@@ -8,8 +8,9 @@ update.phi <- function (Dcov, M, beta, W, phi) {
   # i.e. just one parameter; in general phix != phiy
 
   # Mean equals to dividing with dimension
-  phix <- mean(diag(Dcov$X - Dcov$X%*%t(beta$X)%*%t(W$X)))
-  phiy <- mean(diag(Dcov$Y - Dcov$Y%*%t(beta$Y)%*%t(W$Y)))
+  # add small constant to avoid singularities
+  phix <- max(mean(diag(Dcov$X - Dcov$X%*%t(beta$X)%*%t(W$X))), 0) + 1e-3
+  phiy <- max(mean(diag(Dcov$Y - Dcov$Y%*%t(beta$Y)%*%t(W$Y))), 0) + 1e-3
 
   # Return phi
   list(X = phix, Y = phiy)
@@ -32,7 +33,8 @@ update.phi.isotropic <- function (Xcov, W, epsilon, dx) {
   M <- set.M.isotropic(wtw, epsilon, dx)
 
   # Calculate updated phi (= epsilon) and return
-  sum(diag(Xcov - wtw%*%M%*%Xcov))/dx
+  # add small constant to avoid singularity
+  max(sum(diag(Xcov - wtw%*%M%*%Xcov))/dx, 0) + 1e-3
 
 }
 

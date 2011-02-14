@@ -63,6 +63,12 @@ cost.W.exponential <- function (vec, phi, priors = NULL, Dim, Dcov) {
   
   # -logP for the data
   det.sigma <- det(Sigma) 
+  #if (det.sigma < 1e-6) {
+  #  # add small constant on diagonal to quarantee solvability
+  #  Sigma <- Sigma + diag(1e-3, nrow(Sigma))   
+  #  det.sigma <- det(Sigma)      
+  #}
+
   if (det.sigma > 1e-6) { # using > 0 caused overflows 
     cost.data <- log(det.sigma) + sum(diag(solve(Sigma)%*%Dcov$total))
   } else {
