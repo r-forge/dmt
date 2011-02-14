@@ -1,10 +1,11 @@
-\name{expdata1}
+\name{expdata}
 \alias{expdata1}
+\alias{expdata2}
 \docType{data}
-\title{ An example data set }
+\title{ Example data for drCCA }
 \description{
-            This is a randomly generated data set for the example purpose only.
-            This is a data matrix with 2000 rows and 6 columns.
+            Randomly generated data set for the examples.
+            Data matrix with 2000 rows and 6 columns.
   Rows corresponds to the samples and each column corresponds to a
   particular features.
 }

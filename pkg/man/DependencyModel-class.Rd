@@ -46,8 +46,7 @@
 
 \section{Methods}{
   \describe{
-    \item{getW}{\code{signature(model = "DependencyModel")}: Returns a list of model variable \code{W}s \code{X} 
-      , \code{Y} and \code{total} component}
+    \item{getW}{\code{signature(model = "DependencyModel")}: Returns a list of model variable \code{W}s \code{X}, \code{Y} and \code{total} component}
     \item{getPhi}{\code{signature(model = "DependencyModel")}:  Returns a list of model variable \code{phi}s \code{X} 
       and \code{Y} and \code{total} component}
     \item{getScore}{\code{signature(model = "DependencyModel")}: Returns the dependency score of model}

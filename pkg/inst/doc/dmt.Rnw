@@ -1,40 +1,43 @@
+%\VignetteIndexEntry{DMT}
 \documentclass[a4paper]{article}
 \usepackage{amsmath}
 
-\title{Dependency modeling toolkit}
+\title{Probabilistic dependency modeling toolkit}
 
-\author{Leo Lahti\footnote{leo.lahti@iki.fi}, Olli-Pekka Huovilainen, and Abhishek Tripathi
-  Department of Information and Computer Science,\\Aalto University, Finland}
+\author{Leo Lahti\footnote{leo.lahti@iki.fi} and Olli-Pekka
+Huovilainen\\Department of Information and Computer Science\\Aalto University, Finland}
 
 \usepackage{Sweave}
 \usepackage{float}
+
+\def\z{\mathbf{z}}
+
 \begin{document}
 
 \maketitle
 
-%\VignetteIndexEntry{Dependency modeling toolkit}
-
 \section{Introduction}
 
-Dependency modeling between multiple data sources allows the discovery
-of regularities and interactions that are not seen in individual data
-sets. The need for such methods is increasing with the availability of
-co-occurring observations that provide complementary views of the
-objects of interest in computational biology, natural language
-modeling, neuroinformatics, open data initiatives, social sciences,
-and in other domains. Open access implementations of the algorithmic
-solutions will help to realize the full potential of these information
-sources.
+This package provides general tools for the discovery and analysis of
+statistical dependencies between co-occurring measurement data. The
+tools include well-established models such as probabilistic canonical
+correlation analysis \cite{Archambeau06, Bach05}. Probabilistic
+framework deals rigorously with the uncertainties associated with
+small sample sizes, and allows incorporation of prior information in
+the analysis through Bayesian priors \cite{Lahti10thesis}. The
+applicability of the models has been demonstrated in previous case
+studies \cite{Lahti09mlsp, Tripathi08}.
 
-This package provides general-purpose tools for the discovery and
-analysis of statistical dependencies between co-occurring measurement
-data. The implementations are based on well-established models such as
-probabilistic canonical correlation analysis \cite{Archambeau06,
-Bach05}. Probabilistic framework deals rigorously with the
-uncertainties associated with small sample sizes, and allows
-incorporation of prior information in the analysis through Bayesian
-priors \cite{Lahti09mlsp}. The applicability of the models has been
-demonstrated in previous case studies \cite{Lahti09mlsp, Tripathi08}.
+Dependency models help to discover regularities and interactions that
+are not seen in individual data sets.  Multiple, complementary views
+of the same objects are available in many fields including
+computational biology, economics, linguistics, neuroinformatics, open
+data initiatives, social sciences, and other domains.  Demand for
+methods that can reveal dependencies between heterogeneous
+observations is increasing with the availability of co-occurring
+observations. Open access implementations of the algorithmic solutions
+help to realize the full potential of these information sources.
+
 Your feedback and contributions are welcome.\footnote{See the project
 page at R-Forge: http://dmt.r-forge.r-project.org/}
 
@@ -43,10 +46,10 @@ page at R-Forge: http://dmt.r-forge.r-project.org/}
 Install dmt from within R using command\\
 'install.packages("dmt", repos="http://R-Forge.R-project.org")'
 
-\section{Examples}
+\section{Regularized dependency detection}
 
-To learn dependency models for two data sets, X and Y, use
-the fit.dependency.model function: 
+The fit.dependency.model function is used to detect dependencies
+between two data sets, X and Y:
 
 <<example1>>=
 library(dmt) 
@@ -54,62 +57,39 @@ data(modelData) # load example data X, Y
 model <- fit.dependency.model(X, Y)
 @
 
-The functions provides additional options to tune the dimensionality
-of the latent variable and to regularize model parameters. An overview of the
-implemented probabilistic models for dependency detection is provided
-below. For further options, see help(fit.dependency.model).
+The underlying linear model is described in Section~\ref{sec:framework}.
 
-
-\section{Functionality}
-
-\begin{itemize}
-
-\item regularized dependency detection \cite{Bach05, Lahti09mlsp}
-
-\item dependency-based dimensionality reduction \cite{Tripathi08}
-  
-%\item multi-way modeling of co-occurrence
-% data\footnote{http://www.cis.hut.fi/projects/mi/software/multiWayCCA/};
-% \cite{Huopaniemi10}. Currently available as example source code only.
-
-\end{itemize}
-
-\subsection{Documentation}
-
-The package implements the dependency modeling framework explained
-below (see function 'fit.dependency.model'), and provides wrappers for
-the special cases of the model. 
-
-%Currently only online-documentation for the package is available for
-%dependency-based dimensionality reduction. See\\
-%http://www.cis.hut.fi/projects/mi/software/drCCA/dochtml/00Index.html
 
 \section{Probabilistic dependency modeling framework}
 \label{sec:framework}
 
-\begin{figure}[htb]
-\centering \includegraphics[height=3.5cm, keepaspectratio=TRUE]{cca2}
-\caption{Graphical description of the shared latent variable model showing
-generation of data sets $X$ and $Y$ from latent shared variable $\mathbf{z}$ 
-through $W_x$ and $W_y$}
-\label{modelpic}
-\end{figure}
+The {\it fit.dependency.model} function implements the probabilistic
+dependency modeling framework presented in \cite{Bach05} and
+subsequent extensions \cite{Archambeau06, Klami08, Lahti09mlsp}. The
+latent variable model assumes that the two data sets, \(X\) and \(Y\)
+can be decomposed in {\it shared} and {\it data set-specific}
+components (Figure~\ref{modelpic}). We provide tools to discover these
+components.
 
-The package \cite{Lahti09mlsp} implements the probabilistic dependency
-modeling framework presented in \cite{Bach05} and extensions
-\cite{Archambeau06,Klami08,Lahti09mlsp}. The latent variable model
-assumes that the two data sets, \(X\) and \(Y\) can be decomposed in
-{\it shared} and {\it data set-specific} components
-(Figure~\ref{modelpic}). Our tools help to discover these components,
-given modeling assumptions.
+\begin{figure}[htb] \centering \includegraphics[height=3.5cm,
+keepaspectratio=TRUE]{cca2} \caption{Graphical description of the
+shared latent variable model. The model assumes a shared latent
+variable $\z$, with dataset-specific manifestations (\(W_x \z\) and
+\(W_y \z\)). The observed data sets, \(X\) and \(Y\), consist of
+shared and dataset-specific components. The model assumes co-occurring
+observations, i.e. paired samples in the two data sets.}
+\label{modelpic} \end{figure}
 
 The shared signal is modeled with a latent variable $\mathbf{z}$.
 Intuitively, this measures the strength of the shared signal in each
-patient. Shared signal can have different manifestation in each data
-set, described by \(W_xz\) and \(W_yz\) where \(W_x\), \(W_y\).
-Assuming a standard Gaussian model for the shared latent variable
-\(\mathbf{z} \sim N(0, I)\) and data set-specific effects, this leads
-to the following model:
+sample. The shared signal can have different manifestation in each
+data set, as described by the linear transformations \(W_x\) and
+\(W_y\).  
+
+A standard Gaussian model for the shared latent variable \(\mathbf{z}
+\sim N(0, I)\) and data set-specific effects gives the following model
+where the data set-specific effects are modelled by the covariance
+matrices $\Psi_x$, $\Psi_y$. 
 
 \begin{equation}\label{eq:model}             
 \begin{aligned}
@@ -120,23 +100,85 @@ to the following model:
 \end{aligned}
 \end{equation}
 
-The data set-specific effects are modelled by the covariance matrices
-$\Psi_x$, $\Psi_y$. Model parameters are estimated with an EM
-algorithm.
+The options of the fit.dependency.model function provides can be used
+to tune the model structure. For instance, it is possible to tune the
+dimensionality of the latent variable and to regularize model
+parameters. An overview is provided below. 
+
+\subsection{Regularized dependency detection}
+
+Various options are available to tune the model structure and to guide
+dependency modeling through Bayesian priors in the 'priors' option in
+the fit.dependency.model function \cite{Lahti09mlsp}. For instance,
+the following will fit a model with \(W_x = W_y\), with non-negative
+(but otherwise unconstrained) \(W_x, W_y\) and with full marginal
+covariances for the dataset-specific effects.
+
+<<example22>>=
+model <- fit.dependency.model(X, Y, 
+      	 		      priors = list(Nm.wx.wy.sigma = 0, Nm.wx.wy.mean = 1, W = 1e-3), 
+			      marginalCovariances = "full")
+@
+
+Below is a brief summary of the available options. For further options
+and examples, see help(fit.dependency.model):
+
+\begin{itemize}
+
+\item[zDimension] Dimensionality of the latent variable, which
+is used to characterize the latent effects. By default, full
+dimensionality is used, but in many applications the relevant
+dependencies can be described with lower-dimensional representation of
+the shared effects.
+
+\item[W] By default, no constraints are applied on \(W_x\) and
+\(W_y\). However, non-negative solutions can be obtained by setting an
+exponential prior with rate parameter \(W\): \(W_x \sim exp(-W
+W_x(i))\) for each element \(i\) of the matrix \(W_x\), and
+respectively for \(W_y\). Small values of the rate parameter enforce
+non-negativity but are otherwise non-informative. 
+
+\item[marginalCovariances] Dataset-specific effects can come from
+Gaussian distribution with either full, diagonal, isotropic, or
+identical isotropic covariance structure. The last option refers to a
+model with \(\Phi_x = \Phi_y\).
+
+\item[matched] If matched = TRUE, it is possible to tune the
+relationship between \(W_x\) and \(W_y\). See Nm.wx.wy.sigma.
+
+\item[Nm.wx.wy.sigma, Nm.wx.wy.mean] Assuming that \(W_y
+= TW_x\), it is possible to tune the relationship between \(W_x\) and
+\(W_y\) through a prior on T. This can be useful for guiding the
+modeling to focus on certain types of dependencies, and to avoid
+overfitting. Here, a matrix normal distribution is applied: \(T \sim
+N_m(H, \sigma*I, \sigma I)\), with mean and covariance \(H =
+Nm.wx.wy.mean\), \(\sigma I = Nm.wx.wy.sigma I\), respectively. By
+default, Nm.wx.wy.mean = I. The prior can be tuned through $\sigma$. 
+When \(\sigma = 0\), \(W_x = W_y\); when \(\sigma \rightarrow
+\infty\), the relationship between \(W_x\) and \(W_y\) is not
+constrained.
+
+\end{itemize}
+
 
 \subsection{Special cases}
 
 Special cases of the model include probabilistic versions of canonical
 correlation analysis, factor analysis, and principal component
-analysis, and regularized variants.
+analysis, and their regularized variants.
 
-Probabilistic CCA (pCCA) assumes full covariance matrices \(\Psi_x\),
+{\bf Probabilistic CCA} (pCCA) assumes full covariance matrices \(\Psi_x\),
 \(\Psi_y\). This gives the most detailed model for the data set
 specific effects. The connection of this latent variable model and the
 traditional canonical correlation analysis has been established in
 \cite{Bach05}.
 
-Probabilistic factor analysis (pFA) is obtained with diagonal
+{\bf Probabilistic SimCCA} (pSimCCA) assumes full covariance matrices
+\(\Psi_x\), \(\Psi_y\) and identical latent transformations \(W_x =
+W_y\). The model is more robust to overfitting than pCCA when the data
+is scarce, as demonstrated in \cite{Lahti09mlsp}.
+
+{\bf Probabilistic factor analysis} (pFA) is obtained with diagonal
 covariances \(\Psi_x\), \(\Psi_y\). In addition, a special case is
 implemented where each covariance matrix \(\Psi_.\) is isotropic but
 not necessarily identical (as would be the case in pPCA). This model
@@ -144,68 +186,64 @@ is identical to concatenating \(X\), \(Y\), and fitting ordinary
 probabilistic factor analysis on the concatenated data set. The
 structure of the covariances is simpler than in pCCA. This regularizes
 the solution and can potentially reduce overfitting in some
-applications.
+applications. Also the standard probabilistic factor analysis model
+for a single data set is available.
 
-Probabilistic PCA (pPCA) is obtained with identical isotropic
+{\bf Probabilistic PCA} (pPCA) is obtained with identical isotropic
 covariances for the data set-specific effects: \(\Psi_x = \Psi_y =
 \sigma I\). This model is identical to concatenating \(X\), \(Y\), and
-fitting ordinary probabilistic PCA on the concatenated data.
+fitting ordinary probabilistic PCA on the concatenated data. Also the
+standard probabilistic PCA model for a single data set is available.
 
-\subsection{Regularized dependency modelling}
 
-We provide toos to guide dependency modeling through Bayesian priors
-\cite{Lahti09mlsp}. Prior on the relation between $W_x$ and $W_y$ can be
-used to guide modeling to focus on certain types of dependencies, and
-to avoid overfitting. The relationship is described through \(W_y =
-TW_x\). We use matrix normal prior distribution: \(P(T)
-= N_m(H, \sigma^2_TI, \sigma^2_TI)\). By default, $H = I$ and
-\(\sigma^2_T = 0\), giving $W_y = W_x$. This model is denoted
-pSimCCA in the package. The prior can be loosened by tuning
-$sigma^2_T$. With $sigma^2_T \rightarrow \infty$, estimation of $W_x$
-and $W_y$ become independent, yielding ordinary probabilistic
-CCA. It is also possible to tune the mean matrix $H$. This would set a
-particular relationship between the manifestations of the shared
-component in each data set, and \(sigma^2_T\) is again be used to tune
-the strength of such prior.
 
-\section{Dependency-based dimensionality reduction}
+\subsection{Parameter estimation}
 
-The drCCA \cite{Tripathi08} method can be used for dependency-based
-dimensionality reduction that retains the variation shared between the
-original data sources, while reducing data set-specific effects. The
-approach utilizes generalized canonical correlation analysis to
-perform a linear projection on the collection of data sets. Linearity
-makes it fast on large data sets. The package includes regularization
-and tools to select the final dimensionality of the combined data set
-automatically. More examples will be added later.
+Model parameters are estimated with an EM algorithm. Conventional
+optimization methods are used when no analytical solution exists for
+particular variables.
 
-%\subsection{Applications}
-%
-%For applications in functional genomics, see \cite{Lahti09mlsp,
-%Tripathi08}, and the associated
-%pint\footnote{http://bioconductor.org/packages/release/bioc/html/pint.html}
-%BioConductor package, which provides application-specific tools for
-%genome analysis. 
 
-%\section{Multi-way multi-view models (multiWayCCA)}
-%multiWayCCA\footnote{http://www.cis.hut.fi/projects/mi/software/multiWayCCA/}
-%provides tools for multi-way, multi-source modeling. This is
-%particularly usefule for simultaneous multi-way (anova-type) modelling
-%of multiple related data sources. For details, see the original paper
-%\cite{Huopaniemi10}.
+\section{Dependency-based dimensionality reduction (drCCA)}
 
-%\subsection{Installing \& documentation of multiWayCCA}
-%Download the
-%source\footnote{http://www.cis.hut.fi/projects/mi/software/multiWayCCA/multiWayCCA-package-100326.zip}.
-%Then uncompress the folder; readme.txt in the uncompressed folder
-%contains instructions for running the analysis. For documentation and
-%examples, see the readme.txt file included in the package.
+The drCCA algorithm \cite{Tripathi08} provides tools for
+dimensionality reduction and data fusion that retains the variation
+shared between the original data sources, while reducing data
+set-specific effects based on a linear projections. The algorithms
+combine data sets with co-occurring samples into a common
+representation of low dimensionality based on linear transformations
+through generalized CCA.  This helps to discover dependencies between
+multiple data sets (two or more) simultaneously.  Regularization
+options and automated tools are available to select the final
+dimensionality of the combined data set.  This example shows how to
+perform dependency-based dimension reduction on two data sets (samples
+x features matrices).  
+
+<<drcca>>=
+data(expdata1) 
+data(expdata2)
+drcca <- drCCAcombine(list(expdata1, expdata2)) # data fusion
+r <- regCCA(list(expdata1,expdata2))            # regularized CCA
+shared <- sharedVar(list(expdata1,expdata2),r,4)          # shared effects
+#specific <- specificVar(list(expdata1,expdata2),r,4)        # data set-specific effects
+#tmp <- plotVar(list(expdata1,expdata2),r,c(1:2),4)     # visualization
+@
+
+Linear projections are identified for each individual data set, and a
+combined representation of the dependent components is constructed on
+a lower-dimensional space. See the original publication for further
+details \cite{Tripathi08}:
 
 \section{Details}
 
 \begin{itemize}
-\item {\it Licensing terms:} the package is licensed under FreeBSD open software license
-\item {\it Citing DMT:} Please cite \cite{Lahti10icml, Lahti10thesis} when using the package
+\item {\it Licensing terms:} the package is licensed under FreeBSD
+open software license.
+
+\item {\it Citing DMT:} Please cite \cite{Lahti10icml, Lahti10thesis}
+when using the package; for particular algorithms (drCCA,
+fit.dependency.model, etc.), see separate citation information in the
+function help.
 \end{itemize}
 
 This document was written using:
@@ -217,14 +255,11 @@ sessionInfo()
 
 \subsection*{Acknowledgements}
 
-The project is a joint effort by several people: Leo Lahti, Olli-Pekka
-Huovilainen, and Abhishek Tripathi from the Statistical Machine
-Learning and Bioinformatics group at the Department of Information and
-Computer Science, Aalto University School of Science and Technology,
-Finland. Abhishek Tripathi is with Department of Computer Science,
-University of Helsinki, Finland. The authors belong also to Helsinki
-Institute for Information Technology HIIT and Adaptive Informatics
-Research Centre AIRC.
+The project is a joint effort by several people. In addition to
+package authors Leo Lahti and Olli-Pekka Huovilainen, particular
+thanks go to contributors Arto Klami and Abhishek Tripathi regarding
+the drCCA functionality.
+
 
 %\bibliographystyle{unsrt}
 %\bibliography{dmt}
@@ -281,6 +316,36 @@ Arto Klami and Samuel Kaski.
 \newblock {\em Neurocomputing}, 72(1-3):39--46, 2008.
 
 \end{thebibliography}
+
+%\item dependency-based dimensionality reduction \cite{Tripathi08}
+%\item multi-way modeling of co-occurrence
+% data\footnote{http://www.cis.hut.fi/projects/mi/software/multiWayCCA/};
+% \cite{Huopaniemi10}. Currently available as example source code only.
+%Currently only online-documentation for the package is available for
+%dependency-based dimensionality reduction. See\\
+%http://www.cis.hut.fi/projects/mi/software/drCCA/dochtml/00Index.html
+
+%\subsection{Applications}
+%
+%For applications in functional genomics, see \cite{Lahti09mlsp,
+%Tripathi08}, and the associated
+%pint\footnote{http://bioconductor.org/packages/release/bioc/html/pint.html}
+%BioConductor package, which provides application-specific tools for
+%genome analysis. 
+
+%\section{Multi-way multi-view models (multiWayCCA)}
+%multiWayCCA\footnote{http://www.cis.hut.fi/projects/mi/software/multiWayCCA/}
+%provides tools for multi-way, multi-source modeling. This is
+%particularly usefule for simultaneous multi-way (anova-type) modelling
+%of multiple related data sources. For details, see the original paper
+%\cite{Huopaniemi10}.
+
+%\subsection{Installing \& documentation of multiWayCCA}
+%Download the
+%source\footnote{http://www.cis.hut.fi/projects/mi/software/multiWayCCA/multiWayCCA-package-100326.zip}.
+%Then uncompress the folder; readme.txt in the uncompressed folder
+%contains instructions for running the analysis. For documentation and
+%examples, see the readme.txt file included in the package.
 
 
 \end{document}

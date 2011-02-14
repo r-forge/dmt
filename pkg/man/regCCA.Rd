@@ -1,21 +1,13 @@
 \name{regCCA}
 \alias{regCCA}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{Generalized Canonical Correlation Analysis }
 \description{
-
- A function for solving the generalized canonical correlation analysis,
- which is an extension of canonical correlation analysis (CCA) to more than
- two data sets. The implementation contains a possibility to regularize
- the solution to reduce the effect of noise in certain situations. The
- function is mainly intended to be used through \code{\link{drCCA}},
- but works also alone.
-           
+ Solve generalized CCA. Contains a possibility to regularize
+ the solution to reduce the effect of noise.
 }
 \usage{
 regCCA(datasets, reg=0)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{datasets}{A list containing the data matrices to be analyzed.
         Each matrix needs to have the same number of rows (samples),

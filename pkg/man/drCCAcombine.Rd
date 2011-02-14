@@ -4,19 +4,18 @@
 \title{A function to combine several data sets}
 \description{
 
-   Performs drCCA on a collection of data sets with co-occurring samples.
-   The method utilizes regularized canonical correlation analysis to
-   find linear projections for each of the data sets, and uses those
-   to construct a combined representation of lower dimensionality
-   than the original collection. The method suggests a specific
-   dimensionality for the combined representation, but it is possible
-   to obtain also combined data sets of different dimensionality.
+   Performs drCCA on a collection of data sets with co-occurring
+   samples. The method utilizes regularized canonical correlation
+   analysis to find linear projections for each of the data sets, and
+   uses those to construct a combined representation of lower
+   dimensionality than the original collection. The method suggests a
+   specific dimensionality for the combined representation, but it is
+   possible to obtain also combined data sets of different
+   dimensionality.
 
 }
-\usage{
-drCCAcombine(datasets, reg=0, nfold=3, nrand=50)
-}
-%- maybe also 'usage' for other objects documented here.
+\usage{drCCAcombine(datasets, reg=0, nfold=3, nrand=50)}
+
 \arguments{
   \item{datasets}{A list containing the data matrices to be combined.
         Each matrix needs to have the same number
@@ -72,10 +71,7 @@ reference.
 
 }
 
-\references{ 
-	Tripathi A., Klami A., Kaski S. (2007), Simple integrative preprocessing preserves what is shared in data sources, \emph{submitted for publication}
-}
-
+\references{Tripathi A., Klami A., Kaski S. (2007), Simple integrative preprocessing preserves what is shared in data sources}
 
 \author{Abhishek Tripathi, Arto Klami }
 

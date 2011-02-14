@@ -19,13 +19,13 @@ pfa,
 # plot.data,
 # plot.dependency,
 # drCCA-related
-concatenate,
+#concatenate,
 drCCAcombine,
 plotVar,
 regCCA,
 sharedVar,
 specificVar,
-SqrtInvMat,
+#SqrtInvMat,
 z.expectation
        )
 

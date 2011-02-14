@@ -21,11 +21,15 @@ generate.toydata <- function (N = 100, zDim = 2, xDim = 3, yDim = 3, marginal.co
   ######################################################
 
   if (is.null(priors$W)) {
+
     Wx <- matrix(rnorm(zDim*xDim), nrow = xDim)
     Wy <- matrix(rnorm(zDim*yDim), nrow = yDim)
+
   } else if (priors$W > 0) {
+
     Wx <- matrix(rexp(zDim*xDim, rate = 1), nrow = xDim)
     Wy <- matrix(rexp(zDim*yDim, rate = 1), nrow = yDim)
+  
   }
   
   if (!is.null(priors$Nm.wx.wy.sigma) && priors$Nm.wx.wy.sigma == 0) {
@@ -94,4 +98,7 @@ compare.estimate.and.truth <- function (res, toy) {
   unlist(list(wtw.x = corsx, wtw.y = corsy, phi.x = cormx, phi.y = cormy))
 
 }
+
+
+###########################################
 

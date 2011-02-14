@@ -1,3 +1,12 @@
+CHANGES IN VERSION 0.7.01 (2011-02-13)
+
+  o updated vignette and man pages. ready for initial submission to
+    CRAN.
+
+CHANGES IN VERSION 0.4.20 (2011-02-13)
+
+  o added tests/depmod.simcca.R for case Wx = Wy; W free
+    still some unoptimal convergence with full covariances
 
 CHANGES IN VERSIOn 0.4.19 (2011-02-13)
 

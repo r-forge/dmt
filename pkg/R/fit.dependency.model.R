@@ -229,3 +229,431 @@ fit.dependency.model <- function (X, Y,
 #  fit.dependency.model(X,Y,zDimension,marginalCovariances = "isotropic", covLimit = 1e-6,
 #                       includeData = includeData, calculateZ = calculateZ)          
 #}                                                                      
+
+pcca <- function (X, Y, zDimension = NULL, includeData = TRUE, calculateZ = TRUE) {
+
+  # (C) 2008-2011 Olli-Pekka Huovilainen and Leo Lahti
+  # License: FreeBSD (keep this notice)
+
+  # replaces: solve.CCA.full
+  
+  # If zDimension given, then
+  # only pick zDimension first principal components
+  # and estimate marginals accordingly
+  # relies on the fact that the principal components
+  # can be estimated consecutively in pCCA
+  
+  # Add here centering of the data matrices X, Y
+  # (center the dimensions to 0)
+
+  dat <- check.data(X, Y, zDimension)
+  X <- dat$X
+  Y <- dat$Y
+  zDimension <- dat$zDimension
+
+  res <- calc.pcca(X, Y, zDimension)
+
+  method <- "pCCA"
+  params <- list(marginalCovariances = "full", zDimension = zDimension)
+  score <- dependency.score( res )
+  model <- new("DependencyModel", W = res$W, phi = res$phi, score = score, method = method, params = params)
+  if ( includeData ) model@data <- list(X = X, Y = Y)
+  if ( calculateZ )  model@z <- z.expectation(model, X, Y) 
+  model
+  
+}
+
+
+calc.pcca <- function (X, Y, zDimension) {
+
+  Dcov <- list()
+  Dcov$X <- cov(t(X))
+  Dcov$Y <- cov(t(Y))
+
+  # Solve W (solve.w utilizes Archambeau06 equations from PCA for shortcut)
+  # FIXME: compare accuracy and speed to direct EM update scheme?
+  W <- solve.w(t(X), t(Y), Dcov$X, Dcov$Y, zDimension)
+
+  # Then take only the zDimension first components if defined
+  W$X <- as.matrix(W$X)
+  W$Y <- as.matrix(W$Y)
+  W$total <- rbind(W$X, W$Y)
+        
+  # estimate
+  phi <- list()
+  phi$X <- Dcov$X - W$X%*%t(W$X)
+  phi$Y <- Dcov$Y - W$Y%*%t(W$Y)
+
+  # Retrieve principal canonical components from the prob.CCA model
+  # assuming that W and phi are known (at least in the full-rank case)
+  # U <- solve.archambeau(X, Y, W$X, W$Y, phi$X, phi$Y)
+
+  list(W = W, phi = phi)
+  
+}
+
+
+
+
+
+
+
+
+
+ppca <- function (X, Y = NULL, zDimension = NULL, includeData = TRUE, calculateZ = TRUE) {
+
+  dat <- check.data(X, Y, zDimension)
+  X <- dat$X  
+  Y <- dat$Y
+  zDimension <- dat$zDimension
+
+  res <- calc.ppca(X, Y, zDimension)
+  
+  method <- "pPCA"	
+  params <- list(marginalCovariances = "isotropic", zDimension = zDimension)
+  score <- dependency.score( res )
+  model <- new("DependencyModel", W = res$W, phi = res$phi, score = score, method = method, params = params)
+  if (includeData) { model@data <- list(X = X, Y = Y) }
+  if (calculateZ) { model@z <- z.expectation(model, X, Y) }
+  model
+ 	    
+}
+
+
+# FIXME: now calc.ppca used only in one-data case by function ppca
+# either remove two-data case, or test and compare with fit.dependency.model and take into use
+calc.ppca <- function (X, Y, zDimension) {
+
+  # Replaces function solve.CCA
+
+  # if zDimension = NULL then full-rank solution is computed
+  
+  # Probabilistic PCA
+  # (See Tipping and Bishop 1999)
+
+  # ML estimates W, sigma for probability model
+  # X ~ N(Wz, sigma*I)
+  # i.e. latent variable model with isotropic noise
+
+  # If only X is given in the argument, compute
+  # pPCA for X
+
+  # If both X and Y are given in the argument, compute
+  # pPCA for concatenated [X; Y]
+  # Assuming isotropic and identical marginal noise, the
+  # principal subspace will capture the dependencies between X and Y.
+  # This corresponds to the model (sigmax = sigmay = sigma)
+  # X ~ N(Wx*z, sigma*I); Y ~ N(Wy*z, sigma*I)
+  # This provides a simple comparison method for more
+  # detailed dependency models.
+
+  if (is.null(Y)) {
+    res <- ppca.calculate(X, zDimension)
+    phi <- list(total = diag(res$phi, nrow(X)))
+    rownames(res$W) <- rownames(X)
+    colnames(phi$total) <- rownames(phi$total) <- rownames(X)
+    #W <- list(X = res$W, total = res$W)
+    W <- list(total = res$W)    
+  } else {
+    # If second argument (Y) given, compute
+    # pPCA with two concatenated data sets
+    res <- ppca.calculate(rbind(X,Y), zDimension)
+
+    # Make phi diagonal matrix
+    phitotal <- diag(res$phi,(nrow(X) + nrow(Y)))
+
+    # Variable names to W and phi
+    rownames(res$W) <- c(rownames(X),rownames(Y))
+    rownames(phitotal) <- c(rownames(X),rownames(Y))
+    colnames(phitotal) <- rownames(phitotal)
+
+    # Divide W and phi to X and Y parts
+    phi <- list(X = phitotal[(1:nrow(X)),(1:nrow(X))], 
+                Y = phitotal[-(1:nrow(X)),-(1:nrow(X))],
+    	        total = phitotal)
+    W <- list(X = as.matrix(res$W[(1:nrow(X)),]), 
+              Y = as.matrix(res$W[-(1:nrow(X)),]), 
+	      total = res$W)
+
+  }
+  # Note that if X, Y given then phi$X = phi$Y in the pCCA model
+  # Here W corresponds to W$total of other functions when X, Y both given
+  list(W=W, phi=phi)
+}
+
+
+ppca.calculate <- function (X, zDimension) {
+
+ # FIXME: ensure that X is zero-mean
+
+  # Probabilistic PCA
+  # (See Tipping and Bishop 1999 / 3.2)
+
+  # ML estimates W, sigma for probability model
+  # X ~ N(Wz, sigma*I)
+  # i.e. latent variable model with isotropic noise
+
+  # Use full-rank if dimensionality is not specified
+  zDimension <- ifelse(is.null(zDimension), nrow(X), zDimension)
+
+  # eigenvalues D and eigenvectors U
+    duv <- svd(X)
+    U <- duv$u
+    D <- sort(duv$d, decreasing=TRUE)
+
+    # ML estimate of the variance given dimensionality zDimension for the latent
+    # variable z in model X ~ Wz + N(0,sigma) where sigma is isotropic
+    d <- nrow(U)
+    phi <- sum(D[-seq(zDimension)])/(d-zDimension) 
+
+    # ML estimate for W given variance
+    # Here set R <- I (R is an arbitrary orthogonal rotation matrix)
+    
+    W <- as.matrix(U[,1:zDimension])%*%sqrt(diag(D)[seq(zDimension),seq(zDimension)]-phi*diag(1,zDimension,zDimension))
+
+
+  if (zDimension == nrow(X)) {
+
+      # If W is full-rank then the isotropic error term disappears assuming data X is gaussian
+      # then X%*%t(X) i.e. cov(t(X)) approximates W%*%t(W) (since X ~ Wz and z ~ N(0,I))
+
+    # Note rotational ambiguity for W, Z 
+    cat("Full-rank PCA calculated, isotropic error term is zero. Consider checking the principal components.\n")
+    W <- matrix.sqrt(cov(t(X)))
+    phi <- 0
+  }
+  
+    list(W = W, phi = phi)
+}
+
+pfa <- function (X, Y = NULL, zDimension = NULL, includeData = TRUE, calculateZ = TRUE) {
+
+  # Probabilistic factorial analysis model as proposed in
+  # EM Algorithms for ML Factoral Analysis, Rubin D. and 
+  # Thayer D. 1982
+
+  # Assumption: R = I
+
+  dat <- check.data(X, Y, zDimension)
+  X <- dat$X
+  Y <- dat$Y
+  zDimension <- dat$zDimension
+
+  res <- calc.pfa(X, Y, zDimension)
+
+  method <- "pFA"
+  params <- list(marginalCovariances = "diagonal", zDimension = zDimension)
+  score <- dependency.score( res )  
+  model <- new("DependencyModel", W = res$W, phi = res$phi, score = score, method = method, params = params)
+  if ( includeData ) model@data <- list(X = X, Y = Y)
+  if ( calculateZ )  model@z <- z.expectation(model, X, Y)
+  model
+
+}
+
+calc.pfa <- function (X, Y, zDimension) {
+
+  # Y.rubin is Y in (Rubin & Thayer, 1982)
+  # Variables on columns and samples on rows
+  if (is.null(Y)){
+    Y.rubin <- t(X)
+    # Factor loading matrix
+    beta <- t(eigen(cov(t(X)))$vectors[, 1:zDimension])
+  }
+  else {
+    Y.rubin <- cbind(t(X), t(Y))
+    # Use different initialization for beta when data has inequal dimensionalities
+    if (nrow(X) != nrow(Y)) {
+      beta <- t(eigen(cov(Y.rubin))$vectors[,1:zDimension])
+    } else {
+      init <- initialize2(X, Y, zDimension, marginalCovariances = "diagonal")
+      # Factor loading matrix
+      beta <- t(init$W$total[,1:zDimension])
+    }
+  }
+  
+  epsilon <- 1e-3
+  colnames(beta) <- colnames(Y.rubin)
+  tau2 <- diag(ncol(Y.rubin))
+
+  Cyy <- cov(Y.rubin)
+  delta <- 1e12
+  # EM
+  while(delta > epsilon){
+
+    beta.old <- beta
+    tau2.old <- tau2
+
+    # E step
+    invtau2 <- solve(tau2)
+    tbb <- invtau2 - (invtau2%*%t(beta))%*%solve(diag(zDimension) + beta%*%invtau2%*%t(beta))%*%(beta%*%invtau2)
+
+    d <- tbb%*%t(beta)
+    D <- diag(zDimension) - beta%*%d
+	
+    # M step
+    beta <- solve(t(d)%*%Cyy%*%d+D)%*%t(Cyy%*%d)
+    tau2 <- diag(diag(Cyy - Cyy%*%d%*%solve(t(d)%*%Cyy%*%d + D)%*%t(Cyy%*%d)))
+    delta <- max(sum(abs(tau2-tau2.old)),sum(abs(beta-beta.old)))
+  }
+
+  # Convert names as same in other methods
+  if ( is.null(Y) ){
+      W <- list(total = t(beta))
+    phi <- list(total = tau2)
+  } else {
+      W <- list(X = as.matrix(t(beta)[(1:nrow(X)),]), Y = as.matrix(t(beta)[-(1:nrow(X)),]), total = t(beta))
+    phi <- list(X = tau2[1:nrow(X),1:nrow(X)], Y = tau2[-(1:nrow(X)),-(1:nrow(X))], total = tau2)                
+  }
+  
+  list(W = W, phi = phi)
+
+}
+
+
+phi.diagonal.single <- function (W, phi.inv, Cxx, Dim) {
+
+  # FIXME
+  # Experimental. Compare this + separate W update iterations to pFA
+  # and to phi.diagonal.double
+
+  #phi.diagonal.single(W$total, phi.inv, Dcov$X, Dim) {
+
+  # diagonal phi update for phi$X (or phi$Y) only
+
+  # Y.rubin is Y in (Rubin & Thayer, 1982)
+  # Variables on columns and samples on rows
+
+  # Cxx <- cov(t(X))  
+  # W <- W$total
+
+  phi.inv.W <- phi.inv%*%W
+  tbb <- phi.inv - (phi.inv.W)%*%solve(diag(Dim$Z) + t(W)%*%phi.inv.W)%*%t(phi.inv.W)
+  d <- tbb%*%W
+  D <- diag(Dim$Z) - t(W)%*%d
+  Cxxd <- Cxx%*%d
+
+  diag(diag(Cxx - Cxxd%*%solve(t(d)%*%Cxxd + D)%*%t(Cxxd)))
+  
+}
+
+
+phi.diagonal.double <- function (W, phi.inv, Cxx, Dim) {
+
+  #phi.diagonal.double(W$total, phi.inv‰total, Dcov$total, Dim) {
+
+  # phi.diagonal.single with Cxx = Dcov$total
+  # should give the same result for phi$total. Check.
+
+  # solving both phix and phiy at once
+
+  # Y.rubin is Y in (Rubin & Thayer, 1982)
+  # Variables on columns and samples on rows
+
+  #Y.rubin <- cbind(t(X), t(Y))
+  #Cxx <- Dcov$total
+
+  phi.inv.W <- phi.inv%*%W
+  tbb <- phi.inv - (phi.inv.W)%*%solve(diag(Dim$Z) + t(W)%*%phi.inv.W)%*%t(phi.inv.W)
+  d <- tbb%*%W
+  D <- diag(Dim$Z) - t(W)%*%d
+  Cxxd <- Cxx%*%d
+
+  phi <- list()
+  phi$total <- diag(diag(Cxx - Cxxd %*% solve(t(d) %*% Cxxd + D) %*% t(Cxxd)))
+  phi <- list(X = phi$total[1:Dim$X,1:Dim$X], Y = phi$total[-(1:Dim$X),-(1:Dim$X)], total = phi$total)                
+  
+  phi
+
+}
+
+
+
+
+
+
+pcca.with.isotropic.margins <- function (X, Y, zDimension = 1, epsilon = 1e-6, delta = 1e6) {
+
+  # epsilon and delta are convergence parameters
+  # zDimension determines the dimensionality of the shared latent variable Z
+
+  #  Dependency model
+  #  X ~ N(Wx*z, sigmax*I)
+  #  y ~ N(Wy*z, sigmay*I)
+  #  i.e. isotropic marginals but in general  sigmax != sigmay
+  # This is a special case of probabilistic factor analysis model
+
+  # FIXME: ensure that X, Y have zero-mean (shift if necessary);
+  # alternatively add mean parameter in the model
+
+  res <- calc.pcca.with.isotropic.margins(X, Y, zDimension, epsilon = 1e-6, delta = 1e6)
+
+  phi <- res$phi  
+    W <- res$W   
+
+
+  colnames(phi$X) <- rownames(phi$X) <- rownames(X)
+  colnames(phi$Y) <- rownames(phi$Y) <- rownames(Y)
+  colnames(phi$total) <- rownames(phi$total) <- c(rownames(X), rownames(Y))
+  
+  list(phi = phi, W = W)
+
+  # FIXME provide here proper DependencyModel object as in pcca, pfa and ppca
+}
+
+
+calc.pcca.with.isotropic.margins <- function (X, Y, zDimension, epsilon = 1e-6, delta = 1e6) {
+
+  dat <- check.data(X, Y, zDimension)
+  X <- dat$X
+  Y <- dat$Y
+  zDimension <- dat$zDimension
+  
+  # initialize
+     inits <- initialize2(X, Y, zDimension, marginalCovariances = "isotropic")
+      Dcov <- inits$Dcov
+       Dim <- inits$Dim
+         W <- inits$W  
+
+  # FIXME: ensure that X, Y have zero-mean (shift if necessary);
+  # alternatively add mean parameter in the model
+  phi <- list(X = 1, Y = 1)
+  
+  # iterate until convergence:
+  while (delta > epsilon) {
+
+    W.old <- W
+          
+    ##########################################
+
+    # Update Phi
+    phi$X <- update.phi.isotropic(Dcov$X, W$X, phi$X, Dim$X) 
+    phi$Y <- update.phi.isotropic(Dcov$Y, W$Y, phi$Y, Dim$Y)
+          
+    #######################################
+
+    # Full CCA update for W
+
+    phi.inv.full <- diag(c(rep(1/phi$X, Dim$X), rep(1/phi$Y, Dim$Y)))
+          M <- set.M.full(W$total, phi.inv.full, Dim$Z) # corresponds to G in Bishop's book
+       beta <- set.beta.fullcov(M, W$total, phi.inv.full)
+    W$total <- W.cca.EM(Dcov, M, beta)
+        W$X <- matrix(W$total[1:Dim$X,], nrow = Dim$X)
+        W$Y <- matrix(W$total[-(1:Dim$X),], nrow = Dim$Y)
+
+    ########################################
+          
+    # check convergence (enough to check W)
+    delta <- max(abs(as.vector(W$total - W.old$total)))
+          
+  }
+
+  # Format scalars into matrices
+  #phi$X <- diag(phi$X, Dim$X)
+  #phi$Y <- diag(phi$Y, Dim$Y)
+  #phi$total <- diag(c(diag(phi$X), diag(phi$Y)))
+
+  list(W = W, phi = phi)
+
+}
+

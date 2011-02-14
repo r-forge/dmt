@@ -52,18 +52,40 @@ function (A) {
 
 
 
- # the inverse of square root of a square matrix
+SqrtInvMat <- function( matrix ) {
 
-"SqrtInvMat" <- function(matrix)
-{
+  # Calculates square root of inverse of an (invertible) square matrix.
 
- x <- as.matrix(matrix)
+  x <- as.matrix(matrix)
 
- fac <- svd(x)
+  fac <- svd(x)
 
- res <-(fac$v %*% (diag(1/sqrt(fac$d),nrow = length(fac$d))) %*% t(fac$u))
-
- return(res)
+  fac$v %*% (diag(1/sqrt(fac$d),nrow = length(fac$d))) %*% t(fac$u)
 
 }
 
+
+
+
+#internal subroutine extra
+
+concatenate <- function(datasets)
+{
+
+   mat <- datasets #list of data sets
+
+  m <- length(mat)
+
+  com <- mat[[1]]
+
+  if(m > 1)
+  {
+       for(i in 2:m)
+       {
+         com <- cbind(com,mat[[i]])
+       }
+  }
+
+
+  return(com)
+}
