@@ -127,20 +127,15 @@ Science, Aalto University, Finland.<br/>
 </p> 
 </small> 
 
-<p></p><p></p> Dependency detection between co-occurring observations allows the discovery of regularities and interactions that are
-not seen in individual data sets. Demand such methods is
+<p></p><p></p> Analysis of statistical dependencies between co-occurring observations allows 
+the discovery of regularities and interactions that are
+not seen in individual data sets. Demand for such methods is
 increasing with the availability of co-occurrence data 
 in many fields, including <a href="http://tcga.cancer.gov/">computational
-biology</a>, <a href="http://data.worldbank.org/">open data
-initiatives</a>, and <a href="http://www.isitopendata.org/">other
+biology</a>, <a href="http://www.isitopendata.org/">open data
+initiatives</a>, and <a href="http://data.worldbank.org/">other
 domains</a>. Convenient open access implementations help to realize the full potential of these information
 sources.
-
-<p></p> Your feedback and contributions are welcome. See
-the <a target="_new"
-href="http://r-forge.r-project.org/projects/dmt/">project page at
-R-Forge</a>, or contact <a href="http://www.iki.fi/Leo.Lahti">project
-admin</a>.
 
 </td> 
 <td>
@@ -151,79 +146,76 @@ admin</a>.
 
 <table width="100%"><tr> 
 <td valign="top" width="45%"> 
-<h3>Overview</h3> 
 
-The package provides implementations of well-established dependency
-detection models such as probabilistic canonical correlation analysis
-and its regularized variants [1-8]. 
+<h3>Algorithms</h3>
 
-Probabilistic versions of PCA [7], factor analysis [6], and CCA [1-2]
-are obtained as special cases of the general latent variable
-framework. Further tools are available for regularized dependency
-detection [3-4] and dependency-based dimensionality reduction [8].
+Probabilistic versions of PCA [1], factor analysis [2], and CCA [3-4]
+are obtained as special cases of a general latent variable framework
+for dependency modeling (see <a
+href="../pkg/inst/doc/dmt.pdf">vignette</a> for details). Probabilistic framework deals rigorously with
+the uncertainties associated with small sample sizes, and allows
+incorporation of prior information in the analysis.  Further tools are
+available for regularized dependency detection [5-6] and
+dimensionality reduction [8].  
+
+<p></p>
+Applicability of the models has been demonstrated in previous case studies [5-8].
+
+<h3>System requirements</h3> 
+
+Techniques for the discovery and analysis of statistical dependencies
+are implemented in <a href="http://www.r-project.org">R</a>, an open
+source environment for statistical computing. This is available for
+all major platforms, including Linux, Mac, and Windows.
 
 <!--<li> multi-way modeling of co-occurrence data
 (<a href="http://www.cis.hut.fi/projects/mi/software/multiWayCCA/">multiWayCCA</a>; [2])
 -->
-
 <!--<p></p> The applicability of the models has been demonstrated in
 previous case studies [3-5,8].-->
-
 <!--Source code is available at <a target="_new"
 href="http://r-forge.r-project.org/projects/dmt/">R-Forge</a>.-->
-
-<table><tr> 
-<td>
-
+<!--
+<table><tr><td></td> </tr></table> 
 </td> 
-
-</tr> 
-</table> 
-</td> 
-<td valign="top" width="45%"> 
-<h3>Background
-<font style="font-size:10pt;color:#990000"></font> 
-</h3> 
-<p>
-
+<td valign="top" width="45%">
+<h3>Background<font style="font-size:10pt;color:#990000"></font></h3> 
 <p> 
-
-Techniques for the discovery and analysis of statistical dependencies
-are implemented in <a href="http://www.r-project.org">R</a>, an open
-source environment for statistical computing.
-<p></p>
-
-Probabilistic framework deals rigorously with the uncertainties
-associated with small sample sizes, and allows incorporation of prior
-information in the analysis. 
-
 </p> 
- 
 </td> 
 </tr></table> 
-
+-->
 
 <h3>Installation</h3>
 
-For installation instructions and functionality, see
-the package <a href="../pkg/inst/doc/dmt.pdf">vignette</a>. 
+See the package <a href="../pkg/inst/doc/dmt.pdf">vignette</a> for
+installation instructions and functionality.
 
 <h3>Licensing terms</h3>
 
-Licensed under an open source software license (FreeBSD).
+Licensed under the
+<a href="http://en.wikipedia.org/wiki/BSD_licenses">FreeBSD</a> open
+source license.
+
 
 <h3>Acknowledgements</h3> 
 <div id="support"> 
 
 <b>Authors: </b> <a href="http://www.iki.fi/Leo.Lahti">Leo
 Lahti</a> and Olli-Pekka Huovilainen.
-<br/>
+<p></p>
 <b>Contributors: </b> Arto Klami, Abhishek Tripathi.
-<br/>
+<p></p>
 The authors are associated with the <a href =
 "http://www.cis.hut.fi/projects/mi/">Statistical Machine Learning and
 Bioinformatics group</a> at the Department of Information and Computer
 Science, Aalto University, Finland.
+<p></p>
+Your feedback and contributions are welcome. See
+the <a target="_new"
+href="http://r-forge.r-project.org/projects/dmt/">project page at
+R-Forge</a>, or contact <a href="http://www.iki.fi/Leo.Lahti">project
+admin</a>.
 
 </div> 
 
@@ -233,17 +225,31 @@ Science, Aalto University, Finland.
 
 <ol>
 
+<li>M.E. Tipping and C.M. Bishop (1999). <b>Probabilistic principal component
+analysis.</b> <i>Journal of Royal Statistical Society B</i>
+61(3):611-622, 1999. (<a href ="http://www.google.fi/url?sa=t&source=web&cd=1&sqi=2&ved=0CBsQFjAA&url=http%3A%2F%2Fwww.csie.ntu.edu.tw%2F~mhyang%2Fcourse%2Fu0030%2Fpapers%2FTipping%2520Bishop%2520Probabilistic%2520PCA%2520.pdf&rct=j&q=Tipping%20Bishop%20probabilistic%20PCA&ei=q0hcTebdOouYOtywyZwL&usg=AFQjCNGNlT0eGsS5XZ2ZJKjvA6KgXzoItw&cad=rja">pdf</a>)
+
+<li> D.B. Rubin and D.T. Thayer (1982).
+<b>EM Algorithms for ML Factorial Analysis</b>
+<i>Psychometrika</i> 47(1):69-76, 1982. <a href = "http://www.springerlink.com/content/f7x37l8656877311/">(electronic version)</a>
+
 <li> F. Bach and M. Jordan (2005). <b>A probabilistic
     interpretation of canonical correlation analysis</b>. Technical
     report. Department of Statistics, University of California,
-    Berkeley.
+    Berkeley. (<a href="http://www.google.fi/url?sa=t&source=web&cd=1&ved=0CB4QFjAA&url=http%3A%2F%2Fwww.di.ens.fr%2F~fbach%2Fprobacca.pdf&rct=j&q=A%20probabilistic%20interpretation%20of%20canonical%20correlation%20analysis&ei=9EhcTbTFKsOWOqyC-N8L&usg=AFQjCNG-xWNikJ1Jw8x8ShJbUK5DldCYwA&cad=rja">pdf</a>)
 
-<li>C. Archambeau, Nicolas Delannay, and Michel Verleysen (2006). <b>Robust probabilistic projections.</b> In W.W. Cohen and A.~Moore, editors,
-<i>Proceedings of the 23rd International conference on machine
-learning</i>, p. 33--40. ACM.
+<li>C. Archambeau, Nicolas Delannay, and Michel Verleysen (2006).
+<b>Robust probabilistic projections.</b> In W.W. Cohen and A. Moore, editors,
+<i>Proc. 23rd Int'l Conference on Machine
+Learning (ICML'06)</i>, p. 33-40. ACM. (<a
+href="http://www.google.fi/url?sa=t&source=web&cd=1&sqi=2&ved=0CB4QFjAA&url=http%3A%2F%2Fciteseerx.ist.psu.edu%2Fviewdoc%2Fdownload%3Fdoi%3D10.1.1.63.8258%26rep%3Drep1%26type%3Dpdf&rct=j&q=Robust%20probabilistic%20projections&ei=MElcTaS8HMSbOujvwYYM&usg=AFQjCNFCYJ7xnDBBcYYmil378CX_sv5wLA&cad=rja">pdf</a>;
+<a
+href="http://www.google.fi/url?sa=t&source=web&cd=5&sqi=2&ved=0CEwQFjAE&url=http%3A%2F%2Fwww.cs.ucl.ac.uk%2Fstaff%2Fc.archambeau%2Fpubl%2Ficml_ca06_errata.pdf&rct=j&q=Robust%20probabilistic%20projections&ei=MElcTaS8HMSbOujvwYYM&usg=AFQjCNFEzynFOzvlmsNPaA5Hc12898Gq1g&cad=rja">errata</a>)
                      
 <li>L. Lahti, S. Myllykangas, S. Knuutila, and S. Kaski (2009). <b>
-Dependency detection with similarity constraints.</b>  In <i>Proc. MLSP'09 IEEE International Workshop on Machine Learning for Signal Processing</i> p. 89-94, IEEE, Piscataway, NJ, 2009. (<a href="publications/mlsp09_preprint.pdf">preprint pdf</a>)
+Dependency detection with similarity constraints.</b>  In <i>Proc.
+MLSP'09 IEEE Int'l Workshop on Machine Learning for Signal Processing</i> 
+p. 89-94, IEEE, Piscataway, NJ, 2009. (<a href="publications/mlsp09_preprint.pdf">preprint pdf</a>)
 
 <li>L. Lahti (2010)<b> Probabilistic analysis of the human transcriptome
 with side information</a>.</b> PhD thesis, Aalto University School of
@@ -256,12 +262,6 @@ modeling toolkit.</b> International Conference on Machine Learning (ICML-2010).
 Workshop on Machine Learning Open Source Software. Haifa, Israel, June
 2010.
 
-<li> D.B. Rubin and D.T. Thayer (1982).
-<b>EM Algorithms for ML Factorial Analysis</b>
-<i>Psychometrika</i> 47(1):69--76, 1982. <a href = "http://www.springerlink.com/content/f7x37l8656877311/">(electronic version)</a>
-
-<li>M.E. Tipping and C.M. Bishop (1999). <b>Probabilistic principal component
-analysis.</b> <i>Journal of Royal Statistical Society B</i> 61(3):611--622, 1999.
 
 <li>A. Tripathi, A. Klami and S. Kaski (2008). <b>Simple
 integrative preprocessing preserves what is shared in data
