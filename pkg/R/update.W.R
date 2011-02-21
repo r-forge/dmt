@@ -9,10 +9,12 @@
 
 cost.W <- function (vec, phi, priors, Dim, Dcov) {
 
+  # (C) 2008-2011 Leo Lahti and Olli-Pekka Huovilainen          
+  # All rights reserved. 
+  # FreeBSD License (keep this notice)     
+
   # Wx ~ Wy constrained
   # no W prior
-
-  H <- priors$Nm.wxwy.mean
 
   # Retrieve the actual W and T from the parameter vector
   wt <- get.W(vec, Dim)
@@ -28,13 +30,13 @@ cost.W <- function (vec, phi, priors, Dim, Dcov) {
 
   wtw.xy <- W$X%*%t(W$Y)
   Sigma <- rbind(cbind(W$X%*%t(W$X) + phi$X*diag(Dim$X), wtw.xy),
-          cbind(t(wtw.xy),W$Y%*%t(W$Y) + phi$Y*diag(Dim$Y)))
+                 cbind(t(wtw.xy),W$Y%*%t(W$Y) + phi$Y*diag(Dim$Y)))
 
   # -logP for the data
   cost.data <- log(det(Sigma)) + sum(diag(solve(Sigma)%*%Dcov$total))
 
   # -logP for T prior
-  tcost <- sum((T - H)^2) * priors$T.tmp
+  tcost <- sum((T - priors$Nm.wxwy.mean)^2) * priors$T.tmp
 
   # -logP for W prior - skip since not used now
   # priors$W.tmp <- 1/(2 * Nsamples * priors$W)
@@ -46,8 +48,11 @@ cost.W <- function (vec, phi, priors, Dim, Dcov) {
 
 }
 
-
 cost.W.exponential <- function (vec, phi, priors = NULL, Dim, Dcov) {
+
+  # (C) 2008-2011 Leo Lahti and Olli-Pekka Huovilainen          
+  # All rights reserved. 
+  # FreeBSD License (keep this notice)     
 
   # allows exponential prior for W
   # in general, Wx != Wy
@@ -56,7 +61,7 @@ cost.W.exponential <- function (vec, phi, priors = NULL, Dim, Dcov) {
   vec <- abs(vec)
   
   # Retrieve W from the parameter vector
-  W <- get.W2(vec, Dim)
+  W <- get.W.nonneg(vec, Dim)
 
   # Marginal cost for the whole data set
   # integrated over z
@@ -72,18 +77,13 @@ cost.W.exponential <- function (vec, phi, priors = NULL, Dim, Dcov) {
   
   # -logP for the data
   det.sigma <- det(Sigma) 
-  #if (det.sigma < 1e-6) {
-  #  # add small constant on diagonal to quarantee solvability
-  #  Sigma <- Sigma + diag(1e-3, nrow(Sigma))   
-  #  det.sigma <- det(Sigma)      
-  #}
 
   if (det.sigma > 1e-6) { # using > 0 caused overflows 
     cost.data <- log(det.sigma) + sum(diag(solve(Sigma)%*%Dcov$total))
   } else {
     # In some rare situations det.sigma appears non-positive;
     # such solutions are not feasible
-    cost.data <- 1e307 # 1e309 gives Inf; Inf gives error
+    cost.data <- 1e300 # 1e309 gives Inf; Inf gives error
   }
   
   # -logP for W prior
@@ -100,6 +100,10 @@ cost.W.exponential <- function (vec, phi, priors = NULL, Dim, Dcov) {
 
 cost7 <- function (Wvec, phi, Dcov, Dim, priors) {
 
+  # (C) 2008-2011 Leo Lahti and Olli-Pekka Huovilainen          
+  # All rights reserved. 
+  # FreeBSD License (keep this notice)     
+
   # SimCCA: identical Wx = Wy
   # allows W prior
 
@@ -107,17 +111,18 @@ cost7 <- function (Wvec, phi, Dcov, Dim, priors) {
 
   if ( !is.null(priors$W) ) { Wvec <- abs(Wvec) }    
 
-  W <- get.W4(Wvec, Dim)$X
+  W <- get.W.nonneg.identical(Wvec, Dim)
   wtw <- W%*%t(W)
 
   Sigma <- rbind(cbind(wtw + phi$X, wtw),
                  cbind(wtw, wtw + phi$Y))
 
+
   # Marginal cost for the whole data set
   # integrated over z
   # given parameters W, phi
   # P(X,Y | W, phi) = integral N(X|Wx*z,phix)*N(Y|Wy*z,phiy)*N(z|0,I)
-  # We report -logP here
+  # reporting -logP here
 
   # restrict solutions to cases where det(Sigma)>=0
 
@@ -126,7 +131,7 @@ cost7 <- function (Wvec, phi, Dcov, Dim, priors) {
 
   if (detsigma > 1e-100) { # crashes with > 0
     cost.data <- log(detsigma) + sum(diag(solve(Sigma)%*%Dcov$total))
-  } else { cost.data <- Inf }
+  } else { cost.data <- 1e300 }
     
   # -logP for W prior
   # wcost <- sum((W$X)^2) * priors$W
@@ -137,36 +142,34 @@ cost7 <- function (Wvec, phi, Dcov, Dim, priors) {
     wcost <- -2*sum(dexp(Wvec, rate = priors$W, log = TRUE))
   } 
 
-  #print(paste("wcost", wcost))
-  #print(paste("cost.data", cost.data))
-  
   cost.data + wcost
 
 }
 
-################################
-
-# Functions for solving W, given phi and data
-# FIXME: Compare performance, merge?
-
-################################
 
 W.cca.EM <- function (Dcov, M, beta) {
-  
-  # EM update for W when phi is assumed known
-  # Return total W, i.e. [Wx; Wy]
+
+  # (C) 2008-2011 Leo Lahti and Olli-Pekka Huovilainen          
+  # All rights reserved. 
+  # FreeBSD License (keep this notice)     
+
+  # EM update for W, given phi (through M, beta)
+  # Returns total W, i.e. [Wx; Wy]
 
   #beta <-M%*%t(W$total)%*%phi.inv$total
   #M <- solve(t(W)%*%phi.inv%*%W + I) # W$total meant here
 
-  matrix(Dcov$total%*%t(beta)%*%solve(M + beta%*%Dcov$total%*%t(beta)), nrow = nrow(Dcov$total))
+  ctb <- Dcov$total%*%t(beta)
+  matrix(ctb%*%solve(M + beta%*%ctb), nrow = nrow(Dcov$total))
 
 }
 
 
-#######################################
-
 W.simcca.EM <- function (W, phi, Dim, Dcov) {
+
+  # (C) 2008-2011 Leo Lahti and Olli-Pekka Huovilainen          
+  # All rights reserved. 
+  # FreeBSD License (keep this notice)     
 
   # CCA update for W, assuming Wx = Wy
   # see Bach-Jordan 2005, sec. 4.1 for details
@@ -175,25 +178,13 @@ W.simcca.EM <- function (W, phi, Dim, Dcov) {
   # (phi.EM.simcca)
   
   what <- 2*W$X
-  phihat.inv <- solve(phi$X + phi$Y)
-  M.w <- solve(t(what)%*%phihat.inv%*%what + diag(Dim$Z))
-  beta.w <- M.w%*%t(what)%*%phihat.inv
-  what <- Dcov$sum%*%t(beta.w)%*%solve(M.w + beta.w%*%Dcov$sum%*%t(beta.w))
-  w <- what/2
-  W$X <- W$Y <- w 
-  W$total <- rbind(w, w)		        
-			
-  ## alternative update; test, compare
-  #beta <-M%*%t(W$total)%*%phi.inv$total
-  #M <- solve(t(W)%*%phi.inv%*%W + I)  
-  #W$total <- W.cca.EM(Dcov, M, beta)
-  #W$X = W$total[1:Dim$X,]
-  #W$Y = W$total[-c(1:Dim$X),]
-  ## robust solution: take average of the two estimates
-  #W$X = W$Y = (W$X+W$Y)/2
-  #W$total = rbind(W$X,W$Y)
-
-  W
+  twp <- t(what)%*%solve(phi$X + phi$Y)
+  M.w <- solve(twp%*%what + diag(Dim$Z))
+  beta.w <- M.w%*%twp
+  ctb <- Dcov$sum%*%t(beta.w)
+  w <- ctb%*%solve(M.w + beta.w%*%ctb)/2
+  
+  list(X = w, Y = w, total <- rbind(w, w))
 
 }
 
@@ -201,6 +192,10 @@ W.simcca.EM <- function (W, phi, Dim, Dcov) {
 #######################################
 	
 solve.w <- function (Xc, Yc, Cxx, Cyy, dz = NULL) {
+
+  # (C) 2008-2011 Leo Lahti and Olli-Pekka Huovilainen          
+  # All rights reserved. 
+  # FreeBSD License (keep this notice)     
 
   # FIXME: compare with the other W updates, e.g. W.cca.EM
 
@@ -213,14 +208,13 @@ solve.w <- function (Xc, Yc, Cxx, Cyy, dz = NULL) {
 
   # Traditional CCA solution (modified from cancor function):
   nr <- nrow(Xc)
-
   qx <- qr(Xc)
   qy <- qr(Yc)
   dx <- qx$rank
   dy <- qy$rank
 
   if (dx < ncol(Xc) || dy < ncol(Yc)) {
-    stop("Unable to calculate the pCCA model; the sample covariance matrix is not invertible.")
+    stop("Unable to calculate pCCA; sample covariance matrix not invertible.")
   }
   
   z <- svd(qr.qty(qx, qr.qy(qy, diag(1, nr, dy)))[1L:dx, , drop = FALSE], dx, dy)
@@ -232,7 +226,7 @@ solve.w <- function (Xc, Yc, Cxx, Cyy, dz = NULL) {
   
   # Note: only requirement for Q is that Qx%*%t(Qy) = canonical correlations
   # Q corresponds to M (dz x dz) in Bach-Jordan 2005, p.8 (before sec 4.1)
-  Qx <- diag(z$d[1:dz],dz,dz) # dz x dz matrix
+  Qx <- diag(z$d[1:dz], dz, dz) # dz x dz matrix
   #Qy <- diag(1, nrow(Qx)) # also a dz x dz matrix: identity matrix -> omit
 
   # ML estimates for the prob. model W:
@@ -244,6 +238,10 @@ solve.w <- function (Xc, Yc, Cxx, Cyy, dz = NULL) {
 }
 
 solve.archambeau <- function (X, Y, Wx, Wy, btb.x, btb.y) {
+
+  # (C) 2008-2011 Leo Lahti and Olli-Pekka Huovilainen          
+  # All rights reserved. 
+  # FreeBSD License (keep this notice)     
 
   # Use the trick introduced in Archambeau et al., ICML 2006. Robust
   # probabilistic projections, and the later correction appendix.
@@ -262,9 +260,8 @@ solve.archambeau <- function (X, Y, Wx, Wy, btb.x, btb.y) {
   Bx.arch <- Wx%*%solve(btb.x)%*%t(Wx) + diag(Nd)
   By.arch <- Wy%*%solve(btb.y)%*%t(Wy) + diag(Nd)
 				
-  # R is a rotation matrix given by                                                                     
+  # R is rotation matrix
   R <- eigen((diag(Nd) - solve(Bx.arch))%*%(diag(Nd) - solve(By.arch)))$vector
-
   Ux <- solve(cov(t(X)))%*%Wx%*%solve(matrix.sqrt((diag(Nd)-solve(Bx.arch))))%*%R
   Uy <- solve(cov(t(Y)))%*%Wy%*%solve(matrix.sqrt((diag(Nd)-solve(By.arch))))%*%R
 

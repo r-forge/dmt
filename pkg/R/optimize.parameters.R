@@ -3,17 +3,14 @@
 # All rights reserved. 
 # FreeBSD License (keep this notice)     
 
-
-
 # Part of the inhumanity of the computer is that, once it is competently
 # programmed and working smoothly, it is completely honest.
 # - Isaac Asimov 
 
 
-
 optimize.parameters <- function (X, Y, zDim = 1, priors = NULL, 
                                  marginalCovariances = "full", 
-				 epsilon = 1e-6, par.change = 1e6, verbose = FALSE) {
+				 epsilon = 1e-6, convergence.steps = 3, verbose = FALSE) {
 
   # Suitable for at least:
   # nonmatched, prior$W, full marginals
@@ -21,6 +18,9 @@ optimize.parameters <- function (X, Y, zDim = 1, priors = NULL,
   # Different from simCCA.optimize.R in that T is not optimized here
   # (not included in the model) but there is option to set prior on W
   # (W.prior)
+
+  # convergence.steps: convergence criteria need to be met at at least
+  # 		       this many consecutive iteration steps.
 
   if ( verbose ) { cat("Initialize\n") }
   inits <- initialize2(X, Y, zDim, marginalCovariances)
@@ -31,14 +31,6 @@ optimize.parameters <- function (X, Y, zDim = 1, priors = NULL,
   Dim <- inits$Dim
   nullmat <- inits$nullmat
   Nsamples <- inits$Nsamples
-
-  # FIXME: this duv variance calculation also used in ppca
-  # make a separate function and call that
-  # eigenvalues D and eigenvectors U
-  #duv <- svd(rbind(X, Y))
-  #U <- duv$u
-  #D <- sort(duv$d, decreasing = TRUE)
-  #phi.ml <- sum(D[-seq(zDim)])/(nrow(U) - zDim)		
 
   # FIXME: handle priors completely outside this function later!
   
@@ -93,9 +85,13 @@ optimize.parameters <- function (X, Y, zDim = 1, priors = NULL,
   
   ###################################################
 
+  # FIXME: remove par.change from function input
+
+  par.changes <- rep(1e300, convergence.steps)
+  cnt2 <- 0
 
   if ( verbose ) { cat(paste("Starting iterations \n")) }
-  while (par.change > epsilon || par.change < 0) {
+  while (any(par.changes > epsilon) || any(par.changes < 0)) {
 
     if ( verbose ) { cat(cost.new); cat("\n") }
 
@@ -120,7 +116,7 @@ optimize.parameters <- function (X, Y, zDim = 1, priors = NULL,
 
         # Convert optimized W parameter vector to actual matrices
         # Note that here we always assume that W is positive
-        W <- get.W2(opt$par, Dim)
+        W <- get.W.nonneg(opt$par, Dim)
 	
       } else if ( priors$Nm.wxwy.sigma == 0 ) {
       
@@ -134,8 +130,8 @@ optimize.parameters <- function (X, Y, zDim = 1, priors = NULL,
 		     control = list(maxit = 1e6), 
                      lower = -10*max(Dcov$total), upper = 10*max(Dcov$total))
 
-        w <- W$X <- W$Y <- get.W4(abs(opt$par), Dim)$X
-	W$total <- rbind(w, w)
+        W$X <- W$Y <- get.W.nonneg.identical(opt$par, Dim)
+	W$total <- rbind(W$X, W$Y)
 		
       } else {
         stop("W regularization implemented only for identical or independent Wx, Wy ie. priors$Nm.wxwy.sigma = 0 and priors$Nm.wxwy.sigma = Inf")
@@ -168,7 +164,7 @@ optimize.parameters <- function (X, Y, zDim = 1, priors = NULL,
     }
         
     W.new <- W # redundant?
-    
+
     ##################################################
 
     # Update phi
@@ -197,11 +193,11 @@ optimize.parameters <- function (X, Y, zDim = 1, priors = NULL,
       } else {  # assuming in general Wx != Wy
       
         # also check from optimize.fullcov.R
-        M <- set.M.full2(W.old, phi.inv, dz = Dim$Z) 
+        M <- set.M.full2(W.old, phi.inv) 
         phi <- phi.EM.cca(Dcov, W.new, phi.inv, W.old, M, nullmat)
       }
 
-    } else if (marginalCovariances == "isotropic") {
+   } else if (marginalCovariances == "isotropic") {
 
         # M and beta Possibly useful for speedups later, when 
 	# considering joint analysis of W and phi
@@ -297,11 +293,18 @@ optimize.parameters <- function (X, Y, zDim = 1, priors = NULL,
       }
     }
     
-    par.change <- (cost.old - cost.new)
+    cnt2 <- cnt2 + 1; if (cnt2 > convergence.steps) {cnt2 <- 1} 
+    par.changes[[cnt2]] <- (cost.old - cost.new)
 
   }
 
-  if ( verbose ) {cat(paste(" Iterations OK. \n"))}
+  if ( verbose ) {
+    cat("par.changes")
+    cat(par.changes)
+    cat('\n')
+    cat(paste("Iterations OK.\n"))
+    
+  }
 
   # FIXME
   # Needed later if phis are treated as scalars

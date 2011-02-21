@@ -26,7 +26,7 @@ library(dmt)
 priors <- list(Nm.wx.wy.sigma = Inf)
 # TODO confirm also with list() and list(Nm.wx.wy.sigma = NULL)
 
-N <- 50           
+N <- 100
 zDim <- 1
 xDim <- 8
 yDim <- 6      

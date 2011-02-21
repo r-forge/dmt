@@ -1,9 +1,12 @@
 library(dmt)
 
+cors.list <- list()
+
 ####################################################
 
 # Two data sets, nonmatched dimensions case
 
+N <- 100
 xdim <- 8
 ydim <- 5
 cors <- c()
@@ -11,7 +14,7 @@ for (zdim in seq(1, min(xdim, ydim), 1)) {
 
   print(zdim)
 
-  toy <- generate.toydata(N = 100, zDim = zdim, xDim = xdim, yDim = ydim, marginal.covariances = "diagonal")
+  toy <- generate.toydata(N = N, zDim = zdim, xDim = xdim, yDim = ydim, marginal.covariances = "diagonal")
 
   res <- pfa(toy$X, toy$Y, zDimension = zdim)
 
@@ -41,6 +44,8 @@ colnames(cors) <- c("wx", "wy", "phix", "phiy")
 
 print(cors)
 
+cors.list[["two data sets"]] <- cors
+
 #######################################################
 
 # One data set
@@ -51,7 +56,7 @@ for (zdim in seq(1, xdim, 2)) {
 
   print(zdim)
 
-  toy <- generate.toydata(N = 100, zDim = zdim, xDim = xdim, yDim = xdim, marginal.covariances = "diagonal")
+  toy <- generate.toydata(N = N, zDim = zdim, xDim = xdim, yDim = xdim, marginal.covariances = "diagonal")
 
   res <- pfa(toy$X, zDimension = zdim)
 
@@ -70,6 +75,8 @@ for (zdim in seq(1, xdim, 2)) {
 
 colnames(cors) <- c("wx", "phix")
 print(cors)
+
+cors.list[["one data set"]] <- cors
 
 #################################################################
 

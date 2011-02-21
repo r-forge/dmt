@@ -8,27 +8,32 @@
 #  - Sir William Bragg 
 
 
-dependency.score <- function (model) {
+dependency.score <- function ( model ) {
 
-  W <- model$W
+  # (C) 2008-2011 Leo Lahti and Olli-Pekka Huovilainen          
+  # All rights reserved. 
+  # FreeBSD License (keep this notice)     
+
+  W   <- model$W
   phi <- model$phi
 
   if (!is.null(W$X)){
+
     # this equals to the trace of the full Phi
     noise <- sum(diag(as.matrix(phi$X))) + sum(diag(as.matrix(phi$Y))) 
+    W$total <- rbind(W$X, W$Y)
 
-    wtw <- rbind(W$X,W$Y)%*%t(rbind(W$X,W$Y))
-  }
-  else {
+  } else {
+
     # For single data case, check proportion between 
     # latent covariance and expected diagonal noise
     noise <- sum(diag(as.matrix(phi$total)))
-    wtw <- W$total %*% t(W$total)
+
   }
 
-  signal <- sum(diag(wtw)) # trace of full WWt covariance 
+  signal <- sum( diag(W$total %*% t(W$total)) ) # trace of full WWt covariance 
 
-  cost <- signal/noise
-  cost
+  return( signal/noise )
+
 }
 

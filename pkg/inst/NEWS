@@ -1,3 +1,19 @@
+CHANGES IN VERSION 0.7.04 (2011-02-21)
+
+  o covLimit parameter name was changed into epsilon
+
+  o convergence is now checked across multiple consecutive steps to
+    improve stability of the results: the par.change option was
+    removed, and convergence.steps option added in
+    fit.dependency.model/optimize.parameters
+
+  o added intercept calculation in check.data.R
+
+BUG FIXES
+
+  o marginalCovariances definition was missing in some
+    optimize.parameters calls in fit.dependency.model.R; corrected.
+
 CHANGES IN VERSION 0.7.01 (2011-02-13)
 
   o updated vignette and man pages. ready for initial submission to

@@ -13,12 +13,12 @@
 fit.dependency.model <- function (X, Y,
           zDimension = 1,
           marginalCovariances = "full",
-          covLimit = 1e-3,
+          epsilon = 1e-3,
           priors = list(), matched = TRUE,
           includeData = TRUE, calculateZ = TRUE, verbose = FALSE)
 {
 
-  # zDimension = 1; marginalCovariances = "full"; H = 1; sigmas = 0; covLimit = 1e-3; mySeed = 123; priors = NULL
+  # zDimension = 1; marginalCovariances = "full"; H = 1; sigmas = 0; epsilon = 1e-3; mySeed = 123; priors = NULL
   
   # Fits the generative model
   # X = Wx * z + epsx
@@ -30,7 +30,8 @@ fit.dependency.model <- function (X, Y,
   X <- dat$X
   Y <- dat$Y
   zDimension <- dat$zDimension
-	
+  intercept <- dat$intercept
+       
   # FIXME store/return intercepts as well; further dependency models including intercepts
   if ( nrow(X) < nrow(Y) ) {stop("If the two data matrices do not have equal dimensionality, place the smaller one in Y.")} # FIXME automate
   if ( !nrow(X) == nrow(Y) ) {
@@ -38,14 +39,14 @@ fit.dependency.model <- function (X, Y,
     if ( matched ) { stop("Cannot use matched methods for nonmatched data.") }
   }
 
-  if (verbose) { cat("Checking inputs\n") }
-  if (!is.null(priors$Nm.wxwy.sigma) && priors$Nm.wxwy.sigma == Inf) { matched <- FALSE; message("priors$Nm.wxwy.sigma == Inf; Wx ~ Wy independendent i.e. matched = FALSE") }  
-  if ( covLimit == 0 )  { covLimit <- 1e-3 } # avoid numerical overflows
+  if ( verbose ) { cat("Checking inputs\n") }
+  if ( !is.null(priors$Nm.wxwy.sigma ) && priors$Nm.wxwy.sigma == Inf) { matched <- FALSE; message("priors$Nm.wxwy.sigma == Inf; Wx ~ Wy independendent i.e. matched = FALSE") }  
+  if ( epsilon == 0 )  { epsilon <- 1e-3 } # avoid numerical overflows
   res <- NA; method <- ""
   
   if (!matched) {
 
-    if (verbose) {cat("Model for non-matched case\n")}
+    if (verbose) { cat("Model for non-matched case\n") }
 
     if ( is.null(priors$Nm.wxwy.sigma )) {
       #warning("priors$Nm.wxwy.sigma not implemented for non-matched variables. Setting priors$Nm.wxwy.sigma = Inf.")
@@ -102,7 +103,7 @@ fit.dependency.model <- function (X, Y,
 	
       } else { stop("Erroneous marginalCovariances parameter provided!") }
 
-    } else if ( !is.null(priors$W) ) { # for some reason stating priors$W caused crash before   
+    } else if ( !is.null(priors$W) ) { 
       
       if ( verbose ) { cat("Wx ~ Wy free; exponential (nonnegative) prior for W.\n") }
 
@@ -112,9 +113,11 @@ fit.dependency.model <- function (X, Y,
       # priors$W is the rate parameter of the exponential. 
       # The smaller, the flatter tail.
 
-      # TODO: implement also sparsity prior W ~ N(0, sd*I)
+      # TODO: implement sparsity prior W ~ N(0, sd*I)
 
-      res <- optimize.parameters(X, Y, zDimension, priors = priors, marginalCovariances, epsilon = covLimit, verbose = verbose)
+      res <- optimize.parameters(X, Y, zDim = zDimension, priors = priors,                                                                 
+                                   marginalCovariances = marginalCovariances,           
+                                   epsilon = epsilon, convergence.steps = 3, verbose = verbose)
 
       method <- "Free Wx ~ Wy with exponential priors for Wx and Wy. Check marginal covariances from parameters."
 	
@@ -125,13 +128,13 @@ fit.dependency.model <- function (X, Y,
     if ( verbose ) { cat("Matched features case\n") }
       
     # Matrix normal distribution variance not specified
-    if (is.null(priors$Nm.wxwy.sigma)) {
+    if ( is.null(priors$Nm.wxwy.sigma) ) {
       message("Matched variables but priors$Nm.wxwy.sigma not given, using strong matching with Wx = Wy.")
       priors$Nm.wxwy.sigma <- 0
     }
       
     # Matrix normal distribution mean matrix not specified
-    if (is.null(priors$Nm.wxwy.mean)) {
+    if ( is.null(priors$Nm.wxwy.mean) ) {
       message("The matrix Nm.wxwy.mean is not specified. Using identify matrix.")
       priors$Nm.wxwy.mean <- 1
     }    
@@ -157,10 +160,13 @@ fit.dependency.model <- function (X, Y,
             
 	if ( verbose ) { cat("Wx = Wy with regularized W (W>=0)\n") }
 	if ( verbose ) { cat(marginalCovariances); cat("\n") }	
-	
-        res <- optimize.parameters(X, Y, zDimension, epsilon = covLimit, par.change = 1e6, priors = priors, verbose = verbose)
+
+        res <- optimize.parameters(X, Y, zDim = zDimension, priors = priors, 
+	       			   marginalCovariances = marginalCovariances, 
+				   epsilon = epsilon, convergence.steps = 3, verbose = verbose)
+
         method <- "pCCA with W prior"
-       	
+
       } else if (is.null(priors$W)) {
         
 	if ( verbose ) {cat("Wx = Wy; free W.\n")}
@@ -169,10 +175,11 @@ fit.dependency.model <- function (X, Y,
           # message("Case Wx = Wy. No regularization for W.")
 	  
 	  # use this for full W (EM algorithm, unstable for n ~ p)
-	  res <- optimize.parameters(X, Y, zDimension, priors, 
-	      	 		     marginalCovariances, epsilon = covLimit,
-				     par.change = 1e6)
-				     
+         res <- optimize.parameters(X, Y, zDim = zDimension, priors = priors, 
+                                   marginalCovariances = marginalCovariances,           
+                                   epsilon = epsilon, convergence.steps = 3, verbose = verbose)
+
+
           method <- "matched case Wx = Wy with unconstrained W. Check covariances from parameters."
           # FIXME: speeups possible here when Wx = Wy but not yet implemented with other than full covs
       }
@@ -196,8 +203,12 @@ fit.dependency.model <- function (X, Y,
           # FIXME: consider later adding other covariance structures if needed?
 	  # note that the computation is slow then          		
 
-          res <- optimize.parameters(X, Y, zDimension, priors, marginalCovariances, epsilon = covLimit)
-          method <- "constrained Wx~Wy with matrix normal distribution prior"
+         res <- optimize.parameters(X, Y, zDim = zDimension, priors = priors,
+	     			       marginalCovariances = marginalCovariances,                                   
+				       epsilon = epsilon, convergence.steps = 3, verbose = verbose)
+                                                                    
+         method <- "constrained Wx~Wy with matrix normal distribution prior"
+
 
         } else if ( !marginalCovariances == 'isotropic' ) {
           stop("Only isotropic marginal covariances implemented with constrained Wx ~ Wy in the general case.")
@@ -206,36 +217,33 @@ fit.dependency.model <- function (X, Y,
     }
   }
 
-  ##################################################################
 
   if ( verbose ) { cat("Checking the model..\n") }
 
   # Test whether model exists for given arguments
-  if (any(is.na(unlist(res)))) {
+  if ( any(is.na(unlist(res))) ) {
     stop("Error with model parameters.")
   } else {
-    params <- list(marginalCovariances = marginalCovariances, Nm.wxwy.mean = priors$Nm.wxwy.mean, Nm.wxwy.sigma = priors$Nm.wxwy.sigma, zDimension = zDimension, covLimit = covLimit)
-    score <- dependency.score(res)
+    params <- list(marginalCovariances = marginalCovariances, Nm.wxwy.mean = priors$Nm.wxwy.mean, Nm.wxwy.sigma = priors$Nm.wxwy.sigma, zDimension = zDimension, epsilon = epsilon)
+    score <- dependency.score( res )
   }
   
   if ( verbose ) {cat("Creating DependencyModel object..\n")}
   
   model <- new("DependencyModel", W = res$W, phi = res$phi, score = score, method = method, params = params)	
-  if (includeData) model@data <- list(X = X, Y = Y)
-  if (calculateZ) model@z <- z.expectation(model, X, Y)
+  if ( includeData ) model@data <- list(X = X, Y = Y)
+  if ( calculateZ ) model@z <- z.expectation(model, X, Y)
   
-  if ( verbose ) {cat("fit.dependency.model OK.\n")}
+  if ( verbose ) { cat("fit.dependency.model OK.\n") }
   
   model
 }
 
-
-
 # FIME: consider whether we should keep this or remove			    
-#pcca.isotropic <- function(X, Y, zDimension = NULL, matched = FALSE, covLimit = 1e-6, includeData = TRUE, calculateZ = TRUE){
+#pcca.isotropic <- function(X, Y, zDimension = NULL, matched = FALSE, epsilon = 1e-6, includeData = TRUE, calculateZ = TRUE){
 #  if (is.null(zDimension)) { zDimension = min(nrow(X), nrow(Y)) }#
 #
-#  fit.dependency.model(X,Y,zDimension,marginalCovariances = "isotropic", covLimit = 1e-6,
+#  fit.dependency.model(X,Y,zDimension,marginalCovariances = "isotropic", epsilon = 1e-6,
 #                       includeData = includeData, calculateZ = calculateZ)          
 #}                                                                      
 
@@ -301,14 +309,6 @@ calc.pcca <- function (X, Y, zDimension) {
   
 }
 
-
-
-
-
-
-
-
-
 ppca <- function (X, Y = NULL, zDimension = NULL, includeData = TRUE, calculateZ = TRUE) {
 
   dat <- check.data(X, Y, zDimension)
@@ -327,7 +327,6 @@ ppca <- function (X, Y = NULL, zDimension = NULL, includeData = TRUE, calculateZ
   model
  	    
 }
-
 
 # FIXME: now calc.ppca used only in one-data case by function ppca
 # either remove two-data case, or test and compare with fit.dependency.model and take into use
@@ -356,7 +355,7 @@ calc.ppca <- function (X, Y, zDimension) {
   # This provides a simple comparison method for more
   # detailed dependency models.
 
-  if (is.null(Y)) {
+  if ( is.null(Y) ) {
     res <- ppca.calculate(X, zDimension)
     phi <- list(total = diag(res$phi, nrow(X)))
     rownames(res$W) <- rownames(X)
@@ -387,7 +386,7 @@ calc.ppca <- function (X, Y, zDimension) {
   }
   # Note that if X, Y given then phi$X = phi$Y in the pCCA model
   # Here W corresponds to W$total of other functions when X, Y both given
-  list(W=W, phi=phi)
+  list(W = W, phi = phi)
 }
 
 
@@ -405,34 +404,31 @@ ppca.calculate <- function (X, zDimension) {
   # Use full-rank if dimensionality is not specified
   zDimension <- ifelse(is.null(zDimension), nrow(X), zDimension)
 
-  # eigenvalues D and eigenvectors U
-    duv <- svd(X)
-    U <- duv$u
-    D <- sort(duv$d, decreasing=TRUE)
+  # eigenvalues D and eigenvectors U       
+  duv <- svd(X)
+  U <- duv$u                                                 
+  D <- sort(duv$d, decreasing = TRUE)  
 
-    # ML estimate of the variance given dimensionality zDimension for the latent
-    # variable z in model X ~ Wz + N(0,sigma) where sigma is isotropic
-    d <- nrow(U)
-    phi <- sum(D[-seq(zDimension)])/(d-zDimension) 
+  # ML estimate for phi (in pPCA)
+  phi <- sum(D[-seq(zDimension)])/(nrow(duv$u) - zDimension)
 
-    # ML estimate for W given variance
-    # Here set R <- I (R is an arbitrary orthogonal rotation matrix)
-    
-    W <- as.matrix(U[,1:zDimension])%*%sqrt(diag(D)[seq(zDimension),seq(zDimension)]-phi*diag(1,zDimension,zDimension))
-
+  # ML estimate for W, given phi (in pPCA)
+  # Here set R <- I (R is an arbitrary orthogonal rotation matrix)  
+  W <- as.matrix(U[, 1:zDimension])%*%sqrt(diag(D)[seq(zDimension), seq(zDimension)] - 
+       		      phi * diag(1, zDimension, zDimension))
 
   if (zDimension == nrow(X)) {
 
-      # If W is full-rank then the isotropic error term disappears assuming data X is gaussian
-      # then X%*%t(X) i.e. cov(t(X)) approximates W%*%t(W) (since X ~ Wz and z ~ N(0,I))
+    # If W is full-rank then the isotropic error term will disappear, assuming data X is gaussian
+    # then X%*%t(X) i.e. cov(t(X)) approximates W%*%t(W) (since X ~ Wz and z ~ N(0,I))
 
     # Note rotational ambiguity for W, Z 
-    cat("Full-rank PCA calculated, isotropic error term is zero. Consider checking the principal components.\n")
+    cat("Full-rank PCA calculated, isotropic error term is zero.\n")
     W <- matrix.sqrt(cov(t(X)))
     phi <- 0
   }
   
-    list(W = W, phi = phi)
+  list(W = W, phi = phi)
 }
 
 pfa <- function (X, Y = NULL, zDimension = NULL, includeData = TRUE, calculateZ = TRUE) {
@@ -468,8 +464,7 @@ calc.pfa <- function (X, Y, zDimension) {
     Y.rubin <- t(X)
     # Factor loading matrix
     beta <- t(eigen(cov(t(X)))$vectors[, 1:zDimension])
-  }
-  else {
+  } else {
     Y.rubin <- cbind(t(X), t(Y))
     # Use different initialization for beta when data has inequal dimensionalities
     if (nrow(X) != nrow(Y)) {
@@ -577,10 +572,6 @@ phi.diagonal.double <- function (W, phi.inv, Cxx, Dim) {
 }
 
 
-
-
-
-
 pcca.with.isotropic.margins <- function (X, Y, zDimension = 1, epsilon = 1e-6, delta = 1e6) {
 
   # epsilon and delta are convergence parameters
@@ -595,8 +586,7 @@ pcca.with.isotropic.margins <- function (X, Y, zDimension = 1, epsilon = 1e-6, d
   # FIXME: ensure that X, Y have zero-mean (shift if necessary);
   # alternatively add mean parameter in the model
 
-  res <- calc.pcca.with.isotropic.margins(X, Y, zDimension, epsilon = 1e-6, delta = 1e6)
-
+  res <- calc.pcca.with.isotropic.margins(X, Y, zDimension, epsilon = epsilon, delta = delta)
   phi <- res$phi  
     W <- res$W   
 
@@ -641,11 +631,16 @@ calc.pcca.with.isotropic.margins <- function (X, Y, zDimension, epsilon = 1e-6, 
           
     #######################################
 
-    # Full CCA update for W
+    # Full CCA update for W 
 
-    phi.inv.full <- diag(c(rep(1/phi$X, Dim$X), rep(1/phi$Y, Dim$Y)))
-          M <- set.M.full(W$total, phi.inv.full, Dim$Z) # corresponds to G in Bishop's book
-       beta <- set.beta.fullcov(M, W$total, phi.inv.full)
+        phi.inv <- list()
+        phi.inv$X <- diag(rep(1/phi$X, Dim$X))
+        phi.inv$Y <- diag(rep(1/phi$Y, Dim$Y))
+        phi.inv$total <- diag(c(rep(1/phi$X, Dim$X), rep(1/phi$Y, Dim$Y)))
+
+         #M <- set.M.full(W$total, phi.inv.full) # corresponds to G in Bishop's book
+          M <- set.M.full2(W, phi.inv) # modified for G in Bishop's book	  
+       beta <- set.beta.fullcov(M, W$total, phi.inv$total)
     W$total <- W.cca.EM(Dcov, M, beta)
         W$X <- matrix(W$total[1:Dim$X,], nrow = Dim$X)
         W$Y <- matrix(W$total[-(1:Dim$X),], nrow = Dim$Y)
@@ -657,11 +652,7 @@ calc.pcca.with.isotropic.margins <- function (X, Y, zDimension, epsilon = 1e-6, 
           
   }
 
-  # Format scalars into matrices
-  #phi$X <- diag(phi$X, Dim$X)
-  #phi$Y <- diag(phi$Y, Dim$Y)
-  #phi$total <- diag(c(diag(phi$X), diag(phi$Y)))
-
+  # FIXME: add 'intercept' field to DependencyModel?
   list(W = W, phi = phi)
 
 }

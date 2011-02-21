@@ -23,7 +23,7 @@ library(dmt)
 
 priors <- list( Nm.wx.wy.sigma = 0 )
 
-N <- 50           
+N <- 100
 yDim <- xDim <- 8 # simcca
 
 ###############################################################

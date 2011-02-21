@@ -1,9 +1,11 @@
 library(dmt)
 
+cors.list <- list()
+
 ####################################################
 
 # Two data sets, different dimensions
-
+N <- 100
 xdim <- 8
 ydim <- 5
 cors <- c()
@@ -11,7 +13,7 @@ for (zdim in seq(1, min(xdim, ydim), 1)) {
 
   print(zdim)
 
-  toy <- generate.toydata(N = 100, zDim = zdim, xDim = xdim, yDim = ydim, marginal.covariances = "full")
+  toy <- generate.toydata(N = N, zDim = zdim, xDim = xdim, yDim = ydim, marginal.covariances = "full")
 
   res <- pcca(toy$X, toy$Y, zDimension = zdim)
 
@@ -40,6 +42,8 @@ for (zdim in seq(1, min(xdim, ydim), 1)) {
 colnames(cors) <- c("wx", "wy", "phix", "phiy")
 
 print(cors)
+
+cors.list[["two data sets"]] <- cors
 
 #######################################################
 

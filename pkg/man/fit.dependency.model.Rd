@@ -15,13 +15,13 @@ PCA, factor analysis and CCA are available as special cases.}
 
 \usage{
 fit.dependency.model(X, Y, zDimension = 1, marginalCovariances = "full",
-                     covLimit = 1e-3,
+                     epsilon = 1e-3,
                      priors = list(), matched = TRUE,
                      includeData = TRUE, calculateZ = TRUE, verbose = FALSE)
 ppca(X, Y = NULL, zDimension = NULL, includeData = TRUE, calculateZ = TRUE)
 pfa(X, Y = NULL, zDimension = NULL, includeData = TRUE, calculateZ = TRUE)
 pcca(X, Y, zDimension = NULL, includeData = TRUE, calculateZ = TRUE)
-%pcca.isotropic(X, Y, zDimension = NULL, matched = FALSE, covLimit = 1e-6, includeData = TRUE, calculateZ = TRUE)
+%pcca.isotropic(X, Y, zDimension = NULL, matched = FALSE, epsilon = 1e-6, includeData = TRUE, calculateZ = TRUE)
 }
 \arguments{
   \item{X, Y}{Data set/s X and Y. 'Variables x samples'. The second data set (\code{Y}) is optional.}
@@ -32,7 +32,7 @@ effects. Options: \code{"identical isotropic"}, \code{"isotropic"},
 \code{"diagonal"} and \code{"full"}. The difference between isotropic
 and identical isotropic options is that in isotropic model, phi$X !=
 phi$Y in general, whereas with isotropic model phi$X = phi$Y.}
-  \item{covLimit}{ Convergence limit. }
+  \item{epsilon}{ Convergence limit. }
   \item{priors}{Prior parameters for the model. A list, which can contain some of the following elements:
     \describe{
   \item{W}{Rate parameter for exponential distribution (should be

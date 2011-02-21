@@ -4,11 +4,10 @@
 # FreeBSD License (keep this notice)     
 
 
-
-
-
-
 check.data <- function (X, Y, zDimension = NULL) {
+
+  # (C) Leo Lahti 2010-2011
+  # FreeBSD license (keep this notice).
 
   if (is.null(zDimension)) { 
     # No latent dimensionality specified: using full latent dim
@@ -28,43 +27,43 @@ check.data <- function (X, Y, zDimension = NULL) {
     stop("Y data needs to be a matrix")
   }
 
+  # Calculate intercept terms
+  intercept <- list(X = rowMeans(X, na.rm = TRUE))
+  if (!is.null(Y)) {intercept$Y = rowMeans(Y, na.rm = TRUE) }
+  
   #cat("Centering the data..\n")
   X <- t(centerData(t(X), rm.na = TRUE))		        
   if (!is.null(Y)) {			  
     Y <- t(centerData(t(Y), rm.na = TRUE))			      
   }			        				
       
-  list(X = X, Y = Y, zDimension = zDimension)
+  list(X = X, Y = Y, zDimension = zDimension, intercept = intercept)
 
 } 
 
 
-matrix.sqrt <-
-function (A) {
-	#Solve square root (A^(1/2)) of a diagonalizable nxn-matrix A
-	#First diagonalize A, then compute sqrt for the diagonal elements
-	#of the diagonalized matrix Adot. Then compute matrix sqrt from these
-	#Eigenvectors of A
+matrix.sqrt <- function (A) {
+  # Solve square root (A^(1/2)) of a diagonalizable nxn-matrix A
+  # First diagonalize A, then compute sqrt for the diagonal elements
+  # of the diagonalized matrix Adot. Then compute matrix sqrt from these
+  # Eigenvectors of A
 
-	#Author: Leo Lahti
-	#Date: 13.2.2007
-	#Comment: I did not easily find suitable function in R although there might well be a better optimized one. 
+  # (C) Leo Lahti 2007-2011
+  # FreeBSD license (keep this notice).
+  # Comment: I did not easily find suitable function in R although there might be a better optimized one.
 
-	e<-eigen(A) 
-	V<-e$vector
-	#try inverse the eigvec matrix. 
-	#if not diagonalizable then some error will occur from try I think
-	Vinv<-try(solve(V)) 
-	D <- diag(e$values)
+  e <- eigen(A) 
 
-	V%*%sqrt(D)%*%Vinv
+  e$vector%*%sqrt(diag(e$values))%*%solve(e$vector)
+
 }
 
 
 
 SqrtInvMat <- function( matrix ) {
-
-  # Calculates square root of inverse of an (invertible) square matrix.
+ 
+  # Author: Abhishek Tripathi
+  # Calculate square root of inverse of an (invertible) square matrix.
 
   x <- as.matrix(matrix)
 
@@ -75,14 +74,12 @@ SqrtInvMat <- function( matrix ) {
 }
 
 
-
-
-#internal subroutine extra
-
 concatenate <- function(datasets)
 {
 
-   mat <- datasets #list of data sets
+  # (C) Abhishek Tripathi and Leo Lahti
+  # FreeBSD license (keep this notice).
+  mat <- datasets #list of data sets
 
   m <- length(mat)
 
@@ -90,12 +87,9 @@ concatenate <- function(datasets)
 
   if(m > 1)
   {
-       for(i in 2:m)
-       {
-         com <- cbind(com,mat[[i]])
-       }
+    for(i in 2:m) { com <- cbind(com,mat[[i]]) }
   }
 
 
-  return(com)
+  com
 }

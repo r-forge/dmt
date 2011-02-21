@@ -1,14 +1,10 @@
-"drCCAcombine" <-
-function(datasets,reg=0,nfold=3,nrand=50)
+drCCAcombine <- function(datasets, reg = 0, nfold = 3, nrand = 50)
 {
 
-  mat <- datasets #list of data matrices
-
-  reg <- reg #regularization value
-
+  mat <- datasets # list of data matrices
+  #reg: regularization value
 
   n <- nfold # number of cross validations
-
 
   iter <- nrand # number of iterations for random matrix generation
 

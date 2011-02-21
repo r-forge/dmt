@@ -7,27 +7,6 @@
 #  man to whom the idea first occurs."
 # - Sir Francis Darwin
 
-
-
-update.phi <- function (Dcov, M, beta, W, phi) {
-
-  # Empirical estimate. Should give similar results than
-  # update.phi.isotropic. Compare and combine.
-  # FIXME: remove M, not neeed here
-
-  # simple marginal covariance: sigma2 * I
-  # i.e. just one parameter; in general phix != phiy
-
-  # Mean equals to dividing with dimension
-  # add small constant to avoid singularities
-  phix <- max(mean(diag(Dcov$X - Dcov$X%*%t(beta$X)%*%t(W$X))), 0) + 1e-3
-  phiy <- max(mean(diag(Dcov$Y - Dcov$Y%*%t(beta$Y)%*%t(W$Y))), 0) + 1e-3
-
-  # Return phi
-  list(X = phix, Y = phiy)
-
-}
-
 update.phi.isotropic <- function (Xcov, W, epsilon, dx) {
 
   # used to update phix and phiy, one at a time
@@ -40,15 +19,34 @@ update.phi.isotropic <- function (Xcov, W, epsilon, dx) {
   # iteration step
   
   # auxiliary variables
-  wtw <- W%*%t(W)
+  wtw <- W%*%t(W) 
   M <- set.M.isotropic(wtw, epsilon, dx)
 
-  # Calculate updated phi (= epsilon) and return
+  # Calculate updated phi (= epsilon);
   # add small constant to avoid singularity
   max(sum(diag(Xcov - wtw%*%M%*%Xcov))/dx, 0) + 1e-3
 
 }
 
+phi.pca <- function (dat, zDim) {
+
+  # isotropic phi for probabilistic PCA
+  # with given latent variable dimensionality;
+  # note that the isotropic phi explains everything that
+  # cannot be explained by the latent variable:
+  # XXt = WWt + phi
+
+  # With concatenated data:
+  #dat <- rbind(X, Y)
+
+  # eigenvalues D and eigenvectors U             
+  duv <- svd(dat)       
+  U <- duv$u
+  D <- sort(duv$d, decreasing = TRUE)
+ 
+  sum(D[-seq(zDim)])/(nrow(duv$u) - zDim)
+	             
+}
 
 phi.EM.simcca <- function (Dcov, W.new, phi.inv, W.old, M) {
 
@@ -60,14 +58,13 @@ phi.EM.simcca <- function (Dcov, W.new, phi.inv, W.old, M) {
   # Reduces to this when Wx = Wy:
   mat <- W.old$X%*%M%*%t(W.new$X)
   nullmat <- matrix(0, nrow = dx, ncol = dx)
-  mat2 <- Dcov$total - Dcov$total%*%rbind(cbind(phi.inv$X%*%mat,nullmat), cbind(nullmat,phi.inv$Y%*%mat))
+  mat2 <- Dcov$total - Dcov$total%*%rbind(cbind(phi.inv$X%*%mat, nullmat), cbind(nullmat, phi.inv$Y%*%mat))
 
-  # Diagonal is regularized to avoid singluar matrix
+  # Regularize diagonal to avoid singularity
   phi <- list()
   phi$total <- mat2 + (1e-2)*diag(nrow(mat2))  
   phi$X <- matrix(phi$total[1:dx,1:dx], dx)
   phi$Y <- matrix(phi$total[(dx+1):(2*dx), (dx+1):(2*dx)], dx)
-  #phi$Y <- matrix(phi$total[-(1:dx), -(1:dx)], dy)
 
   phi
 
@@ -93,7 +90,7 @@ phi.EM.cca <- function (Dcov, W.new, phi.inv, W.old, M, nullmat) {
   #mat.x <- phi.inv$X%*%mat
   #mat.y <- phi.inv$Y%*%mat
   #mat2  <- Dcov$total - Dcov$total%*%rbind(cbind(mat.x, mat.x), cbind(mat.y, mat.y))
-   mat2  <- Dcov$total - Dcov$total%*%phi.inv$total%*%mat
+  mat2  <- Dcov$total - Dcov$total%*%phi.inv$total%*%mat
   
   # Diagonal is regularized to avoid singluar matrix	  
   phi <- list()
@@ -105,5 +102,7 @@ phi.EM.cca <- function (Dcov, W.new, phi.inv, W.old, M, nullmat) {
    
 }
     
+
+
 
 
