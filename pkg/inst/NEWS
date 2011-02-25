@@ -1,3 +1,7 @@
+CHANGES IN VERSION 0.7.05 (2011-02-25)
+
+  o tests/ directory removed, too time-consuming.
+
 CHANGES IN VERSION 0.7.04 (2011-02-21)
 
   o covLimit parameter name was changed into epsilon
