@@ -1,0 +1,50 @@
+* test.stats.R 
+
+is used to produce test statistics for dmt package;
+
+
+* test.stats.txt
+
+test statistics; correlations between true model parameters and
+estimates given by dmt.
+
+============================================
+
+DESCRIPTION OF COMPLETED TEST CASES
+
+The tests are run with the different covariance structures and 
+latent variable dimensionalities.
+
+
+tests/ppca.R # probabilistic PCA (1 and 2 data sets)
+tests/pfa.R  # probabilistic factor analysis (1 and 2 data sets)
+tests/pcca.R # probabilistic CCA (2 data sets)
+
+tests/depmod.R        # prob. CCA
+tests/depmod.simcca.R # prob. SimCCA (Wx = Wy)
+
+tests/pcca.nnW.R    # prob. CCA with non-negative W
+tests/psimcca.nnW.R # prob. SimCCA (Wx = Wy) with non-negative W
+
+tests/drcca.R  # drCCA functions
+
+==============================================
+
+TODO TESTS
+
+- currently measuring correlation, add accuracy measures
+- soft regularization on W (tuning priors$Nm.wx.wy.sigma)
+- pcca.with.isotropic.margins
+
+
+==============================================
+
+TODO FEATURES
+
+- Sparsity regularization for W
+- T priors when dx != dy
+- Wy fixed, only optimize Wx (regression-type models)
+
+
+
+
