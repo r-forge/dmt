@@ -231,9 +231,9 @@ slotNames(model)
 For detailed explanation of the output, see
 help(fit.dependency.model). 
 
-The tests/ directory of the package contains a comprehensive set of
-examples with toy data.
-
+A comprehensive set of examples with toy data is available at
+http://dmt.r-forge.r-project.org/tests/complete/ (see the README file
+for details)
 
 \subsection{Parameter estimation}
 
