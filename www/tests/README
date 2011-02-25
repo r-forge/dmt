@@ -1,0 +1,21 @@
+
+== Testing ==
+
+Collect all test statistics in one file by running
+complete/test.stats.R
+
+The complete test statistics is at
+complete/test.stats.txt
+
+
+== Directories ==
+
+* complete/
+
+Test scripts for the dmt package with toy data for most possible use
+cases. 
+
+
+* devel/
+
+Scripts for further tests under development.
