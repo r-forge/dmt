@@ -54,8 +54,18 @@ http://dmt.r-forge.r-project.org/}
 
 \subsection{Installation}
 
-Install dmt from within R using command\\
-'install.packages("dmt", repos="http://R-Forge.R-project.org")'
+Install dmt from within R with 'install.packages("dmt"")'. This will
+fetch and install the package automatically. 
+
+Source code of the latest stable release is available at
+CRAN\footnote{http://cran.r-project.org/web/packages/dmt/index.html}.
+Source code of the development version is available at
+R-forge\footnote{http://dmt.r-forge.r-project.org/}.
+
+
+
+%Install dmt development version from within R using command\\
+%'install.packages("dmt", repos="http://R-Forge.R-project.org")'
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
