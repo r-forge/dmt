@@ -1,5 +1,7 @@
-CHANGES IN VERSION 0.7.05 (2011-02-25)
+CHANGES IN VERSION 0.7.07 (2011-02-25)
 
+  o package was accepted to CRAN and passed all tests; added links to
+    vignette and website
   o tests/ directory removed, too time-consuming.
 
 CHANGES IN VERSION 0.7.04 (2011-02-21)
