@@ -1,3 +1,9 @@
+CHANGES IN VERSION 0.8.01 (2011-03-28)
+
+  o bug with matched = TRUE, Nm.Wx.Wy.sigma = 0, with diagonal
+    covariances and identical isotropic covariances; in W.simcca.EM
+    function the W$total name was missing, causing failure. Corrected.
+
 CHANGES IN VERSION 0.7.07 (2011-02-25)
 
   o package was accepted to CRAN and passed all tests; added links to

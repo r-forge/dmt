@@ -184,7 +184,7 @@ W.simcca.EM <- function (W, phi, Dim, Dcov) {
   ctb <- Dcov$sum%*%t(beta.w)
   w <- ctb%*%solve(M.w + beta.w%*%ctb)/2
   
-  list(X = w, Y = w, total <- rbind(w, w))
+  list(X = w, Y = w, total = rbind(w, w))
 
 }
 

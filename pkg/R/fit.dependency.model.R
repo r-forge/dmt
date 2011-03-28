@@ -134,15 +134,15 @@ fit.dependency.model <- function (X, Y,
     }
       
     # Matrix normal distribution mean matrix not specified
-    if ( is.null(priors$Nm.wxwy.mean) ) {
-      message("The matrix Nm.wxwy.mean is not specified. Using identify matrix.")
+    if ( is.null(priors$Nm.wxwy.mean) || is.na(priors$Nm.wxwy.mean)) {
+      message("The matrix Nm.wxwy.mean is not specified. Using identity matrix.")
       priors$Nm.wxwy.mean <- 1
     }    
 
     method <- "pSimCCA"
         
     # Case IIa: fully constrained case Wx = Wy
-    if (priors$Nm.wxwy.sigma == 0) { #Wx = Wy        
+    if ( priors$Nm.wxwy.sigma == 0 ) { #Wx = Wy        
         
       if ( verbose ) { cat("Assuming Wx = Wy\n") }
 	
@@ -169,7 +169,7 @@ fit.dependency.model <- function (X, Y,
 
       } else if (is.null(priors$W)) {
         
-	if ( verbose ) {cat("Wx = Wy; free W.\n")}
+	if ( verbose ) { cat("Wx = Wy; free W.\n") }
 
           # mlsp'09 simcca
           # message("Case Wx = Wy. No regularization for W.")
@@ -177,7 +177,8 @@ fit.dependency.model <- function (X, Y,
 	  # use this for full W (EM algorithm, unstable for n ~ p)
          res <- optimize.parameters(X, Y, zDim = zDimension, priors = priors, 
                                    marginalCovariances = marginalCovariances,           
-                                   epsilon = epsilon, convergence.steps = 3, verbose = verbose)
+                                   epsilon = epsilon, convergence.steps = 3,
+                                   verbose = verbose)
 
 
           method <- "matched case Wx = Wy with unconstrained W. Check covariances from parameters."
@@ -511,63 +512,6 @@ calc.pfa <- function (X, Y, zDimension) {
   }
   
   list(W = W, phi = phi)
-
-}
-
-
-phi.diagonal.single <- function (W, phi.inv, Cxx, Dim) {
-
-  # FIXME
-  # Experimental. Compare this + separate W update iterations to pFA
-  # and to phi.diagonal.double
-
-  #phi.diagonal.single(W$total, phi.inv, Dcov$X, Dim) {
-
-  # diagonal phi update for phi$X (or phi$Y) only
-
-  # Y.rubin is Y in (Rubin & Thayer, 1982)
-  # Variables on columns and samples on rows
-
-  # Cxx <- cov(t(X))  
-  # W <- W$total
-
-  phi.inv.W <- phi.inv%*%W
-  tbb <- phi.inv - (phi.inv.W)%*%solve(diag(Dim$Z) + t(W)%*%phi.inv.W)%*%t(phi.inv.W)
-  d <- tbb%*%W
-  D <- diag(Dim$Z) - t(W)%*%d
-  Cxxd <- Cxx%*%d
-
-  diag(diag(Cxx - Cxxd%*%solve(t(d)%*%Cxxd + D)%*%t(Cxxd)))
-  
-}
-
-
-phi.diagonal.double <- function (W, phi.inv, Cxx, Dim) {
-
-  #phi.diagonal.double(W$total, phi.inv‰total, Dcov$total, Dim) {
-
-  # phi.diagonal.single with Cxx = Dcov$total
-  # should give the same result for phi$total. Check.
-
-  # solving both phix and phiy at once
-
-  # Y.rubin is Y in (Rubin & Thayer, 1982)
-  # Variables on columns and samples on rows
-
-  #Y.rubin <- cbind(t(X), t(Y))
-  #Cxx <- Dcov$total
-
-  phi.inv.W <- phi.inv%*%W
-  tbb <- phi.inv - (phi.inv.W)%*%solve(diag(Dim$Z) + t(W)%*%phi.inv.W)%*%t(phi.inv.W)
-  d <- tbb%*%W
-  D <- diag(Dim$Z) - t(W)%*%d
-  Cxxd <- Cxx%*%d
-
-  phi <- list()
-  phi$total <- diag(diag(Cxx - Cxxd %*% solve(t(d) %*% Cxxd + D) %*% t(Cxxd)))
-  phi <- list(X = phi$total[1:Dim$X,1:Dim$X], Y = phi$total[-(1:Dim$X),-(1:Dim$X)], total = phi$total)                
-  
-  phi
 
 }
 

@@ -104,5 +104,64 @@ phi.EM.cca <- function (Dcov, W.new, phi.inv, W.old, M, nullmat) {
     
 
 
+phi.diagonal.single <- function (W, phi.inv, Cxx, Dim) {
+
+  # FIXME
+  # Experimental. Compare this + separate W update iterations to pFA
+  # and to phi.diagonal.double
+
+  #phi.diagonal.single(W$total, phi.inv, Dcov$X, Dim) {
+
+  # diagonal phi update for phi$X (or phi$Y) only
+
+  # Y.rubin is Y in (Rubin & Thayer, 1982)
+  # Variables on columns and samples on rows
+
+  # Cxx <- cov(t(X))  
+  # W <- W$total
+
+  phi.inv.W <- phi.inv%*%W
+  tbb <- phi.inv - (phi.inv.W)%*%solve(diag(Dim$Z) + t(W)%*%phi.inv.W)%*%t(phi.inv.W)
+  d <- tbb%*%W
+  D <- diag(Dim$Z) - t(W)%*%d
+  Cxxd <- Cxx%*%d
+
+  diag(diag(Cxx - Cxxd%*%solve(t(d)%*%Cxxd + D)%*%t(Cxxd)))
+  
+}
+
+
+
+
+phi.diagonal.double <- function (W, phi.inv, Cxx, Dim) {
+
+  #phi.diagonal.double(W$total, phi.inv¡ëtotal, Dcov$total, Dim) {
+
+  # phi.diagonal.single with Cxx = Dcov$total
+  # should give the same result for phi$total. Check.
+
+  # solving both phix and phiy at once
+
+  # Y.rubin is Y in (Rubin & Thayer, 1982)
+  # Variables on columns and samples on rows
+
+  #Y.rubin <- cbind(t(X), t(Y))
+  #Cxx <- Dcov$total
+
+  phi.inv.W <- phi.inv%*%W
+
+  tbb <- phi.inv - (phi.inv.W)%*%solve(diag(Dim$Z) + t(W)%*%phi.inv.W)%*%t(phi.inv.W)
+  d <- tbb%*%W
+  D <- diag(Dim$Z) - t(W)%*%d
+  Cxxd <- Cxx%*%d
+
+  phi <- list()
+  phi$total <- diag(diag(Cxx - Cxxd %*% solve(t(d) %*% Cxxd + D) %*% t(Cxxd)))
+  phi <- list(X = phi$total[1:Dim$X,1:Dim$X], Y = phi$total[-(1:Dim$X),-(1:Dim$X)], total = phi$total)                
+  
+  phi
+
+}
+
 
 

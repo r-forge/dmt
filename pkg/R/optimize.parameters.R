@@ -91,6 +91,7 @@ optimize.parameters <- function (X, Y, zDim = 1, priors = NULL,
   cnt2 <- 0
 
   if ( verbose ) { cat(paste("Starting iterations \n")) }
+
   while (any(par.changes > epsilon) || any(par.changes < 0)) {
 
     if ( verbose ) { cat(cost.new); cat("\n") }
@@ -138,8 +139,8 @@ optimize.parameters <- function (X, Y, zDim = 1, priors = NULL,
         # FIXME add the intermediates, should be straightforward by combining penalized optimizations
       }
 
-    } else { # Unconstrained W
-        
+    } else if (is.null(priors$W)) { # Unconstrained W
+
       if ( priors$Nm.wxwy.sigma == 0 ) { # Wx = Wy
 
         # assuming Wx = Wy
@@ -147,7 +148,7 @@ optimize.parameters <- function (X, Y, zDim = 1, priors = NULL,
 	# equations modified from there to match Wx = Wy case
 
         W <- W.simcca.EM(W, phi, Dim, Dcov)
-		    		    
+
       } else if ( priors$Nm.wxwy.sigma > 0 && priors$Nm.wxwy.sigma < Inf ) { # Wx ~ Wy constrained
 
         # Update W: initialize with previous W			       
@@ -243,22 +244,23 @@ optimize.parameters <- function (X, Y, zDim = 1, priors = NULL,
         # convert to matrices
 	phi$X <- diag(phi.estimate, Dim$X)
 	phi$Y <- diag(phi.estimate, Dim$Y)
-	phi$total <- diag(c(diag(phi$X), diag(phi$Y)))	
+	phi$total <- diag(phi.estimate, Dim$X + Dim$Y)
 
         # FIXME could be sped up by using scalars here, and similar treatment with W updates than with the "isotropic" option
 	    
      } else if ( marginalCovariances == "diagonal" ) {
-  
+
        phi.inv$total <- rbind(cbind(phi.inv$X, nullmat),
                            cbind(t(nullmat), phi.inv$Y))    
-  
+
        # FIXME: speedups possible when Wx = Wy. Implement.     
        # FIXME: compare M, beta to isotropic/full cases and join common parts
        # FIXME needs to be checked!
-       phi <- phi.diagonal.double(W$total, phi.inv$total, Dcov$total, Dim)
+
+       phi <- phi.diagonal.double(W$total, phi.inv$total, Dcov$total, Dim) 
        #phi$X <- phi.diagonal.single(W$total, phi.inv$total, Dcov$X, Dim)       
        #phi$Y <- phi.diagonal.single(W$total, phi.inv$total, Dcov$Y, Dim)            
-     
+
      } else {
        stop("Unknown marginalCovariances parameter!")
      }
