@@ -4,22 +4,8 @@
 
 library(dmt)
 
-#source("~/local/Rpackages/dmt/SVN/dmt/pkg/R/generate.toydata.R")
-#source("~/local/Rpackages/dmt/SVN/dmt/pkg/R/fit.dependency.model.R")  
-#source("~/local/Rpackages/dmt/SVN/dmt/pkg/R/internals.R")            
-#source("~/local/Rpackages/dmt/SVN/dmt/pkg/R/initialize2.R")   
-#source("~/local/Rpackages/dmt/SVN/dmt/pkg/R/costs.R")    
-#source("~/local/Rpackages/dmt/SVN/dmt/pkg/R/get.W.R")    
-#source("~/local/Rpackages/dmt/SVN/dmt/pkg/R/phi.updates.R")   
-#source("~/local/Rpackages/dmt/SVN/dmt/pkg/R/dependency.score.R")  
-#source("~/local/Rpackages/dmt/SVN/dmt/pkg/R/optimize.parameters.R")  
-#source("~/local/Rpackages/dmt/SVN/dmt/pkg/R/pfa.R")  
-#source("~/local/Rpackages/dmt/SVN/dmt/pkg/R/ppca.R")  
-#source("~/local/Rpackages/dmt/SVN/dmt/pkg/R/pcca.R")  
-#source("~/local/Rpackages/dmt/SVN/dmt/pkg/R/pcca.with.isotropic.margins.R")  
-#source("~/local/Rpackages/dmt/SVN/dmt/pkg/R/M.set.R")  
-#source("~/local/Rpackages/dmt/SVN/dmt/pkg/R/set.beta.R")  
-#source("~/local/Rpackages/dmt/SVN/dmt/pkg/R/W.cca.EM.R")  
+#fs <- list.files("~/local/Rpackages/dmt/SVN/dmt/pkg/R", full.names = TRUE)
+#lapply(fs, source)
 
 priors <- list( Nm.wx.wy.sigma = 0 )
 
@@ -36,7 +22,11 @@ zdims <- seq(1, min(xDim, yDim), 2) # test with various latent variable dimensio
 
 # TODO: other marginal covariance structures for Wx = Wy; W>=0
 #for (marginalCovariances in c("full")) {
+#for (marginalCovariances in c("isotropic")) {
+#for (marginalCovariances in c("diagonal")) {
+#for (marginalCovariances in c("identical isotropic")) {
 for (marginalCovariances in c("isotropic", "diagonal", "identical isotropic", "full")) {
+#for (marginalCovariances in c("isotropic", "full")) {
 
   cors <- c()
   for (zDim in zdims) {
@@ -49,7 +39,7 @@ for (marginalCovariances in c("isotropic", "diagonal", "identical isotropic", "f
 
     res <- fit.dependency.model(toy$X, toy$Y, zDimension = zDim,
 	            marginalCovariances = marginalCovariances,
-		    priors = priors, matched = FALSE, verbose = TRUE)
+		    priors = priors, matched = TRUE, verbose = TRUE)
   
     vec <- compare.estimate.and.truth(res, toy) 
 
