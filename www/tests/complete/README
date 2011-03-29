@@ -35,13 +35,13 @@ TODO TESTS
 - currently measuring correlation, add accuracy measures
 - soft regularization on W (tuning priors$Nm.wx.wy.sigma)
 - pcca.with.isotropic.margins
-
+- speedup tests
 
 ==============================================
 
 TODO FEATURES
 
-- Sparsity regularization for W
+- Sparsity regularization for W and/or z (Gaussian / elastic net / )
 - T priors when dx != dy
 - Wy fixed, only optimize Wx (regression-type models)
 
