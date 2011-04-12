@@ -12,7 +12,7 @@
 \title{dmt:\\probabilistic dependency modeling toolkit}
 
 \author{Leo Lahti$^{1,2}$\footnote{leo.lahti@iki.fi}\  and Olli-Pekka
-Huovilainen$^2$\\(1) Dpt. Information and Computer Science, Aalto University,
+Huovilainen$^1$\\(1) Dpt. Information and Computer Science, Aalto University,
 Finland\\(2) Dpt. Veterinary Bioscience, University of Helsinki,
 Finland}
 
