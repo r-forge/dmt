@@ -9,14 +9,22 @@
 %\setlength{\topmargin}{9pt}    
 
 
-\title{Probabilistic dependency modeling toolkit}
+\title{dmt:\\probabilistic dependency modeling toolkit}
 
-\author{Leo Lahti\footnote{leo.lahti@iki.fi} and Olli-Pekka
-Huovilainen\\Department of Information and Computer Science\\Aalto University, Finland}
+\author{Leo Lahti$^{1,2}$\footnote{leo.lahti@iki.fi}\  and Olli-Pekka
+Huovilainen$^2$\\(1) Dpt. Information and Computer Science, Aalto University,
+Finland\\(2) Dpt. Veterinary Bioscience, University of Helsinki,
+Finland}
 
 \usepackage{Sweave}
 \usepackage{float}
 \usepackage{hyperref}
+
+\newcommand{\Rfunction}[1]{{\texttt{#1}}}
+\newcommand{\Robject}[1]{{\texttt{#1}}}
+\newcommand{\Rpackage}[1]{{\textit{#1}}}
+
+
 
 \def\z{\mathbf{z}}
 \def\x{\mathbf{x}}
@@ -54,15 +62,12 @@ http://dmt.r-forge.r-project.org/}
 
 \subsection{Installation}
 
-Install dmt from within R with 'install.packages("dmt"")'. This will
-fetch and install the package automatically. 
-
-Source code of the latest stable release is available at
+Install \Rpackage{dmt} from within R with 'install.packages("dmt")'. This will
+fetch and install the package automatically.  Source code of the
+latest stable release is available at
 CRAN\footnote{http://cran.r-project.org/web/packages/dmt/index.html}.
 Source code of the development version is available at
 R-forge\footnote{http://dmt.r-forge.r-project.org/}.
-
-
 
 %Install dmt development version from within R using command\\
 %'install.packages("dmt", repos="http://R-Forge.R-project.org")'
@@ -75,9 +80,9 @@ R-forge\footnote{http://dmt.r-forge.r-project.org/}.
 \label{sec:framework}
 
 The {\it fit.dependency.model} function implements the probabilistic
-dependency modeling framework presented in \cite{Bach05} and its
+dependency modeling framework presented in \cite{Bach05} and
 subsequent extensions \cite{Archambeau06, Klami08, Lahti09mlsp}. The
-latent variable model assumes that the two data sets, \(X\) and \(Y\)
+latent variable model assumes that the two data sets, \(X\) and \(Y\),
 can be decomposed in {\it shared} and {\it data set-specific}
 components (Figure \ref{modelpic}). We provide tools to discover these
 components.
@@ -117,7 +122,7 @@ The modeling framework described in Section~\ref{sec:framework} is
 implemented in the fit.dependency.model function. To use the default
 method to detect dependencies between two data sets, X and Y, try:
 
-<<example1>>=
+<<example1, results=hide>>=
 library(dmt) 
 data(modelData) # load example data X, Y
 model <- fit.dependency.model(X, Y)
@@ -241,13 +246,12 @@ slotNames(model)
 For detailed explanation of the output, see
 help(fit.dependency.model). 
 
-A comprehensive set of examples with toy data is available at
-http://dmt.r-forge.r-project.org/tests/complete/ (see the README file
-for details)
+A comprehensive set of examples with toy data is available
+online.\footnote{http://dmt.r-forge.r-project.org/tests/complete/)}
 
 \subsection{Parameter estimation}
 
-Model parameters are estimated with an EM algorithm. Conventional
+Model parameters are estimated with EM algorithm. Conventional
 optimization methods are used when no analytical solution exists for
 particular variables.
 
