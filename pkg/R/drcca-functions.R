@@ -1332,10 +1332,8 @@ pwisepca <- function(mat,dim)
                        # for back projection
 #input 3. plot = FALSE , if it is TRUE, a plot will be generated
 
-"plotVar" <- 
-function(datasets,regcca, dimVector, plot = FALSE)
+plotVar <- function(datasets,regcca, dimVector, plot = FALSE)
 {
-
 
         mat <- datasets        
 
@@ -1380,14 +1378,6 @@ function(datasets,regcca, dimVector, plot = FALSE)
             withpca[i] <- sum(dummy$pc)
          }
 
-
-
-
-
-      
-
-
- 
    ###plotting the graphs 
 
   if(plot)
@@ -1395,16 +1385,14 @@ function(datasets,regcca, dimVector, plot = FALSE)
    pw <- rbind(pwcca,pwpca)
    wn <- rbind(withcca,withpca)
 
-   split.screen(c(2,1))
+   #split.screen(c(2,1))
+   par(mfrow=c(2,1))
    plot(pw[1,],t='l',xlab='Dimensionality of the projection', ylab='Shared variation', main='Shared variation, drCCA vs PCA(red)', ylim=c(min(pw),max(pw)))
    lines(pw[2,], col ='red')
-
-     
-   screen(2)
+   #screen(2)
    plot(wn[1,],t='l',xlab='Dimensionality of the projection', ylab='Data-specific variation', main='Data-specific variation, drCCA vs PCA(red)', ylim=c(min(wn),max(wn)))
    lines(wn[2,], col='red')
-
-   close.screen(all = TRUE)
+   #close.screen(all = TRUE)
   }
 
  return(list(pw_cca = pwcca, pw_pca = pwpca, within_cca = withcca, within_pca = withpca))
