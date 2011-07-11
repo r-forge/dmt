@@ -516,7 +516,32 @@ calc.pfa <- function (X, Y, zDimension) {
 }
 
 
-pcca.with.isotropic.margins <- function (X, Y, zDimension = 1, epsilon = 1e-6, delta = 1e6) {
+pfa.log.likelihood <- function (X, wtw, phi) {
+
+  # X: features x samples
+
+  # X is Y in Rubin-Thayer 1982: this log-likelihood is from Eq. 1 in there
+  # R <- diag(1, zDimension) # R = I ie. exploratory factor analysis, see Rubin-Thayer Case 1.
+  # k <- tau2 + t(beta) %*% R %*% beta
+  # k <- tau2 + t(beta) %*% beta # assuming R = I
+  # beta <- t(W$total)
+  # tau2 <- phi$total
+  # k <- tau2 + t(beta) %*% beta # assuming R = I
+
+  # wtw <- W%*%t(W)
+  Cxx <- cov(t(X))
+  n <- ncol(X)  
+  k <- wtw + phi # assuming R = I
+
+  as.numeric(-(n/2)*(determinant(k, log = TRUE)$modulus + sum(diag(Cxx %*% solve( k )))))
+
+}
+
+
+
+
+
+Pcca.with.isotropic.margins <- function (X, Y, zDimension = 1, epsilon = 1e-6, delta = 1e6) {
 
   # epsilon and delta are convergence parameters
   # zDimension determines the dimensionality of the shared latent variable Z
