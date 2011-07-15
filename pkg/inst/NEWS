@@ -1,3 +1,8 @@
+CHANGES IN VERSION 0.8.05 (2011-07-15)
+
+  o optimize.parameters.R sometimes got stuck due to very mild
+  convergence criterion bug. Now corrected.
+
 CHANGES IN VERSION 0.8.04 (2011-07-11)
 
   o added pfa.log.likelihood

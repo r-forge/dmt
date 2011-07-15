@@ -33,7 +33,7 @@ optimize.parameters <- function (X, Y, zDim = 1, priors = NULL,
   Nsamples <- inits$Nsamples
 
   # FIXME: handle priors completely outside this function later!
-  
+
   if ( length(priors) == 0 ) { priors <- list() }
 
   ###  Wx ~ Wy prior inits  ###
@@ -88,11 +88,12 @@ optimize.parameters <- function (X, Y, zDim = 1, priors = NULL,
   # FIXME: remove par.change from function input
 
   par.changes <- rep(1e300, convergence.steps)
-  cnt2 <- 0
 
   if ( verbose ) { cat(paste("Starting iterations \n")) }
 
-  while (any(par.changes > epsilon) || any(par.changes < 0)) {
+  # Convergence ends when consecutive cost function changes are below
+  # the threshold and the last step reduces the cost
+  while (any(par.changes > epsilon) || (par.changes[[convergence.steps]] < 0)) {
 
     if ( verbose ) { cat(cost.new); cat("\n") }
 
@@ -294,9 +295,10 @@ optimize.parameters <- function (X, Y, zDim = 1, priors = NULL,
         stop("Provide proper (nonneg. real) value for priors$Nm.wxwy.sigma")
       }
     }
-    
-    cnt2 <- cnt2 + 1; if (cnt2 > convergence.steps) {cnt2 <- 1} 
-    par.changes[[cnt2]] <- (cost.old - cost.new)
+
+    # remove the first element, add the new cost change into end
+    # this way we keep track of the last congergence.steps iterations
+    par.changes <- c(par.changes, (cost.old - cost.new))[-1]
 
   }
 
