@@ -432,7 +432,10 @@ ppca.calculate <- function (X, zDimension) {
   list(W = W, phi = phi)
 }
 
-pfa <- function (X, Y = NULL, zDimension = NULL, includeData = TRUE, calculateZ = TRUE) {
+pfa <- function (X, Y = NULL,
+                 zDimension = NULL,
+                 includeData = TRUE,
+                 calculateZ = TRUE, priors = NULL) {
 
   # Probabilistic factorial analysis model as proposed in
   # EM Algorithms for ML Factoral Analysis, Rubin D. and 
@@ -445,40 +448,45 @@ pfa <- function (X, Y = NULL, zDimension = NULL, includeData = TRUE, calculateZ 
   Y <- dat$Y
   zDimension <- dat$zDimension
 
-  res <- calc.pfa(X, Y, zDimension)
+  res <- calc.pfa(X, Y, zDimension, priors)
 
   method <- "pFA"
   params <- list(marginalCovariances = "diagonal", zDimension = zDimension)
   score <- dependency.score( res )  
-  model <- new("DependencyModel", W = res$W, phi = res$phi, score = score, method = method, params = params)
+  model <- new("DependencyModel",
+               W = res$W, phi = res$phi,
+               score = score,
+               method = method,
+               params = params)
   if ( includeData ) model@data <- list(X = X, Y = Y)
   if ( calculateZ )  model@z <- z.expectation(model, X, Y)
   model
 
 }
 
-calc.pfa <- function (X, Y, zDimension) {
+calc.pfa <- function (X, Y, zDimension, priors = NULL) {
 
   # Y.rubin is Y in (Rubin & Thayer, 1982)
   # Variables on columns and samples on rows
+  # W corresponds to t(beta)
   if (is.null(Y)){
     Y.rubin <- t(X)
     # Factor loading matrix
-    beta <- t(eigen(cov(t(X)))$vectors[, 1:zDimension])
+    Wt <- t(eigen(cov(t(X)))$vectors[, 1:zDimension])
   } else {
     Y.rubin <- cbind(t(X), t(Y))
-    # Use different initialization for beta when data has inequal dimensionalities
+    # Use different initialization for Wt when data has inequal dimensionalities
     if (nrow(X) != nrow(Y)) {
-      beta <- t(eigen(cov(Y.rubin))$vectors[,1:zDimension])
+      Wt <- t(eigen(cov(Y.rubin))$vectors[,1:zDimension])
     } else {
       init <- initialize2(X, Y, zDimension, marginalCovariances = "diagonal")
       # Factor loading matrix
-      beta <- t(init$W$total[,1:zDimension])
+      Wt <- t(init$W$total[,1:zDimension])
     }
   }
   
   epsilon <- 1e-3
-  colnames(beta) <- colnames(Y.rubin)
+  colnames(Wt) <- colnames(Y.rubin)
   tau2 <- diag(ncol(Y.rubin))
 
   Cyy <- cov(Y.rubin)
@@ -486,57 +494,49 @@ calc.pfa <- function (X, Y, zDimension) {
   # EM
   while(delta > epsilon){
 
-    beta.old <- beta
+    Wt.old <- Wt
     tau2.old <- tau2
 
-    # E step
+    # E-step
     invtau2 <- solve(tau2)
-    tbb <- invtau2 - (invtau2%*%t(beta))%*%solve(diag(zDimension) + beta%*%invtau2%*%t(beta))%*%(beta%*%invtau2)
+    binv <- Wt%*%invtau2
+    tbb <- invtau2 - (invtau2%*%t(Wt))%*%solve(diag(zDimension) + binv%*%t(Wt))%*%(binv)
+    d <- tbb%*%t(Wt)
+    D <- diag(zDimension) - Wt%*%d
+    cyd   <- Cyy%*%d
+    
+    # M-step
+    # Update W
+    # FIXME: combine calc.pca, calc.pfa and calc.cca into one uniform model?
+    if (is.null(priors)) {
+      #message("Analytical optimization")      
+      Wt  <- solve(t(d)%*%cyd + D)%*%t(cyd) # WORKS    
+      # Also obtained with numerical optimization:
+      # Wt <- update.W.singledata(Wt, X, tau2)
+    } else if (!is.null(priors$W) && priors$W > 0) {
+      #message("Numerical optimization")
+      Wt <- update.W.singledata(Wt, X, tau2, priors)
+    }
+    
+    # Update margin/s 
+    tau2  <- diag(diag(Cyy - cyd%*%solve(t(d)%*%cyd + D)%*%t(cyd)))
+    # Check cost function convergence
+    delta <- max(sum(abs(tau2 - tau2.old)), sum(abs(Wt - Wt.old)))
 
-    d <- tbb%*%t(beta)
-    D <- diag(zDimension) - beta%*%d
-	
-    # M step
-    beta <- solve(t(d)%*%Cyy%*%d+D)%*%t(Cyy%*%d)
-    tau2 <- diag(diag(Cyy - Cyy%*%d%*%solve(t(d)%*%Cyy%*%d + D)%*%t(Cyy%*%d)))
-    delta <- max(sum(abs(tau2-tau2.old)),sum(abs(beta-beta.old)))
   }
 
   # Convert names as same in other methods
   if ( is.null(Y) ){
-      W <- list(total = t(beta))
+      W <- list(total = t(Wt))
     phi <- list(total = tau2)
   } else {
-      W <- list(X = as.matrix(t(beta)[(1:nrow(X)),]), Y = as.matrix(t(beta)[-(1:nrow(X)),]), total = t(beta))
+      W <- list(X = as.matrix(t(Wt)[(1:nrow(X)),]), Y = as.matrix(t(Wt)[-(1:nrow(X)),]), total = t(Wt))
     phi <- list(X = tau2[1:nrow(X),1:nrow(X)], Y = tau2[-(1:nrow(X)),-(1:nrow(X))], total = tau2)                
   }
   
   list(W = W, phi = phi)
 
 }
-
-
-pfa.log.likelihood <- function (X, wtw, phi) {
-
-  # X: features x samples
-
-  # X is Y in Rubin-Thayer 1982: this log-likelihood is from Eq. 1 in there
-  # R <- diag(1, zDimension) # R = I ie. exploratory factor analysis, see Rubin-Thayer Case 1.
-  # k <- tau2 + t(beta) %*% R %*% beta
-  # k <- tau2 + t(beta) %*% beta # assuming R = I
-  # beta <- t(W$total)
-  # tau2 <- phi$total
-  # k <- tau2 + t(beta) %*% beta # assuming R = I
-
-  # wtw <- W%*%t(W)
-  Cxx <- cov(t(X))
-  n <- ncol(X)  
-  k <- wtw + phi # assuming R = I
-
-  as.numeric(-(n/2)*(determinant(k, log = TRUE)$modulus + sum(diag(Cxx %*% solve( k )))))
-
-}
-
 
 
 

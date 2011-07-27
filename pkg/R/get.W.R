@@ -23,7 +23,6 @@ get.W <- function (vec, Dim) {
 }
 
 
-
 get.W.nonneg <- function (vec, Dim) {
 
   # (C) 2008-2011 Leo Lahti and Olli-Pekka Huovilainen          

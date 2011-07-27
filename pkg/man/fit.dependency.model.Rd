@@ -19,7 +19,7 @@ fit.dependency.model(X, Y, zDimension = 1, marginalCovariances = "full",
                      priors = list(), matched = TRUE,
                      includeData = TRUE, calculateZ = TRUE, verbose = FALSE)
 ppca(X, Y = NULL, zDimension = NULL, includeData = TRUE, calculateZ = TRUE)
-pfa(X, Y = NULL, zDimension = NULL, includeData = TRUE, calculateZ = TRUE)
+pfa(X, Y = NULL, zDimension = NULL, includeData = TRUE, calculateZ = TRUE, priors = NULL)
 pcca(X, Y, zDimension = NULL, includeData = TRUE, calculateZ = TRUE)
 %pcca.isotropic(X, Y, zDimension = NULL, matched = FALSE, epsilon = 1e-6, includeData = TRUE, calculateZ = TRUE)
 }

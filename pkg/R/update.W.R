@@ -7,6 +7,79 @@
 # - Sir Arthur Eddington, The Philosophy of Physical Science
 
 
+update.W.singledata <- function (Wt, X, phi, priors = NULL) {
+
+  # Optimize W for PFA and PPCA models
+  
+  # Use cost function to add priors on W
+  if (is.null(priors)) {
+    Wvec <- optim(as.vector(Wt), pfa.neg.log.likelihood, X = X, phi = phi, method = "SANN")$par # NelderMead and BFGS do not work as well 
+  } else if (!is.null(priors$W)) {
+    Wvec <- abs(optim(as.vector(Wt), pfa.cost.regularized, X = X, phi = phi, priors = priors, method = "SANN")$par) # NelderMead and BFGS do not work as well 
+    
+  }
+  
+  W <- matrix(Wvec, ncol = nrow(X))
+
+}
+
+
+pfa.cost.regularized <- function (Wvec, phi, X, priors) {
+
+  Wvec <- abs(Wvec)
+  
+  cost.data <- pfa.neg.log.likelihood(Wvec, phi, X) 
+
+  # -logP for W prior
+  # wcost <- sum((W$X)^2) * priors$W
+  # Assuming exponential prior distribution with rate parameter priors$W
+  #wcost <- 0 # no effect # FIXME: would be faster without this 'if' check  
+  #if ( !is.null(priors$W) && priors$W > 0 ) {
+  #wcost <- -sum(dexp(Wvec, rate = priors$W, log = TRUE))
+  wcost <- wprior.c(Wvec, priors$W)
+  #}
+  
+  cost.data + wcost
+
+    
+}
+
+wprior <- function (vec, rate) {
+  -sum(dexp(vec, rate = rate, log = TRUE))
+}
+wprior.c <- cmpfun(wprior)
+
+
+pfa.neg.log.likelihood <- function (Wvec, phi, X) {
+
+  # Cost function for W in the PFA model. 
+  # Also applicable for PPCA.
+  
+  W <- matrix(Wvec, ncol = nrow(X))
+
+  # X: features x samples; assuming that this is centered at origo
+
+  # X is Y in Rubin-Thayer 1982: this log-likelihood is from Eq. 1 in there
+  # R <- diag(1, zDimension) # R = I ie. exploratory factor analysis, see Rubin-Thayer Case 1.
+  # k <- tau2 + t(beta) %*% R %*% beta
+  # k <- tau2 + t(beta) %*% beta # assuming R = I
+  # beta <- t(W$total)
+  # tau2 <- phi$total
+  # k <- tau2 + t(beta) %*% beta # assuming R = I
+  # wtw <- W%*%t(W)
+  
+  # assuming R = I and adding small constant to avoid numerical overflows
+  k <- t(W)%*%W + phi + diag(1e-18, nrow(phi)) 
+  pfacost.c(ncol(X), k, X)
+
+}
+
+pfacost <- function (n, k, X) {
+  -as.numeric(-(n/2)*(determinant(k, log = TRUE)$modulus + sum(diag(cov(t(X)) %*% solve( k )))))
+}
+pfacost.c <- cmpfun(pfacost)
+
+
 cost.W <- function (vec, phi, priors, Dim, Dcov) {
 
   # (C) 2008-2011 Leo Lahti and Olli-Pekka Huovilainen          
