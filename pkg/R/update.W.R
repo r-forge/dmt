@@ -40,7 +40,6 @@ pfa.cost.regularized <- function (Wvec, phi, X, priors) {
   #}
   
   cost.data + wcost
-
     
 }
 
