@@ -56,3 +56,6 @@ for (marginalCovariances in c("isotropic", "diagonal", "identical isotropic", "f
 
 print(cors.list)
 
+#pdf("pic/depmod.simcca.pdf")
+#plot(as.vector(covX.estimated), as.vector(covX.true)); abline(0,1)
+#dev.off()

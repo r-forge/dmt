@@ -81,8 +81,10 @@ cors.list[["one data set"]] <- cors
 #################################################################
 
 # TODO:
-# regularization missing -> give option to set priors also for pfa function
 # tests with higher noise levels (now quite moderate)
-
 # Latent variables
 # Z <- z.expectation(res, X, Y)
+
+pdf("pic/pfa.pdf")
+plot(as.vector(covX.estimated), as.vector(covX.true)); abline(0,1)
+dev.off()

@@ -89,3 +89,7 @@ cors.list[["one data set"]] <- cors
 
 # Latent variables
 # Z <- z.expectation(res, X, Y)
+
+pdf("pic/ppca.pdf")
+plot(as.vector(covX.estimated), as.vector(covX.true)); abline(0,1)
+dev.off()

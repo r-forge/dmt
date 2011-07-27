@@ -41,11 +41,18 @@ source("write.output.R")
 
 write("=====================", file = outfile, append = TRUE)
 
+write("pFA; non-negative W", file = outfile, append = TRUE)
+source("tests/pfa.nnW.R")
+source("write.output.R")
+
+write("=====================", file = outfile, append = TRUE)
+
 write("pPCA", file = outfile, append = TRUE)
 source("tests/ppca.R")
 source("write.output.R")
 
-
 write("\n----------------------\n", file = outfile, append = TRUE)  
-write(sessionInfo(), file = outfile, append = TRUE)        
-     
+
+session.info <- sessionInfo()
+save(session.info, file = "sessioninfo.RData")        
+

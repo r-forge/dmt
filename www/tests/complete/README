@@ -28,6 +28,11 @@ tests/psimcca.nnW.R # prob. SimCCA (Wx = Wy) with non-negative W
 
 tests/drcca.R  # drCCA functions
 
+OK regularization: yes -> W >=0 (alpha/beta?)
+OK regularization: no
+OK matched: yes
+OK matched: no
+
 ==============================================
 
 TODO TESTS
@@ -41,10 +46,7 @@ TODO TESTS
 
 TODO FEATURES
 
-- Sparsity regularization for W and/or z (Gaussian / elastic net / )
+- Sparsity regularization for W and/or z (Gaussian / elastic net / IBP / ...)
 - T priors when dx != dy
 - Wy fixed, only optimize Wx (regression-type models)
-
-
-
 
