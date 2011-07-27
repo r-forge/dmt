@@ -64,3 +64,6 @@ zDimension <- min(nrow(toy$X), nrow(toy$Y))
 res1 <- fit.dependency.model(toy$X, toy$Y, zDimension, marginalCovariances = "full", matched = FALSE)
 res2 <- pcca(toy$X, toy$Y, zDimension)
 
+pdf("pic/pcca.pdf")
+plot(as.vector(covX.estimated), as.vector(covX.true)); abline(0,1)
+dev.off()
