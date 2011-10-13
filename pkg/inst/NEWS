@@ -1,3 +1,9 @@
+CHANGES IN VERSION 0.8.07 (2011-10-14)
+
+  o removed compiler and methods from dependencies
+  o packageStartupMessage in firstlib.R
+
+
 CHANGES IN VERSION 0.8.06 (2011-07-27)
 
   o added compiler package to dependencies

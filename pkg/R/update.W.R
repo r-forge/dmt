@@ -36,7 +36,8 @@ pfa.cost.regularized <- function (Wvec, phi, X, priors) {
   #wcost <- 0 # no effect # FIXME: would be faster without this 'if' check  
   #if ( !is.null(priors$W) && priors$W > 0 ) {
   #wcost <- -sum(dexp(Wvec, rate = priors$W, log = TRUE))
-  wcost <- wprior.c(Wvec, priors$W)
+  #wcost <- wprior.c(Wvec, priors$W)
+  wcost <- wprior(Wvec, priors$W)
   #}
   
   cost.data + wcost
@@ -46,7 +47,7 @@ pfa.cost.regularized <- function (Wvec, phi, X, priors) {
 wprior <- function (vec, rate) {
   -sum(dexp(vec, rate = rate, log = TRUE))
 }
-wprior.c <- cmpfun(wprior)
+#wprior.c <- cmpfun(wprior)
 
 
 pfa.neg.log.likelihood <- function (Wvec, phi, X) {
@@ -69,14 +70,15 @@ pfa.neg.log.likelihood <- function (Wvec, phi, X) {
   
   # assuming R = I and adding small constant to avoid numerical overflows
   k <- t(W)%*%W + phi + diag(1e-18, nrow(phi)) 
-  pfacost.c(ncol(X), k, X)
+  pfacost(ncol(X), k, X)
+  #pfacost.c(ncol(X), k, X)
 
 }
 
 pfacost <- function (n, k, X) {
   -as.numeric(-(n/2)*(determinant(k, log = TRUE)$modulus + sum(diag(cov(t(X)) %*% solve( k )))))
 }
-pfacost.c <- cmpfun(pfacost)
+#pfacost.c <- cmpfun(pfacost)
 
 
 cost.W <- function (vec, phi, priors, Dim, Dcov) {
