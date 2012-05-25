@@ -1,4 +1,4 @@
-# (C) 2008-2011 Leo Lahti and Olli-Pekka Huovilainen          
+# (C) 2008-2012 Leo Lahti and Olli-Pekka Huovilainen          
 # All rights reserved. 
 # FreeBSD License (keep this notice)     
 
@@ -76,9 +76,9 @@ pfa.neg.log.likelihood <- function (Wvec, phi, X) {
 }
 
 pfacost <- function (n, k, X) {
-  -as.numeric(-(n/2)*(determinant(k, log = TRUE)$modulus + sum(diag(cov(t(X)) %*% solve( k )))))
+  -as.numeric(-(n/2)*(determinant(k, logarithm = TRUE)$modulus + sum(diag(cov(t(X)) %*% solve( k )))))
 }
-#pfacost.c <- cmpfun(pfacost)
+
 
 
 cost.W <- function (vec, phi, priors, Dim, Dcov) {

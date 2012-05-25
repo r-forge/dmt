@@ -1,3 +1,9 @@
+CHANGES IN VERSION 0.8.08 (2012-05-24)
+
+BUG FIXES
+
+  o changed argument log -> logarithm in determinant function
+
 CHANGES IN VERSION 0.8.07 (2011-10-14)
 
   o removed compiler and methods from dependencies
