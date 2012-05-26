@@ -471,7 +471,7 @@ pfa <- function (X, Y = NULL,
   if ( includeData ) model@data <- list(X = X, Y = Y)
 
   if ( calculateZ ) {
-    if (length(model@phi$total) == 0) {
+    if (nrow(X) == 1 && (nrow(Y) == 1 || is.null(Y)) ) {
       model@z <- X
     } else {
       model@z <- z.expectation(model, X, Y)
