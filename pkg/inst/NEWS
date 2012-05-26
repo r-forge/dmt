@@ -1,3 +1,7 @@
+CHANGES IN VERSION 0.8.09 (2012-05-25)
+
+  o added treatment of one-dimensional data in pfa
+
 CHANGES IN VERSION 0.8.08 (2012-05-24)
 
 BUG FIXES

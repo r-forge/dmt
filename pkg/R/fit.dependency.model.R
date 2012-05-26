@@ -447,19 +447,37 @@ pfa <- function (X, Y = NULL,
   X <- dat$X
   Y <- dat$Y
   zDimension <- dat$zDimension
-
-  res <- calc.pfa(X, Y, zDimension, priors)
-
   method <- "pFA"
   params <- list(marginalCovariances = "diagonal", zDimension = zDimension)
-  score <- dependency.score( res )  
+
+  if (nrow(X) == 1 && (nrow(Y) == 1 || is.null(Y)) ) {
+
+    score <- Inf
+    res <- list(W = dat, phi = list(X = 0, Y = 0))
+    if (is.null(Y)) {res$phi$Y <- res$phi$X <- NULL; res$phi$total <- 0}    
+
+  } else {
+
+    res <- calc.pfa(X, Y, zDimension, priors)
+    score <- dependency.score( res )  
+
+  }
+
   model <- new("DependencyModel",
                W = res$W, phi = res$phi,
                score = score,
                method = method,
                params = params)
   if ( includeData ) model@data <- list(X = X, Y = Y)
-  if ( calculateZ )  model@z <- z.expectation(model, X, Y)
+
+  if ( calculateZ ) {
+    if (length(model@phi$total) == 0) {
+      model@z <- X
+    } else {
+      model@z <- z.expectation(model, X, Y)
+    }
+  }
+
   model
 
 }
