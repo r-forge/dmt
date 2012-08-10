@@ -1,5 +1,5 @@
 
-# (C) 2008-2011 Leo Lahti and Olli-Pekka Huovilainen          
+# (C) 2008-2012 Leo Lahti and Olli-Pekka Huovilainen          
 # All rights reserved. 
 # FreeBSD License (keep this notice)     
 
@@ -33,8 +33,6 @@ centerData <- function (X, rm.na = TRUE, meanvalue = NULL) {
     X2 <- X2 + meanvalue
   }
 
-
-  
   X2
 }
 

@@ -5,6 +5,7 @@ export(
 # fixed.window2,
 centerData,
 compare.estimate.and.truth,
+dependency.score,
 fit.dependency.model,
 generate.toydata,
 ppca,

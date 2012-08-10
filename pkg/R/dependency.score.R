@@ -1,4 +1,4 @@
-# (C) 2008-2011 Leo Lahti and Olli-Pekka Huovilainen          
+# (C) 2008-2012 Leo Lahti and Olli-Pekka Huovilainen          
 # All rights reserved. 
 # FreeBSD License (keep this notice)     
 
@@ -8,9 +8,10 @@
 #  - Sir William Bragg 
 
 
+
 dependency.score <- function ( model ) {
 
-  # (C) 2008-2011 Leo Lahti and Olli-Pekka Huovilainen          
+  # (C) 2008-2012 Leo Lahti and Olli-Pekka Huovilainen          
   # All rights reserved. 
   # FreeBSD License (keep this notice)     
 

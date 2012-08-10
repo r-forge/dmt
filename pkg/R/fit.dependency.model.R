@@ -250,7 +250,7 @@ fit.dependency.model <- function (X, Y,
 
 pcca <- function (X, Y, zDimension = NULL, includeData = TRUE, calculateZ = TRUE) {
 
-  # (C) 2008-2011 Olli-Pekka Huovilainen and Leo Lahti
+  # (C) 2008-2012 Olli-Pekka Huovilainen and Leo Lahti
   # License: FreeBSD (keep this notice)
 
   # replaces: solve.CCA.full

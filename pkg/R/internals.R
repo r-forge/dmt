@@ -6,7 +6,7 @@
 
 check.data <- function (X, Y, zDimension = NULL) {
 
-  # (C) Leo Lahti 2010-2011
+  # (C) Leo Lahti 2010-2012
   # FreeBSD license (keep this notice).
 
   if (is.null(zDimension)) { 
